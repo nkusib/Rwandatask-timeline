@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Task Timeline Board</title>
+  <title>TaskTimeline Pro — Free Plan | Visual Gantt Chart Tool</title>
+  <meta name="description" content="Free visual Gantt chart tool. Add tasks, assign owners, track progress, and share with a link. No signup required."/>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- React 18 UMD builds -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -35,6 +36,8 @@
       return dateOnly(dt);
     }
 
+    const FREE_TASK_LIMIT = 10;
+    const UPGRADE_URL = "https://nkusib.github.io/rwandatask-timeline/#pricing";
     const STATUSES = ["Planned","In Progress","Blocked","Done"];
 
     const sampleTasks = [
@@ -96,6 +99,7 @@
       const [form, setForm] = useState({ id: null, title: "", owner: "", start: "", end: "", status: "Planned", notes: "" });
       const [showForm, setShowForm] = useState(false);
       const [copied, setCopied] = useState(false);
+      const [showUpgrade, setShowUpgrade] = useState(false);
 
       useEffect(() => {
         localStorage.setItem("ttb.tasks", JSON.stringify(tasks));
@@ -142,7 +146,10 @@
       function resetForm() {
         setForm({ id: null, title: "", owner: "", start: "", end: "", status: "Planned", notes: "" });
       }
-      function openCreate() { resetForm(); setShowForm(true); }
+      function openCreate() {
+        if (tasks.length >= FREE_TASK_LIMIT) { setShowUpgrade(true); return; }
+        resetForm(); setShowForm(true);
+      }
       function openEdit(task) { setForm(task); setShowForm(true); }
       function saveTask(e) {
         e.preventDefault();
@@ -192,15 +199,34 @@
 
       return React.createElement(
         "div", { className: "min-h-screen bg-gray-50 text-gray-900" },
+
+        // Upgrade modal
+        showUpgrade && React.createElement("div", { className: "fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50", onClick: () => setShowUpgrade(false) },
+          React.createElement("div", { className: "w-full max-w-md bg-white rounded-2xl shadow-xl p-6 text-center", onClick: e => e.stopPropagation() },
+            React.createElement("div", { className: "w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl mx-auto mb-4" }, "🚀"),
+            React.createElement("h2", { className: "text-xl font-bold mb-2" }, "You've reached the free plan limit"),
+            React.createElement("p", { className: "text-gray-500 text-sm mb-6" }, "You have ", FREE_TASK_LIMIT, " tasks — the maximum on the free plan. Upgrade to Pro for unlimited tasks, unlimited projects, CSV/PDF export, and more."),
+            React.createElement("a", { href: UPGRADE_URL, className: "block w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-purple-600 text-white font-bold text-sm hover:opacity-90 mb-3" }, "Upgrade to Pro — $19/month →"),
+            React.createElement("button", { onClick: () => setShowUpgrade(false), className: "text-sm text-gray-400 hover:text-gray-600" }, "Maybe later")
+          )
+        ),
+
+        // Free plan banner
+        React.createElement("div", { className: "bg-gradient-to-r from-sky-500 to-purple-600 text-white text-center py-2 px-4 text-xs font-medium flex items-center justify-center gap-3" },
+          React.createElement("span", null, `Free Plan: ${tasks.length} / ${FREE_TASK_LIMIT} tasks used.`),
+          React.createElement("a", { href: UPGRADE_URL, className: "underline font-bold" }, "Upgrade to Pro for unlimited →")
+        ),
+
         React.createElement("header", { className: "sticky top-0 z-10 bg-white/80 backdrop-blur border-b" },
           React.createElement("div", { className: "max-w-6xl mx-auto px-4 py-3 flex items-center gap-3" },
-            React.createElement("div", { className: "w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center font-bold" }, "T"),
+            React.createElement("a", { href: UPGRADE_URL, className: "w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0" }, "T"),
             React.createElement("div", null,
-              React.createElement("h1", { className: "text-xl font-semibold leading-tight" }, "Task Timeline Board"),
-              React.createElement("p", { className: "text-xs text-gray-500" }, "Plan tasks, assign owners, and visualize timelines. Share as a link.")
+              React.createElement("h1", { className: "text-xl font-semibold leading-tight" }, "TaskTimeline Pro"),
+              React.createElement("p", { className: "text-xs text-gray-500" }, "Free Gantt timeline — plan tasks, assign owners, share with a link.")
             ),
             React.createElement("div", { className: "ml-auto flex items-center gap-2" },
-              React.createElement("button", { onClick: openCreate, className: "px-3 py-2 rounded-xl bg-gray-900 text-white text-sm hover:bg-gray-800 shadow" }, "+ New Task"),
+              React.createElement("a", { href: UPGRADE_URL, className: "px-3 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-purple-600 hover:opacity-90 shadow" }, "⬆ Upgrade to Pro"),
+              React.createElement("button", { onClick: openCreate, className: "px-3 py-2 rounded-xl bg-gray-900 text-white text-sm hover:bg-gray-800 shadow" }, tasks.length >= FREE_TASK_LIMIT ? "Task limit reached" : "+ New Task"),
               React.createElement("button", { onClick: exportJSON, className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50" }, "Export JSON"),
               React.createElement("label", { className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50 cursor-pointer" },
                 "Import JSON",
@@ -311,11 +337,19 @@
           React.createElement("div", { className: "mt-6 text-sm text-gray-600 bg-white border rounded-2xl p-4" },
             React.createElement("div", { className: "font-semibold mb-1" }, "Tips"),
             React.createElement("ul", { className: "list-disc ml-5 space-y-1" },
-              React.createElement("li", null, "Use ", React.createElement("span", { className: "font-medium" }, "Copy Share Link"), " to generate a link that embeds your tasks (no server needed)."),
-              React.createElement("li", null, "Assign owners and set dates; the colored bars reflect status."),
-              React.createElement("li", null, "Import/Export JSON to collaborate offline or move data between browsers."),
+              React.createElement("li", null, "Use ", React.createElement("span", { className: "font-medium" }, "Copy Share Link"), " to generate a shareable URL with your tasks encoded — no server needed."),
+              React.createElement("li", null, "Assign owners and set dates; colored bars reflect each task's status."),
+              React.createElement("li", null, "Import/Export JSON to collaborate offline or back up your data."),
               React.createElement("li", null, "Filter by owner or status to focus the timeline.")
             )
+          ),
+          // Upgrade CTA
+          React.createElement("div", { className: "mt-4 rounded-2xl border-2 border-blue-100 bg-gradient-to-r from-sky-50 to-purple-50 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" },
+            React.createElement("div", { className: "flex-1" },
+              React.createElement("div", { className: "font-bold text-gray-900 mb-1" }, "Want unlimited projects & tasks?"),
+              React.createElement("p", { className: "text-xs text-gray-500" }, "Pro plan unlocks unlimited projects, unlimited tasks, CSV/PDF export, team collaboration, and priority support. Flat $19/month — not per seat.")
+            ),
+            React.createElement("a", { href: UPGRADE_URL, className: "shrink-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-purple-600 text-white font-bold text-sm hover:opacity-90" }, "Start free trial →")
           )
         )
       );
