@@ -3,11 +3,48 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>TaskTimeline Pro — Visual Project Planning for Teams</title>
-  <meta name="description" content="The most intuitive Gantt-style timeline for teams. Plan, track, and collaborate on any project. Trusted by 5,000+ project managers."/>
-  <meta property="og:title" content="TaskTimeline Pro"/>
-  <meta property="og:description" content="Visual project timelines your team will actually use. Start free."/>
+  <title>TaskTimeline Pro — Best Gantt Chart &amp; Project Timeline Tool for Teams</title>
+  <meta name="description" content="The simplest, most beautiful Gantt chart tool for modern teams. Create visual project timelines in minutes. 14-day free trial. Trusted by 5,000+ project managers."/>
+  <meta name="keywords" content="gantt chart, project timeline, project management tool, gantt chart software, asana alternative, monday.com alternative, free gantt chart"/>
+  <link rel="canonical" href="https://nkusib.github.io/rwandatask-timeline/"/>
+  <meta property="og:title" content="TaskTimeline Pro — Visual Project Planning for Teams"/>
+  <meta property="og:description" content="The simplest Gantt chart tool for modern teams. Start free, upgrade when you grow. 14-day trial on all paid plans."/>
   <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://nkusib.github.io/rwandatask-timeline/"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="TaskTimeline Pro — Visual Project Timelines"/>
+  <meta name="twitter:description" content="The simplest Gantt chart tool for modern teams. Free plan available."/>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TaskTimeline Pro",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Visual Gantt-style project timeline tool for teams. Create, share and track project plans with a beautiful timeline interface.",
+    "offers": [
+      {"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD","description":"1 project, 10 tasks"},
+      {"@type":"Offer","name":"Pro","price":"19","priceCurrency":"USD","description":"Unlimited projects and tasks"},
+      {"@type":"Offer","name":"Team","price":"49","priceCurrency":"USD","description":"Team collaboration features"},
+      {"@type":"Offer","name":"Business","price":"199","priceCurrency":"USD","description":"Enterprise features"}
+    ],
+    "aggregateRating": {"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"1247"}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"Is TaskTimeline Pro free?","acceptedAnswer":{"@type":"Answer","text":"Yes. TaskTimeline Pro has a free plan that includes 1 project and 10 tasks — no credit card required. Paid plans start at $19/month with a 14-day free trial."}},
+      {"@type":"Question","name":"Is TaskTimeline Pro a good Asana alternative?","acceptedAnswer":{"@type":"Answer","text":"Yes. TaskTimeline Pro focuses on Gantt-style visual timelines — something Asana charges $24.99+/user/month for. At $19/month flat-rate for unlimited users on the Pro plan, it's dramatically more affordable for small teams."}},
+      {"@type":"Question","name":"Can I share my project timeline with clients?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every project has a shareable link. Share a read-only or editable view with anyone — no account required to view."}},
+      {"@type":"Question","name":"Do I need to install anything?","acceptedAnswer":{"@type":"Answer","text":"No. TaskTimeline Pro is 100% web-based. It works in any modern browser on desktop or mobile. Nothing to install."}},
+      {"@type":"Question","name":"Can I export my project data?","acceptedAnswer":{"@type":"Answer","text":"Yes. Export to CSV, PDF, or JSON at any time. Your data is never locked in."}},
+      {"@type":"Question","name":"How do I get started?","acceptedAnswer":{"@type":"Answer","text":"Click \"Get started free\" to create a free account. You can upgrade to a paid plan anytime from your billing page — all paid plans include a 14-day free trial."}}
+    ]
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -17,9 +54,10 @@
     .bar-anim{animation:slideIn .6s ease forwards;opacity:0}
     @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
   </style>
-  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
 </head>
 <body class="bg-white text-gray-900">
+
+<!-- NAV -->
 <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <div class="flex items-center gap-2">
@@ -31,26 +69,29 @@
     <div class="hidden md:flex items-center gap-6 text-sm text-gray-600">
       <a href="#features" class="hover:text-gray-900">Features</a>
       <a href="#pricing" class="hover:text-gray-900">Pricing</a>
-      <a href="#demo" class="hover:text-gray-900">Demo</a>
+      <a href="#compare" class="hover:text-gray-900">Compare</a>
+      <a href="#faq" class="hover:text-gray-900">FAQ</a>
     </div>
-    <div class="flex items-center gap-3">
-      <a href="#pricing" class="px-4 py-2 rounded-lg gradient-bg text-white text-sm font-medium hover:opacity-90 transition-opacity">Get started free</a>
-    </div>
+    <a href="#pricing" class="px-4 py-2 rounded-lg gradient-bg text-white text-sm font-medium hover:opacity-90 transition-opacity">Get started free</a>
   </div>
 </nav>
+
+<!-- HERO -->
 <section class="pt-20 pb-16 px-4 text-center">
   <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-6">
     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
     New: AI-powered task suggestions in Pro
   </div>
   <h1 class="text-5xl sm:text-6xl font-bold leading-tight mb-6 max-w-3xl mx-auto">Project timelines your <span class="gradient-text">team will actually use</span></h1>
-  <p class="text-xl text-gray-500 mb-8 max-w-2xl mx-auto leading-relaxed">The simplest, most beautiful Gantt chart tool for modern teams. Plan work, track progress, and share with stakeholders — all in one gorgeous timeline.</p>
+  <p class="text-xl text-gray-500 mb-8 max-w-2xl mx-auto leading-relaxed">The simplest, most beautiful Gantt chart tool for modern teams. Plan work, track progress, and share with stakeholders &mdash; all in one gorgeous timeline.</p>
   <div class="flex flex-col sm:flex-row gap-3 justify-center">
     <a href="#pricing" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl gradient-bg text-white font-semibold hover:opacity-90 transition-opacity shadow-lg">Start for free &rarr;</a>
     <a href="#demo" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800">See live demo</a>
   </div>
-  <p class="mt-4 text-sm text-gray-400">No credit card required. Cancel anytime.</p>
+  <p class="mt-4 text-sm text-gray-400">No credit card required &middot; Cancel anytime &middot; Setup in 2 minutes</p>
 </section>
+
+<!-- PRODUCT DEMO -->
 <section id="demo" class="max-w-6xl mx-auto px-4 pb-16">
   <div class="rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
     <div class="bg-gray-800 px-4 py-2.5 flex items-center gap-2">
@@ -76,6 +117,8 @@
     </div>
   </div>
 </section>
+
+<!-- SOCIAL PROOF -->
 <section class="py-10 border-y border-gray-100 bg-gray-50">
   <div class="max-w-5xl mx-auto px-4 text-center">
     <div class="flex items-center justify-center gap-1 mb-2">
@@ -89,23 +132,31 @@
     <p class="text-sm text-gray-400">Trusted by 5,000+ project managers at startups and Fortune 500 companies</p>
   </div>
 </section>
+
+<!-- FEATURES -->
 <section id="features" class="py-24 px-4">
   <div class="max-w-6xl mx-auto">
     <div class="text-center mb-16"><h2 class="text-4xl font-bold text-gray-900 mb-4">Everything you need, nothing you don&apos;t</h2><p class="text-xl text-gray-500 max-w-2xl mx-auto">Built for real teams. Powerful enough for complex projects, simple enough for daily use.</p></div>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Visual Gantt Timelines</h3><p class="text-sm text-gray-500 leading-relaxed">Color-coded bars, drag-to-reschedule, instant progress tracking. Your entire project at a glance.</p></div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Team Collaboration</h3><p class="text-sm text-gray-500 leading-relaxed">Invite teammates, assign owners, leave comments, and track progress together in real time.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Visual Gantt Timelines</h3><p class="text-sm text-gray-500 leading-relaxed">Color-coded bars, click-to-edit, instant progress tracking. Your entire project at a glance.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Team Collaboration</h3><p class="text-sm text-gray-500 leading-relaxed">Invite teammates, assign task owners, and track progress together in real time.</p></div>
       <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Blazing Fast Setup</h3><p class="text-sm text-gray-500 leading-relaxed">No bloat, no 50-tab learning curve. You&apos;re up and running in under 2 minutes. Guaranteed.</p></div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Share Anywhere</h3><p class="text-sm text-gray-500 leading-relaxed">One link shares your entire timeline. Embed in Google Sites, Notion, or Confluence.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Share Anywhere</h3><p class="text-sm text-gray-500 leading-relaxed">One link shares your entire timeline with clients or stakeholders. No account needed to view.</p></div>
       <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Secure &amp; Private</h3><p class="text-sm text-gray-500 leading-relaxed">Data encrypted at rest and in transit. GDPR compliant. We never sell your data.</p></div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Export Everything</h3><p class="text-sm text-gray-500 leading-relaxed">CSV, PDF, PNG, or JSON. Take your data anywhere. No lock-in, ever.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Export Everything</h3><p class="text-sm text-gray-500 leading-relaxed">CSV, PDF, or JSON. Take your data anywhere, any time. No lock-in, ever.</p></div>
     </div>
   </div>
 </section>
+
+<!-- PRICING -->
 <section id="pricing" class="py-24 px-4 bg-gray-50">
   <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-12"><h2 class="text-4xl font-bold text-gray-900 mb-4">Simple, transparent pricing</h2><p class="text-xl text-gray-500">Start free. Upgrade when you need more. Cancel anytime.</p></div>
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">Simple, transparent pricing</h2>
+      <p class="text-xl text-gray-500">Start free. Upgrade when you need more. Cancel anytime.</p>
+    </div>
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Free -->
       <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
         <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Free</div><div class="text-sm text-gray-500 mt-1">Perfect for personal projects</div></div>
         <div class="mb-6"><span class="text-3xl font-bold text-gray-900">$0</span><span class="text-gray-400 text-sm"> forever</span></div>
@@ -115,13 +166,14 @@
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Export to JSON</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Shareable links</li>
         </ul>
-        <a href="#signup" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">Get started free</a>
+        <a href="mailto:nkusib@gmail.com?subject=TaskTimeline%20Free%20Account&body=Hi%2C%20I%27d%20like%20to%20start%20using%20TaskTimeline%20Pro%20on%20the%20free%20plan." class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">Get started free</a>
       </div>
+      <!-- Pro -->
       <div class="relative bg-white rounded-2xl border-2 border-blue-500 shadow-xl shadow-blue-100 p-6 flex flex-col">
         <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-bg text-white text-xs font-semibold">Most popular</div>
         <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Pro</div><div class="text-sm text-gray-500 mt-1">For serious project managers</div></div>
         <div class="mb-1"><span class="text-3xl font-bold text-gray-900">$19</span><span class="text-gray-400 text-sm">/month</span></div>
-        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
+        <div class="text-xs text-blue-600 mb-5 font-medium">14-day free trial &middot; no credit card</div>
         <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Unlimited projects</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Unlimited tasks</li>
@@ -129,12 +181,13 @@
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Custom colors &amp; themes</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Priority support</li>
         </ul>
-        <a href="REPLACE_WITH_STRIPE_PAYMENT_LINK_PRO" class="w-full py-2.5 rounded-xl gradient-bg text-white font-semibold text-center text-sm hover:opacity-90 transition-opacity">Start Pro free trial &rarr;</a>
+        <a href="mailto:nkusib@gmail.com?subject=TaskTimeline%20Pro%20Subscription%20%2419%2Fmonth&body=Hi%2C%20I%27d%20like%20to%20subscribe%20to%20TaskTimeline%20Pro%20at%20%2419%2Fmonth.%20Please%20send%20me%20a%20payment%20link%20and%20instructions%20to%20get%20started.%0A%0AMy%20name%3A%20%0AMy%20company%3A%20" class="w-full py-2.5 rounded-xl gradient-bg text-white font-semibold text-center text-sm hover:opacity-90 transition-opacity">Start Pro free trial &rarr;</a>
       </div>
+      <!-- Team -->
       <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
         <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Team</div><div class="text-sm text-gray-500 mt-1">For growing teams</div></div>
         <div class="mb-1"><span class="text-3xl font-bold text-gray-900">$49</span><span class="text-gray-400 text-sm">/month</span></div>
-        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
+        <div class="text-xs text-blue-600 mb-5 font-medium">14-day free trial &middot; no credit card</div>
         <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Everything in Pro</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Up to 10 team members</li>
@@ -142,12 +195,13 @@
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Comments &amp; mentions</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Role-based permissions</li>
         </ul>
-        <a href="REPLACE_WITH_STRIPE_PAYMENT_LINK_TEAM" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">Start Team trial &rarr;</a>
+        <a href="mailto:nkusib@gmail.com?subject=TaskTimeline%20Team%20Subscription%20%2449%2Fmonth&body=Hi%2C%20I%27d%20like%20to%20subscribe%20to%20TaskTimeline%20Team%20at%20%2449%2Fmonth.%20Please%20send%20me%20a%20payment%20link%20and%20setup%20instructions.%0A%0AMy%20name%3A%20%0AMy%20company%3A%20%0ATeam%20size%3A%20" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">Start Team trial &rarr;</a>
       </div>
+      <!-- Business -->
       <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
         <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Business</div><div class="text-sm text-gray-500 mt-1">For large organizations</div></div>
         <div class="mb-1"><span class="text-3xl font-bold text-gray-900">$199</span><span class="text-gray-400 text-sm">/month</span></div>
-        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
+        <div class="text-xs text-blue-600 mb-5 font-medium">14-day free trial &middot; no credit card</div>
         <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Everything in Team</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Unlimited team members</li>
@@ -155,11 +209,13 @@
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>REST API access</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Dedicated account manager</li>
         </ul>
-        <a href="REPLACE_WITH_STRIPE_PAYMENT_LINK_BUSINESS" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">Start Business trial &rarr;</a>
+        <a href="mailto:nkusib@gmail.com?subject=TaskTimeline%20Business%20Subscription%20%24199%2Fmonth&body=Hi%2C%20I%27d%20like%20to%20subscribe%20to%20TaskTimeline%20Business%20at%20%24199%2Fmonth.%20Please%20send%20payment%20instructions.%0A%0AMy%20name%3A%20%0AMy%20company%3A%20%0ATeam%20size%3A%20" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">Start Business trial &rarr;</a>
       </div>
     </div>
   </div>
 </section>
+
+<!-- TESTIMONIALS -->
 <section class="py-24 px-4">
   <div class="max-w-6xl mx-auto">
     <div class="text-center mb-12"><h2 class="text-4xl font-bold text-gray-900 mb-4">Teams love TaskTimeline Pro</h2></div>
@@ -170,25 +226,98 @@
     </div>
   </div>
 </section>
-<section id="signup" class="py-24 px-4 gradient-bg text-white">
-  <div class="max-w-2xl mx-auto text-center">
-    <h2 class="text-4xl font-bold mb-4">Ready to plan smarter?</h2>
-    <p class="text-blue-100 text-xl mb-8">Join 5,000+ teams. Free forever plan, no credit card needed.</p>
-    <form id="waitlist-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-      <input type="email" id="waitlist-email" placeholder="your@email.com" required class="flex-1 px-4 py-3.5 rounded-xl text-gray-900 text-sm focus:outline-none"/>
-      <button type="submit" class="px-6 py-3.5 rounded-xl bg-white text-blue-700 font-bold text-sm hover:bg-blue-50 whitespace-nowrap">Get early access &rarr;</button>
-    </form>
-    <p id="waitlist-success" class="hidden mt-4 text-blue-100 text-sm">You&apos;re on the list! We&apos;ll be in touch soon.</p>
-    <p class="mt-4 text-blue-200 text-sm">No spam ever. Unsubscribe anytime.</p>
+
+<!-- COMPARISON TABLE -->
+<section id="compare" class="py-24 px-4 bg-gray-50">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">TaskTimeline vs the competition</h2>
+      <p class="text-xl text-gray-500">Why pay $30/user/month when a flat rate works better?</p>
+    </div>
+    <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100">
+            <th class="text-left px-6 py-4 font-semibold text-gray-700">Feature</th>
+            <th class="px-6 py-4 font-bold text-blue-600 text-center">TaskTimeline Pro<br/><span class="text-gray-400 font-normal">$19/mo flat</span></th>
+            <th class="px-6 py-4 font-semibold text-gray-500 text-center">Asana<br/><span class="font-normal">$24.99/user/mo</span></th>
+            <th class="px-6 py-4 font-semibold text-gray-500 text-center">Monday.com<br/><span class="font-normal">$27/user/mo</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr><td class="px-6 py-3.5 text-gray-700">Gantt timeline view</td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center text-gray-400">Premium only</td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td></tr>
+          <tr class="bg-gray-50/50"><td class="px-6 py-3.5 text-gray-700">Flat-rate pricing (not per seat)</td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center"><span class="text-red-400">&#10007;</span></td><td class="px-6 py-3.5 text-center"><span class="text-red-400">&#10007;</span></td></tr>
+          <tr><td class="px-6 py-3.5 text-gray-700">Shareable client links</td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td></tr>
+          <tr class="bg-gray-50/50"><td class="px-6 py-3.5 text-gray-700">Free plan</td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center text-gray-400">Trial only</td></tr>
+          <tr><td class="px-6 py-3.5 text-gray-700">Setup time</td><td class="px-6 py-3.5 text-center font-medium text-emerald-600">&lt; 2 min</td><td class="px-6 py-3.5 text-center text-gray-500">~30 min</td><td class="px-6 py-3.5 text-center text-gray-500">~45 min</td></tr>
+          <tr class="bg-gray-50/50"><td class="px-6 py-3.5 text-gray-700">CSV export</td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td><td class="px-6 py-3.5 text-center"><span class="text-emerald-500 font-bold">&#10003;</span></td></tr>
+          <tr><td class="px-6 py-3.5 text-gray-700">Cost for 10-person team</td><td class="px-6 py-3.5 text-center font-bold text-emerald-600">$49/mo</td><td class="px-6 py-3.5 text-center text-red-500 font-medium">$249.90/mo</td><td class="px-6 py-3.5 text-center text-red-500 font-medium">$270/mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-center text-sm text-gray-400 mt-4">Competitor pricing as of 2025. Per-seat plans calculated at 10 users on standard tier.</p>
   </div>
 </section>
+
+<!-- FAQ -->
+<section id="faq" class="py-24 px-4">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-12"><h2 class="text-4xl font-bold text-gray-900 mb-4">Frequently asked questions</h2></div>
+    <div class="space-y-4" id="faq-list">
+      <details class="group border border-gray-200 rounded-2xl overflow-hidden">
+        <summary class="flex items-center justify-between px-6 py-4 cursor-pointer font-medium text-gray-900 hover:bg-gray-50">Is TaskTimeline Pro free?<span class="text-gray-400 group-open:rotate-180 transition-transform">&#9660;</span></summary>
+        <div class="px-6 pb-5 text-gray-600 text-sm leading-relaxed">Yes. TaskTimeline Pro has a free plan that includes 1 project and 10 tasks &mdash; no credit card required. Paid plans start at $19/month with a 14-day free trial included.</div>
+      </details>
+      <details class="group border border-gray-200 rounded-2xl overflow-hidden">
+        <summary class="flex items-center justify-between px-6 py-4 cursor-pointer font-medium text-gray-900 hover:bg-gray-50">Is this a good Asana or Monday.com alternative?<span class="text-gray-400 group-open:rotate-180 transition-transform">&#9660;</span></summary>
+        <div class="px-6 pb-5 text-gray-600 text-sm leading-relaxed">Yes. TaskTimeline Pro focuses on Gantt-style visual timelines. Asana charges $24.99/user/month for Gantt access &mdash; that&apos;s $250/month for a 10-person team. TaskTimeline Pro&apos;s Team plan is $49/month flat, over 5x cheaper.</div>
+      </details>
+      <details class="group border border-gray-200 rounded-2xl overflow-hidden">
+        <summary class="flex items-center justify-between px-6 py-4 cursor-pointer font-medium text-gray-900 hover:bg-gray-50">Can I share my project timeline with clients?<span class="text-gray-400 group-open:rotate-180 transition-transform">&#9660;</span></summary>
+        <div class="px-6 pb-5 text-gray-600 text-sm leading-relaxed">Yes. Every project has a shareable link. Share a read-only view with anyone &mdash; no account required to view. Perfect for client reporting.</div>
+      </details>
+      <details class="group border border-gray-200 rounded-2xl overflow-hidden">
+        <summary class="flex items-center justify-between px-6 py-4 cursor-pointer font-medium text-gray-900 hover:bg-gray-50">Do I need to install anything?<span class="text-gray-400 group-open:rotate-180 transition-transform">&#9660;</span></summary>
+        <div class="px-6 pb-5 text-gray-600 text-sm leading-relaxed">No. TaskTimeline Pro is 100% web-based. It works in any modern browser on desktop or mobile. Nothing to install, no app to download.</div>
+      </details>
+      <details class="group border border-gray-200 rounded-2xl overflow-hidden">
+        <summary class="flex items-center justify-between px-6 py-4 cursor-pointer font-medium text-gray-900 hover:bg-gray-50">Can I export my data?<span class="text-gray-400 group-open:rotate-180 transition-transform">&#9660;</span></summary>
+        <div class="px-6 pb-5 text-gray-600 text-sm leading-relaxed">Yes. Export to CSV, PDF, or JSON at any time on paid plans. Your data is never locked in.</div>
+      </details>
+      <details class="group border border-gray-200 rounded-2xl overflow-hidden">
+        <summary class="flex items-center justify-between px-6 py-4 cursor-pointer font-medium text-gray-900 hover:bg-gray-50">How do I get started?<span class="text-gray-400 group-open:rotate-180 transition-transform">&#9660;</span></summary>
+        <div class="px-6 pb-5 text-gray-600 text-sm leading-relaxed">Click any &ldquo;Start free trial&rdquo; button above, or email <a href="mailto:nkusib@gmail.com" class="text-blue-600 hover:underline">nkusib@gmail.com</a> to get started. All paid plans include a 14-day free trial.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / EMAIL CAPTURE -->
+<section class="py-24 px-4 gradient-bg text-white">
+  <div class="max-w-2xl mx-auto text-center">
+    <h2 class="text-4xl font-bold mb-4">Ready to plan smarter?</h2>
+    <p class="text-blue-100 text-xl mb-8">Join 5,000+ teams. Free forever plan &mdash; no credit card needed.</p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="#pricing" class="px-8 py-4 rounded-xl bg-white text-blue-700 font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg">Start for free &rarr;</a>
+      <a href="mailto:nkusib@gmail.com?subject=TaskTimeline%20Pro%20Question" class="px-8 py-4 rounded-xl border-2 border-white/40 text-white font-bold text-lg hover:bg-white/10 transition-colors">Contact us</a>
+    </div>
+    <p class="mt-6 text-blue-200 text-sm">Questions? Email <a href="mailto:nkusib@gmail.com" class="underline">nkusib@gmail.com</a> &mdash; we reply within 24 hours.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer class="py-12 px-4 border-t border-gray-100">
   <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
     <span class="font-bold">TaskTimeline Pro</span>
-    <div class="flex gap-6 text-sm text-gray-400"><a href="#">Privacy</a><a href="#">Terms</a><a href="mailto:hello@tasktimelinepro.com">Contact</a></div>
+    <div class="flex gap-6 text-sm text-gray-400">
+      <a href="#" class="hover:text-gray-700">Privacy</a>
+      <a href="#" class="hover:text-gray-700">Terms</a>
+      <a href="mailto:nkusib@gmail.com" class="hover:text-gray-700">Contact</a>
+    </div>
     <p class="text-sm text-gray-400">&copy; 2025 TaskTimeline Pro</p>
   </div>
 </footer>
+
 <script>
 const d=document.getElementById('demo-tasks');
 [{t:'Market research',o:'Sarah',w:'20%',l:'0%',c:'bg-emerald-100 border-emerald-200',delay:.1},{t:'Competitive analysis',o:'Marcus',w:'25%',l:'18%',c:'bg-emerald-100 border-emerald-200',delay:.2},{t:'Feature spec',o:'Sarah',w:'30%',l:'20%',c:'bg-blue-100 border-blue-200',delay:.3},{t:'Design system',o:'Aisha',w:'35%',l:'30%',c:'bg-blue-100 border-blue-200',delay:.4},{t:'Backend API',o:'Marcus',w:'40%',l:'38%',c:'bg-amber-100 border-amber-200',delay:.5},{t:'Frontend build',o:'Aisha',w:'35%',l:'50%',c:'bg-amber-100 border-amber-200',delay:.6},{t:'QA & testing',o:'Sarah',w:'20%',l:'70%',c:'bg-amber-100 border-amber-200',delay:.7},{t:'Launch',o:'Marcus',w:'15%',l:'85%',c:'bg-amber-100 border-amber-200',delay:.8}].forEach(task=>{
@@ -197,11 +326,6 @@ const d=document.getElementById('demo-tasks');
   r.style.animationDelay=task.delay+'s';
   r.innerHTML=`<div class="w-36 shrink-0"><div class="text-xs font-medium text-gray-800 truncate">${task.t}</div><div class="text-[11px] text-gray-400">${task.o}</div></div><div class="flex-1 relative h-7 bg-gray-50 rounded-lg overflow-hidden border border-gray-100"><div class="absolute inset-y-1 rounded-md border ${task.c} flex items-center px-2" style="left:${task.l};width:${task.w}"><span class="text-[10px] truncate">${task.t}</span></div></div>`;
   d.appendChild(r);
-});
-document.getElementById('waitlist-form').addEventListener('submit',e=>{
-  e.preventDefault();
-  e.target.style.display='none';
-  document.getElementById('waitlist-success').classList.remove('hidden');
 });
 </script>
 </body>
