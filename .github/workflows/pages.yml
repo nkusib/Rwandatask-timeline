@@ -3,7 +3,7 @@ name: Deploy Landing Page to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ['landing.html', 'index.html']
+    paths: ['landing.html', 'index.html', 'sitemap.xml', 'robots.txt']
   workflow_dispatch:
 
 permissions:
@@ -24,11 +24,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           cp landing.html /tmp/site_index.html
           cp index.html /tmp/site_app.html
+          cp sitemap.xml /tmp/site_sitemap.xml
+          cp robots.txt /tmp/site_robots.txt
           git fetch origin gh-pages
           git checkout gh-pages
           cp /tmp/site_index.html index.html
           cp /tmp/site_app.html app.html
-          git add index.html app.html
+          cp /tmp/site_sitemap.xml sitemap.xml
+          cp /tmp/site_robots.txt robots.txt
+          git add index.html app.html sitemap.xml robots.txt
           if git diff --staged --quiet; then
             echo "No changes to deploy"
           else
