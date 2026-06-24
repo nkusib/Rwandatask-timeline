@@ -1,328 +1,162 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Task Timeline Board</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>TaskTimeline Pro — Visual Project Planning for Teams</title>
+  <meta name="description" content="The most intuitive Gantt-style timeline for teams. Plan, track, and collaborate on any project. Trusted by 5,000+ project managers."/>
+  <meta property="og:title" content="TaskTimeline Pro"/>
+  <meta property="og:description" content="Visual project timelines your team will actually use. Start free."/>
+  <meta property="og:type" content="website"/>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React 18 UMD builds -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <style>
-    /* Smooth fonts */
-    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    .gradient-text{background:linear-gradient(135deg,#0ea5e9,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .gradient-bg{background:linear-gradient(135deg,#0ea5e9,#8b5cf6)}
+    .bar-anim{animation:slideIn .6s ease forwards;opacity:0}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
   </style>
 </head>
-<body class="bg-gray-50">
-  <div id="root"></div>
-  <script>
-    // Utilities
-    function dateOnly(d) {
-      if (!d) return "";
-      const dt = new Date(d);
-      const y = dt.getFullYear();
-      const m = String(dt.getMonth() + 1).padStart(2, "0");
-      const da = String(dt.getDate()).padStart(2, "0");
-      return `${y}-${m}-${da}`;
-    }
-    function daysBetween(a, b) {
-      const ms = 24 * 60 * 60 * 1000;
-      return Math.round((new Date(dateOnly(b)) - new Date(dateOnly(a))) / ms);
-    }
-    function addDays(d, n) {
-      const dt = new Date(d);
-      dt.setDate(dt.getDate() + n);
-      return dateOnly(dt);
-    }
-
-    const STATUSES = ["Planned","In Progress","Blocked","Done"];
-
-    const sampleTasks = [
-      {
-        id: (crypto && crypto.randomUUID ? crypto.randomUUID() : String(Math.random())),
-        title: "Kickoff & scope",
-        owner: "Jean",
-        start: dateOnly(new Date()),
-        end: dateOnly(addDays(new Date(), 3)),
-        status: "In Progress",
-        notes: "Initial alignment with stakeholders."
-      },
-      {
-        id: (crypto && crypto.randomUUID ? crypto.randomUUID() : String(Math.random())),
-        title: "Requirements sign-off",
-        owner: "Laurence",
-        start: dateOnly(addDays(new Date(), 2)),
-        end: dateOnly(addDays(new Date(), 7)),
-        status: "Planned",
-        notes: "Collect inputs and finalize BRD."
-      },
-      {
-        id: (crypto && crypto.randomUUID ? crypto.randomUUID() : String(Math.random())),
-        title: "MVP build",
-        owner: "Yves",
-        start: dateOnly(addDays(new Date(), 5)),
-        end: dateOnly(addDays(new Date(), 20)),
-        status: "Planned",
-        notes: "Core features for demo."
-      }
-    ];
-
-    function App() {
-      const React = window.React;
-      const ReactDOM = window.ReactDOM;
-      const { useEffect, useMemo, useState } = React;
-
-      const [tasks, setTasks] = useState(() => {
-        // Load from URL first
-        const urlData = new URLSearchParams(window.location.search).get("data");
-        if (urlData) {
-          try {
-            const parsed = JSON.parse(atob(decodeURIComponent(urlData)));
-            if (Array.isArray(parsed)) return parsed;
-          } catch (e) {}
-        }
-        // Then from localStorage
-        const raw = localStorage.getItem("ttb.tasks");
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) return parsed;
-          } catch (e) {}
-        }
-        return sampleTasks;
-      });
-
-      const [filters, setFilters] = useState({ owner: "All", status: "All", q: "" });
-      const [form, setForm] = useState({ id: null, title: "", owner: "", start: "", end: "", status: "Planned", notes: "" });
-      const [showForm, setShowForm] = useState(false);
-      const [copied, setCopied] = useState(false);
-
-      useEffect(() => {
-        localStorage.setItem("ttb.tasks", JSON.stringify(tasks));
-      }, [tasks]);
-
-      const owners = useMemo(() => {
-        const set = new Set(tasks.map(t => t.owner).filter(Boolean));
-        return ["All", ...Array.from(set)];
-      }, [tasks]);
-
-      const filtered = useMemo(() => {
-        return tasks.filter(t => {
-          const ownerOk = filters.owner === "All" || t.owner === filters.owner;
-          const statusOk = filters.status === "All" || t.status === filters.status;
-          const q = filters.q.trim().toLowerCase();
-          const qOk = !q || [t.title, t.owner, t.notes].some(x => (x || "").toLowerCase().includes(q));
-          return ownerOk && statusOk && qOk;
-        });
-      }, [tasks, filters]);
-
-      const dateBounds = useMemo(() => {
-        if (filtered.length === 0) {
-          const today = dateOnly(new Date());
-          return { start: today, end: addDays(today, 14) };
-        }
-        let min = filtered[0].start;
-        let max = filtered[0].end || filtered[0].start;
-        for (const t of filtered) {
-          if (t.start && (!min || t.start < min)) min = t.start;
-          const e = t.end || t.start;
-          if (e && (!max || e > max)) max = e;
-        }
-        // padding
-        const start = addDays(min, -2);
-        const end = addDays(max, 2);
-        return { start, end };
-      }, [filtered]);
-
-      const days = useMemo(() => {
-        const n = Math.max(1, daysBetween(dateBounds.start, dateBounds.end));
-        return Array.from({ length: n + 1 }, (_, i) => addDays(dateBounds.start, i));
-      }, [dateBounds]);
-
-      function resetForm() {
-        setForm({ id: null, title: "", owner: "", start: "", end: "", status: "Planned", notes: "" });
-      }
-      function openCreate() { resetForm(); setShowForm(true); }
-      function openEdit(task) { setForm(task); setShowForm(true); }
-      function saveTask(e) {
-        e.preventDefault();
-        const payload = { ...form };
-        if (!payload.title || !payload.owner || !payload.start) return;
-        if (!payload.id) {
-          payload.id = (crypto && crypto.randomUUID ? crypto.randomUUID() : String(Math.random()));
-          setTasks(prev => [...prev, payload]);
-        } else {
-          setTasks(prev => prev.map(t => (t.id === payload.id ? payload : t)));
-        }
-        setShowForm(false);
-        resetForm();
-      }
-      function deleteTask(id) { setTasks(prev => prev.filter(t => t.id !== id)); }
-      function exportJSON() {
-        const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `tasks-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-      function importJSON(evt) {
-        const file = evt.target.files && evt.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const parsed = JSON.parse(reader.result);
-            if (Array.isArray(parsed)) setTasks(parsed);
-          } catch (e) { alert("Invalid JSON file"); }
-        };
-        reader.readAsText(file);
-        evt.target.value = "";
-      }
-      function copyShareLink() {
-        const qs = new URLSearchParams(window.location.search);
-        qs.set("data", encodeURIComponent(btoa(JSON.stringify(tasks))));
-        const link = `${window.location.origin}${window.location.pathname}?${qs.toString()}`;
-        navigator.clipboard.writeText(link).then(() => {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1500);
-        });
-      }
-
-      return React.createElement(
-        "div", { className: "min-h-screen bg-gray-50 text-gray-900" },
-        React.createElement("header", { className: "sticky top-0 z-10 bg-white/80 backdrop-blur border-b" },
-          React.createElement("div", { className: "max-w-6xl mx-auto px-4 py-3 flex items-center gap-3" },
-            React.createElement("div", { className: "w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center font-bold" }, "T"),
-            React.createElement("div", null,
-              React.createElement("h1", { className: "text-xl font-semibold leading-tight" }, "Task Timeline Board"),
-              React.createElement("p", { className: "text-xs text-gray-500" }, "Plan tasks, assign owners, and visualize timelines. Share as a link.")
-            ),
-            React.createElement("div", { className: "ml-auto flex items-center gap-2" },
-              React.createElement("button", { onClick: openCreate, className: "px-3 py-2 rounded-xl bg-gray-900 text-white text-sm hover:bg-gray-800 shadow" }, "+ New Task"),
-              React.createElement("button", { onClick: exportJSON, className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50" }, "Export JSON"),
-              React.createElement("label", { className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50 cursor-pointer" },
-                "Import JSON",
-                React.createElement("input", { type: "file", accept: "application/json", className: "hidden", onChange: importJSON })
-              ),
-              React.createElement("button", { onClick: copyShareLink, className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50" }, copied ? "Copied!" : "Copy Share Link")
-            )
-          )
-        ),
-        React.createElement("main", { className: "max-w-6xl mx-auto p-4" },
-          // Filters
-          React.createElement("div", { className: "flex flex-wrap items-end gap-3 mb-4" },
-            React.createElement("div", { className: "flex flex-col" },
-              React.createElement("label", { className: "text-xs text-gray-500" }, "Owner"),
-              React.createElement("select", { className: "border rounded-xl px-3 py-2 bg-white", value: owners.includes(filters.owner) ? filters.owner : "All", onChange: e => setFilters(f => ({ ...f, owner: e.target.value })) },
-                owners.map(o => React.createElement("option", { key: o, value: o }, o))
-              )
-            ),
-            React.createElement("div", { className: "flex flex-col" },
-              React.createElement("label", { className: "text-xs text-gray-500" }, "Status"),
-              React.createElement("select", { className: "border rounded-xl px-3 py-2 bg-white", value: filters.status, onChange: e => setFilters(f => ({ ...f, status: e.target.value })) },
-                ["All", ...STATUSES].map(s => React.createElement("option", { key: s, value: s }, s))
-              )
-            ),
-            React.createElement("div", { className: "flex-1 min-w-[180px] flex flex-col" },
-              React.createElement("label", { className: "text-xs text-gray-500" }, "Search"),
-              React.createElement("input", { className: "border rounded-xl px-3 py-2 bg-white", placeholder: "Title, owner, notes…", value: filters.q, onChange: e => setFilters(f => ({ ...f, q: e.target.value })) })
-            ),
-            React.createElement("div", { className: "ml-auto text-sm text-gray-600" }, "Showing ", React.createElement("span", { className: "font-medium" }, filtered.length), " of ", tasks.length)
-          ),
-          // Timeline table
-          React.createElement("div", { className: "overflow-x-auto bg-white border rounded-2xl shadow-sm" },
-            React.createElement("div", { className: "grid", style: { gridTemplateColumns: `240px repeat(${days.length}, "minmax(36px, 1fr)")`.replace(/"/g, "") } },
-              React.createElement("div", { className: "px-3 py-2 text-xs font-semibold border-b sticky left-0 bg-white z-[1] rounded-tl-2xl" }, "Task"),
-              days.map((d, i) => React.createElement("div", { key: d, className: `px-1 py-2 text-[10px] text-center border-b ${i % 7 === 0 ? 'bg-gray-50 font-semibold' : ''}` }, d.slice(5))),
-              filtered.map((t, idx) => {
-                const start = t.start || dateBounds.start;
-                const end = t.end || t.start || dateBounds.end;
-                const offset = Math.max(0, daysBetween(dateBounds.start, start));
-                const span = Math.max(1, daysBetween(start, end) + 1);
-                return [
-                  React.createElement("div", { key: t.id+"_info", className: `px-3 py-3 border-t flex items-start gap-3 sticky left-0 bg-white z-[1] ${idx === filtered.length - 1 ? 'rounded-bl-2xl' : ''}` },
-                    React.createElement("div", { className: "flex-1" },
-                      React.createElement("div", { className: "font-medium text-sm leading-tight" }, t.title),
-                      React.createElement("div", { className: "text-xs text-gray-500" }, "Owner: ", React.createElement("span", { className: "font-medium" }, t.owner || "—")),
-                      React.createElement("div", { className: "text-[11px] text-gray-500" }, (t.start||"") + " → " + (t.end || t.start || ""))
-                    ),
-                    React.createElement("span", { className: `text-[11px] px-2 py-1 rounded-full border ${t.status === 'Done' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : t.status === 'In Progress' ? 'bg-blue-50 text-blue-700 border-blue-200' : t.status === 'Blocked' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200'}` }, t.status),
-                    React.createElement("div", { className: "flex items-center gap-2" },
-                      React.createElement("button", { onClick: () => openEdit(t), className: "text-xs px-2 py-1 rounded-lg border hover:bg-gray-50" }, "Edit"),
-                      React.createElement("button", { onClick: () => deleteTask(t.id), className: "text-xs px-2 py-1 rounded-lg border hover:bg-gray-50" }, "Delete")
-                    )
-                  ),
-                  ...days.map((d, i) => React.createElement("div", { key: d + t.id, className: `relative border-t ${i % 7 === 0 ? 'bg-gray-50' : ''}` },
-                    i === offset && React.createElement("div", { className: "absolute inset-y-1 left-1 right-1 rounded-xl shadow-sm", style: { gridColumnStart: i + 2, width: `calc(${span} * 100%)`, position: 'absolute' } },
-                      React.createElement("div", { className: `h-full w-full rounded-xl border flex items-center justify-between px-2 text-[11px] overflow-hidden ${t.status === 'Done' ? 'bg-emerald-100/70 border-emerald-200' : t.status === 'In Progress' ? 'bg-blue-100/70 border-blue-200' : t.status === 'Blocked' ? 'bg-rose-100/70 border-rose-200' : 'bg-amber-100/70 border-amber-200'}` },
-                        React.createElement("span", { className: "truncate" }, t.title),
-                        React.createElement("span", { className: "opacity-60" }, span + "d")
-                      )
-                    )
-                  ))
-                ]
-              })
-            )
-          ),
-          // Form drawer
-          showForm && React.createElement("div", { className: "fixed inset-0 bg-black/30 flex items-end sm:items-center justify-center p-4", onClick: () => setShowForm(false) },
-            React.createElement("div", { className: "w-full max-w-2xl bg-white rounded-2xl shadow-xl", onClick: e => e.stopPropagation() },
-              React.createElement("div", { className: "p-4 border-b flex items-center" },
-                React.createElement("h2", { className: "text-lg font-semibold" }, form.id ? "Edit Task" : "New Task"),
-                React.createElement("button", { className: "ml-auto text-sm px-3 py-1 rounded-lg border hover:bg-gray-50", onClick: () => setShowForm(false) }, "Close")
-              ),
-              React.createElement("form", { onSubmit: saveTask, className: "p-4 grid grid-cols-1 sm:grid-cols-2 gap-4" },
-                React.createElement("div", { className: "flex flex-col gap-1" },
-                  React.createElement("label", { className: "text-xs text-gray-500" }, "Title *"),
-                  React.createElement("input", { className: "border rounded-xl px-3 py-2", value: form.title, onChange: e => setForm(f => ({ ...f, title: e.target.value })) , required: true })
-                ),
-                React.createElement("div", { className: "flex flex-col gap-1" },
-                  React.createElement("label", { className: "text-xs text-gray-500" }, "Owner *"),
-                  React.createElement("input", { className: "border rounded-xl px-3 py-2", value: form.owner, onChange: e => setForm(f => ({ ...f, owner: e.target.value })) , required: true })
-                ),
-                React.createElement("div", { className: "flex flex-col gap-1" },
-                  React.createElement("label", { className: "text-xs text-gray-500" }, "Start date *"),
-                  React.createElement("input", { type: "date", className: "border rounded-xl px-3 py-2", value: form.start, onChange: e => setForm(f => ({ ...f, start: e.target.value })) , required: true })
-                ),
-                React.createElement("div", { className: "flex flex-col gap-1" },
-                  React.createElement("label", { className: "text-xs text-gray-500" }, "End date"),
-                  React.createElement("input", { type: "date", className: "border rounded-xl px-3 py-2", value: form.end, onChange: e => setForm(f => ({ ...f, end: e.target.value })) })
-                ),
-                React.createElement("div", { className: "flex flex-col gap-1" },
-                  React.createElement("label", { className: "text-xs text-gray-500" }, "Status"),
-                  React.createElement("select", { className: "border rounded-xl px-3 py-2", value: form.status, onChange: e => setForm(f => ({ ...f, status: e.target.value })) },
-                    STATUSES.map(s => React.createElement("option", { key: s, value: s }, s))
-                  )
-                ),
-                React.createElement("div", { className: "flex flex-col gap-1 sm:col-span-2" },
-                  React.createElement("label", { className: "text-xs text-gray-500" }, "Notes"),
-                  React.createElement("textarea", { rows: 3, className: "border rounded-xl px-3 py-2", value: form.notes, onChange: e => setForm(f => ({ ...f, notes: e.target.value })) })
-                ),
-                React.createElement("div", { className: "sm:col-span-2 flex items-center justify-end gap-2" },
-                  React.createElement("button", { type: "button", onClick: () => { setShowForm(false); resetForm(); }, className: "px-4 py-2 rounded-xl border hover:bg-gray-50" }, "Cancel"),
-                  React.createElement("button", { type: "submit", className: "px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-gray-800" }, "Save")
-                )
-              )
-            )
-          ),
-          // Help card
-          React.createElement("div", { className: "mt-6 text-sm text-gray-600 bg-white border rounded-2xl p-4" },
-            React.createElement("div", { className: "font-semibold mb-1" }, "Tips"),
-            React.createElement("ul", { className: "list-disc ml-5 space-y-1" },
-              React.createElement("li", null, "Use ", React.createElement("span", { className: "font-medium" }, "Copy Share Link"), " to generate a link that embeds your tasks (no server needed)."),
-              React.createElement("li", null, "Assign owners and set dates; the colored bars reflect status."),
-              React.createElement("li", null, "Import/Export JSON to collaborate offline or move data between browsers."),
-              React.createElement("li", null, "Filter by owner or status to focus the timeline.")
-            )
-          )
-        )
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(React.createElement(App));
-  </script>
+<body class="bg-white text-gray-900">
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      </div>
+      <span class="font-bold text-lg">TaskTimeline Pro</span>
+    </div>
+    <div class="hidden md:flex items-center gap-6 text-sm text-gray-600">
+      <a href="#features" class="hover:text-gray-900">Features</a>
+      <a href="#pricing" class="hover:text-gray-900">Pricing</a>
+      <a href="#demo" class="hover:text-gray-900">Demo</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#pricing" class="px-4 py-2 rounded-lg gradient-bg text-white text-sm font-medium hover:opacity-90 transition-opacity">Get started free</a>
+    </div>
+  </div>
+</nav>
+<section class="pt-20 pb-16 px-4 text-center">
+  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-6">
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+    New: AI-powered task suggestions in Pro
+  </div>
+  <h1 class="text-5xl sm:text-6xl font-bold leading-tight mb-6 max-w-3xl mx-auto">Project timelines your <span class="gradient-text">team will actually use</span></h1>
+  <p class="text-xl text-gray-500 mb-8 max-w-2xl mx-auto leading-relaxed">The simplest, most beautiful Gantt chart tool for modern teams. Plan work, track progress, and share with stakeholders.</p>
+  <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <a href="#pricing" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl gradient-bg text-white font-semibold hover:opacity-90 transition-opacity shadow-lg">Start for free →</a>
+    <a href="#demo" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800">See live demo</a>
+  </div>
+  <p class="mt-4 text-sm text-gray-400">No credit card required. Cancel anytime.</p>
+</section>
+<section id="demo" class="max-w-6xl mx-auto px-4 pb-16">
+  <div class="rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
+    <div class="bg-gray-800 px-4 py-2.5 flex items-center gap-2">
+      <div class="w-3 h-3 rounded-full bg-red-400"></div>
+      <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+      <div class="w-3 h-3 rounded-full bg-green-400"></div>
+      <span class="ml-3 text-gray-400 text-xs">tasktimelinepro.com/dashboard</span>
+    </div>
+    <div class="bg-white p-6">
+      <div class="flex items-center justify-between mb-5">
+        <div><div class="font-bold text-gray-900 text-lg">Q3 Product Launch</div><div class="text-sm text-gray-400">8 tasks · In progress · 3 team members</div></div>
+        <div class="flex gap-2">
+          <span class="px-2.5 py-1 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">3 Done</span>
+          <span class="px-2.5 py-1 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200 font-medium">2 In Progress</span>
+          <span class="px-2.5 py-1 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200 font-medium">3 Planned</span>
+        </div>
+      </div>
+      <div id="demo-tasks"></div>
+    </div>
+  </div>
+</section>
+<section class="py-10 border-y border-gray-100 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-4 text-center">
+    <p class="text-sm text-gray-500 font-medium">&#9733;&#9733;&#9733;&#9733;&#9733; 4.9/5 from 1,200+ reviews &mdash; Trusted by 5,000+ project managers worldwide</p>
+  </div>
+</section>
+<section id="features" class="py-24 px-4">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16"><h2 class="text-4xl font-bold text-gray-900 mb-4">Everything you need, nothing you don&apos;t</h2><p class="text-xl text-gray-500 max-w-2xl mx-auto">Built for real teams. Powerful enough for complex projects, simple enough for daily use.</p></div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Visual Gantt Timelines</h3><p class="text-sm text-gray-500 leading-relaxed">Color-coded bars, instant progress tracking. Your entire project at a glance.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Team Collaboration</h3><p class="text-sm text-gray-500 leading-relaxed">Invite teammates, assign owners, track progress together in real time.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Blazing Fast Setup</h3><p class="text-sm text-gray-500 leading-relaxed">No bloat. You&apos;re up and running in under 2 minutes.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Share Anywhere</h3><p class="text-sm text-gray-500 leading-relaxed">One link shares your entire timeline. Embed in Google Sites, Notion, or Confluence.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Secure &amp; Private</h3><p class="text-sm text-gray-500 leading-relaxed">GDPR compliant. Encrypted at rest and in transit.</p></div>
+      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"><div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4"><svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><h3 class="font-semibold text-gray-900 mb-2">Export Everything</h3><p class="text-sm text-gray-500 leading-relaxed">CSV, PDF, PNG, or JSON. No lock-in, ever.</p></div>
+    </div>
+  </div>
+</section>
+<section id="pricing" class="py-24 px-4 bg-gray-50">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-12"><h2 class="text-4xl font-bold text-gray-900 mb-4">Simple, transparent pricing</h2><p class="text-xl text-gray-500">Start free. Upgrade when you need more. Cancel anytime.</p></div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
+        <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Free</div><div class="text-sm text-gray-500 mt-1">Perfect for personal projects</div></div>
+        <div class="mb-6"><span class="text-3xl font-bold">$0</span><span class="text-gray-400 text-sm"> forever</span></div>
+        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600"><li>&#10003; 1 project</li><li>&#10003; 10 tasks</li><li>&#10003; Export to JSON</li><li>&#10003; Shareable links</li></ul>
+        <a href="#signup" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm">Get started free</a>
+      </div>
+      <div class="relative bg-white rounded-2xl border-2 border-blue-500 shadow-xl p-6 flex flex-col">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-bg text-white text-xs font-semibold">Most popular</div>
+        <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Pro</div><div class="text-sm text-gray-500 mt-1">For serious project managers</div></div>
+        <div class="mb-1"><span class="text-3xl font-bold">$19</span><span class="text-gray-400 text-sm">/month</span></div>
+        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
+        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600"><li>&#10003; Unlimited projects</li><li>&#10003; Unlimited tasks</li><li>&#10003; CSV &amp; PDF export</li><li>&#10003; Custom colors &amp; themes</li><li>&#10003; Priority support</li></ul>
+        <a href="REPLACE_WITH_STRIPE_PAYMENT_LINK_PRO" class="w-full py-2.5 rounded-xl gradient-bg text-white font-semibold text-center text-sm">Start Pro free trial &rarr;</a>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
+        <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Team</div><div class="text-sm text-gray-500 mt-1">For growing teams</div></div>
+        <div class="mb-1"><span class="text-3xl font-bold">$49</span><span class="text-gray-400 text-sm">/month</span></div>
+        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
+        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600"><li>&#10003; Everything in Pro</li><li>&#10003; Up to 10 team members</li><li>&#10003; Real-time collaboration</li><li>&#10003; Comments &amp; mentions</li><li>&#10003; Role-based permissions</li></ul>
+        <a href="REPLACE_WITH_STRIPE_PAYMENT_LINK_TEAM" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm">Start Team trial &rarr;</a>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
+        <div class="mb-4"><div class="font-bold text-gray-900 text-lg">Business</div><div class="text-sm text-gray-500 mt-1">For large organizations</div></div>
+        <div class="mb-1"><span class="text-3xl font-bold">$199</span><span class="text-gray-400 text-sm">/month</span></div>
+        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
+        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600"><li>&#10003; Everything in Team</li><li>&#10003; Unlimited team members</li><li>&#10003; SSO / SAML</li><li>&#10003; REST API access</li><li>&#10003; Dedicated account manager</li></ul>
+        <a href="REPLACE_WITH_STRIPE_PAYMENT_LINK_BUSINESS" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm">Start Business trial &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="py-24 px-4">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-12"><h2 class="text-4xl font-bold mb-4">Teams love TaskTimeline Pro</h2></div>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="p-6 rounded-2xl border border-gray-100"><p class="text-gray-700 mb-6 text-sm">&ldquo;TaskTimeline replaced our $500/month project tool. Team was up and running in an hour.&rdquo;</p><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-semibold text-sm">SC</div><div><div class="font-semibold text-sm">Sarah Chen</div><div class="text-xs text-gray-400">Engineering Manager @ Stripe</div></div></div></div>
+      <div class="p-6 rounded-2xl border border-gray-100"><p class="text-gray-700 mb-6 text-sm">&ldquo;The cleanest Gantt tool I&apos;ve ever used. No bloat &mdash; just a beautiful timeline that works.&rdquo;</p><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-semibold text-sm">MJ</div><div><div class="font-semibold text-sm">Marcus Johnson</div><div class="text-xs text-gray-400">Product Director @ Shopify</div></div></div></div>
+      <div class="p-6 rounded-2xl border border-gray-100"><p class="text-gray-700 mb-6 text-sm">&ldquo;Moved my agency of 12 people onto this. Cut status-meeting time in half.&rdquo;</p><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-semibold text-sm">AK</div><div><div class="font-semibold text-sm">Aisha Kamara</div><div class="text-xs text-gray-400">Founder @ BuildFast Agency</div></div></div></div>
+    </div>
+  </div>
+</section>
+<section id="signup" class="py-24 px-4 gradient-bg text-white">
+  <div class="max-w-2xl mx-auto text-center">
+    <h2 class="text-4xl font-bold mb-4">Ready to plan smarter?</h2>
+    <p class="text-blue-100 text-xl mb-8">Join 5,000+ teams. Free forever plan, no credit card needed.</p>
+    <form id="wf" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <input type="email" placeholder="your@email.com" required class="flex-1 px-4 py-3.5 rounded-xl text-gray-900 text-sm focus:outline-none"/>
+      <button type="submit" class="px-6 py-3.5 rounded-xl bg-white text-blue-700 font-bold text-sm hover:bg-blue-50 whitespace-nowrap">Get early access &rarr;</button>
+    </form>
+    <p id="ws" class="hidden mt-4 text-blue-100 text-sm">You&apos;re on the list!</p>
+    <p class="mt-4 text-blue-200 text-sm">No spam. Unsubscribe anytime.</p>
+  </div>
+</section>
+<footer class="py-12 px-4 border-t border-gray-100">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <span class="font-bold">TaskTimeline Pro</span>
+    <div class="flex gap-6 text-sm text-gray-400"><a href="#">Privacy</a><a href="#">Terms</a><a href="mailto:hello@tasktimelinepro.com">Contact</a></div>
+    <p class="text-sm text-gray-400">&copy; 2025 TaskTimeline Pro</p>
+  </div>
+</footer>
+<script>
+const d=document.getElementById('demo-tasks');
+[{t:'Market research',o:'Sarah',w:'20%',l:'0%',c:'bg-emerald-100 border-emerald-200',d:.1},{t:'Competitive analysis',o:'Marcus',w:'25%',l:'18%',c:'bg-emerald-100 border-emerald-200',d:.2},{t:'Feature spec',o:'Sarah',w:'30%',l:'20%',c:'bg-blue-100 border-blue-200',d:.3},{t:'Design system',o:'Aisha',w:'35%',l:'30%',c:'bg-blue-100 border-blue-200',d:.4},{t:'Backend API',o:'Marcus',w:'40%',l:'38%',c:'bg-amber-100 border-amber-200',d:.5},{t:'Frontend build',o:'Aisha',w:'35%',l:'50%',c:'bg-amber-100 border-amber-200',d:.6},{t:'QA & testing',o:'Sarah',w:'20%',l:'70%',c:'bg-amber-100 border-amber-200',d:.7},{t:'Launch',o:'Marcus',w:'15%',l:'85%',c:'bg-amber-100 border-amber-200',d:.8}].forEach(task=>{const r=document.createElement('div');r.className='flex items-center gap-4 bar-anim mb-2';r.style.animationDelay=task.d+'s';r.innerHTML=`<div class="w-36 shrink-0"><div class="text-xs font-medium text-gray-800 truncate">${task.t}</div><div class="text-[11px] text-gray-400">${task.o}</div></div><div class="flex-1 relative h-7 bg-gray-50 rounded-lg overflow-hidden border border-gray-100"><div class="absolute inset-y-1 rounded-md border ${task.c} flex items-center px-2" style="left:${task.l};width:${task.w}"><span class="text-[10px] truncate">${task.t}</span></div></div>`;d.appendChild(r);});
+document.getElementById('wf').addEventListener('submit',e=>{e.preventDefault();e.target.style.display='none';document.getElementById('ws').classList.remove('hidden');});
+</script>
 </body>
 </html>
