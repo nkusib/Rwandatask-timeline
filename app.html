@@ -238,6 +238,7 @@
               React.createElement("a", { href: UPGRADE_URL, className: "px-3 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-purple-600 hover:opacity-90 shadow" }, "⬆ Upgrade to Pro"),
               React.createElement("button", { onClick: openCreate, className: "px-3 py-2 rounded-xl bg-gray-900 text-white text-sm hover:bg-gray-800 shadow" }, tasks.length >= FREE_TASK_LIMIT ? "Task limit reached" : "+ New Task"),
               React.createElement("button", { onClick: exportJSON, className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50" }, "Export JSON"),
+              React.createElement("button", { onClick: () => setShowUpgrade(true), className: "px-3 py-2 rounded-xl bg-white text-sm border border-dashed text-gray-400 hover:bg-gray-50 cursor-pointer" }, "🔒 Export CSV"),
               React.createElement("label", { className: "px-3 py-2 rounded-xl bg-white text-sm border hover:bg-gray-50 cursor-pointer" },
                 "Import JSON",
                 React.createElement("input", { type: "file", accept: "application/json", className: "hidden", onChange: importJSON })
@@ -360,6 +361,13 @@
               React.createElement("p", { className: "text-xs text-gray-500" }, "Pro plan unlocks unlimited projects, unlimited tasks, CSV/PDF export, team collaboration, and priority support. Flat $19/month — not per seat.")
             ),
             React.createElement("a", { href: UPGRADE_URL, className: "shrink-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-purple-600 text-white font-bold text-sm hover:opacity-90" }, "Start free trial →")
+          ),
+
+          // Powered-by footer shown on shared views
+          isSharedView && React.createElement("div", { className: "mt-6 text-center text-xs text-gray-400 pb-2" },
+            "Made with ",
+            React.createElement("a", { href: "https://nkusib.github.io/rwandatask-timeline/", className: "text-sky-500 hover:underline font-medium" }, "TaskTimeline Pro"),
+            " — free Gantt timelines for every team."
           )
         )
       );
