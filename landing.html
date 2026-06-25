@@ -280,8 +280,8 @@
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Export to JSON</li>
           <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Shareable links</li>
         </ul>
-        <a href="#signup" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">
-          Get started free
+        <a href="./app.html" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">
+          Try free — no signup
         </a>
       </div>
 
@@ -515,9 +515,13 @@
   <div class="max-w-2xl mx-auto text-center">
     <h2 class="text-4xl font-bold mb-4">Ready to plan smarter?</h2>
     <p class="text-blue-100 text-xl mb-8">Join 5,000+ teams. Free forever plan, no credit card needed.</p>
-    <form id="waitlist-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+    <form id="waitlist-form" action="https://formsubmit.co/nkusib@gmail.com" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <input type="hidden" name="_subject" value="New TaskTimeline Pro signup interest"/>
+      <input type="hidden" name="_next" value="https://nkusib.github.io/rwandatask-timeline/app.html"/>
+      <input type="hidden" name="_captcha" value="false"/>
       <input
         type="email"
+        name="email"
         id="waitlist-email"
         placeholder="your@email.com"
         required
@@ -549,7 +553,7 @@
       <a href="#" class="hover:text-gray-700">Terms</a>
       <a href="mailto:nkusib@gmail.com" class="hover:text-gray-700">Contact</a>
     </div>
-    <p class="text-sm text-gray-400">© 2025 TaskTimeline Pro</p>
+    <p class="text-sm text-gray-400">© 2026 TaskTimeline Pro</p>
   </div>
 </footer>
 
@@ -585,16 +589,6 @@ demoTasks.forEach(task => {
   container.appendChild(row);
 });
 
-// Waitlist form
-document.getElementById('waitlist-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const email = document.getElementById('waitlist-email').value;
-  // Store locally (in production, send to your email service / Airtable / etc.)
-  console.log('Waitlist signup:', email);
-  document.getElementById('waitlist-form').style.display = 'none';
-  document.getElementById('waitlist-success').classList.remove('hidden');
-  // You can also redirect to your full app signup or a Typeform
-});
 </script>
 </body>
 </html>
