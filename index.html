@@ -568,7 +568,7 @@
 
     <!-- QR Code -->
     <div class="flex justify-center mb-4">
-      <img id="crypto-qr" src="" alt="Wallet QR Code" class="w-36 h-36 rounded-xl border border-gray-100 shadow-sm"/>
+      <canvas id="crypto-qr" class="rounded-xl border border-gray-100 shadow-sm" style="width:144px;height:144px"></canvas>
     </div>
 
     <!-- Network badge -->
@@ -598,14 +598,14 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 const USDT_ADDRESS = 'TVKV2w9wzaWZ4L9yFJAXWLRLz7vHDXqmCy';
 let _cryptoPlan = '', _cryptoAmount = '';
 function showCryptoModal(plan, amount) {
   _cryptoPlan = plan; _cryptoAmount = amount;
   document.getElementById('crypto-plan-label').textContent = plan + ' plan — ' + amount + ' USDT / month';
-  document.getElementById('crypto-qr').src =
-    'https://api.qrserver.com/v1/create-qr-code/?size=144x144&data=' + encodeURIComponent(USDT_ADDRESS);
+  QRCode.toCanvas(document.getElementById('crypto-qr'), USDT_ADDRESS, { width: 144, margin: 1 });
   const subject = encodeURIComponent('TaskTimeline ' + plan + ' Payment - USDT Transaction');
   const body = encodeURIComponent(
     'Hello,\n\nI have sent ' + amount + ' USDT (TRC-20) for the TaskTimeline ' + plan + ' plan.\n\nTransaction hash: [PASTE TX HASH HERE]\nWallet I sent from: [YOUR WALLET]\n\nPlease activate my account.\n\nThank you!'
