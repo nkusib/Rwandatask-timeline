@@ -1,6 +1,6 @@
 # TaskTimeline Pro — Launch Marketing Copy
 
-Live landing page: **https://nkusib.github.io/rwandatask-timeline/**
+Live landing page: **https://nkusib.github.io/TasktimelineSaaS/**
 Contact email: **nkusib@gmail.com**
 
 ---
@@ -21,7 +21,7 @@ So I built TaskTimeline Pro — a visual project timeline tool with a flat month
 
 Features: drag-to-edit Gantt bars, CSV export, shareable links, team collaboration.
 
-Demo + free plan: https://nkusib.github.io/rwandatask-timeline/
+Demo + free plan: https://nkusib.github.io/TasktimelineSaaS/
 
 Honest feedback welcome — what would make you switch from your current tool?
 
@@ -44,7 +44,7 @@ Pricing:
 
 Stack: Next.js 16, SQLite, Stripe subscriptions, deployed on Vercel.
 
-Landing page: https://nkusib.github.io/rwandatask-timeline/
+Landing page: https://nkusib.github.io/TasktimelineSaaS/
 
 Has anyone else tried flat-rate SaaS pricing as a positioning strategy? Did it work?
 
@@ -63,7 +63,7 @@ So I built TaskTimeline Pro with flat-rate plans: $19/mo for solo, $49/mo for te
 
 At $49/mo Team plan vs $110/mo for Asana (10 users), you save $732/year.
 
-Live here: https://nkusib.github.io/rwandatask-timeline/
+Live here: https://nkusib.github.io/TasktimelineSaaS/
 
 I'd love to hear from anyone who's tried flat-rate vs per-seat in a B2B SaaS context. How did it affect conversion and churn?
 
@@ -95,7 +95,7 @@ TaskTimeline Pro is a beautiful, fast Gantt chart tool designed for modern teams
 
 Built with Next.js, SQLite, Stripe. Works in any browser.
 
-**Website:** https://nkusib.github.io/rwandatask-timeline/
+**Website:** https://nkusib.github.io/TasktimelineSaaS/
 
 ---
 
@@ -112,7 +112,7 @@ Tech stack: Next.js 16, better-sqlite3 (zero-config DB), Stripe subscriptions, J
 
 Free plan available (1 project, 10 tasks, shareable links).
 
-Live: https://nkusib.github.io/rwandatask-timeline/
+Live: https://nkusib.github.io/TasktimelineSaaS/
 
 Happy to answer questions about the build or pricing strategy.
 
@@ -131,7 +131,7 @@ I built TaskTimeline Pro specifically to fix this: flat-rate pricing for teams, 
 For a 10-person team, that's about 76% cheaper than Asana.
 
 Free plan available, no credit card needed to try it:
-https://nkusib.github.io/rwandatask-timeline/
+https://nkusib.github.io/TasktimelineSaaS/
 
 Would love your feedback as a PM professional.
 
