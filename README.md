@@ -2,8 +2,8 @@
 
 > Visual Gantt-style project timelines with Stripe subscriptions, team collaboration, and auth. Built to generate $10,000+/month in recurring revenue.
 
-**Landing page (live NOW):** https://nkusib.github.io/rwandatask-timeline/
-**Free demo app (live NOW):** https://nkusib.github.io/rwandatask-timeline/app.html
+**Landing page (live NOW):** https://nkusib.github.io/TasktimelineSaaS/
+**Free demo app (live NOW):** https://nkusib.github.io/TasktimelineSaaS/app.html
 
 ---
 
@@ -13,8 +13,8 @@ The landing page is **live right now.** To turn the "email us" CTAs into real on
 
 ```bash
 # Clone and run the setup script
-git clone https://github.com/nkusib/rwandatask-timeline
-cd rwandatask-timeline
+git clone https://github.com/nkusib/TasktimelineSaaS
+cd TasktimelineSaaS
 bash setup.sh
 ```
 
@@ -31,7 +31,7 @@ After running `setup.sh`, visitors can pay immediately. No server deployment nee
 ### Step 1: Enable GitHub Pages (2 min — makes landing page live NOW)
 1. Go to this repo → **Settings → Pages**
 2. Source: **GitHub Actions**
-3. Click Save → your landing page deploys automatically to `https://nkusib.github.io/rwandatask-timeline/`
+3. Click Save → your landing page deploys automatically to `https://nkusib.github.io/TasktimelineSaaS/`
 
 ### Step 2: Set up Stripe (10 min)
 1. Sign up at https://stripe.com (free)
@@ -69,8 +69,8 @@ Then push to main — GitHub Actions deploys automatically via `.github/workflow
 
 **Option B — VPS ($6/mo DigitalOcean)**
 ```bash
-git clone https://github.com/nkusib/rwandatask-timeline
-cd rwandatask-timeline
+git clone https://github.com/nkusib/TasktimelineSaaS
+cd TasktimelineSaaS
 cp .env.example .env   # fill in your values
 npm install && npm run build
 npx pm2 start npm --name tasktimeline -- start
