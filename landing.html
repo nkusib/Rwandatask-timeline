@@ -10,12 +10,62 @@
   <meta property="og:type" content="website"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    body{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-    .gradient-text{background:linear-gradient(135deg,#0ea5e9,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .gradient-bg{background:linear-gradient(135deg,#0ea5e9,#8b5cf6)}
-    .bar-anim{animation:slideIn .6s ease forwards;opacity:0}
-    @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; background: #fff; color: #111827; }
+
+    /* ── Gradients ── */
+    .gradient-text { background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 60%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .gradient-bg   { background: linear-gradient(135deg, #0ea5e9 0%, #7c3aed 100%); }
+    .gradient-bg-vivid { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); }
+
+    /* ── Hero blobs ── */
+    .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; pointer-events: none; }
+    .blob-1 { width: 500px; height: 500px; background: #7c3aed; top: -120px; right: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: #0ea5e9; top: 80px; left: -80px; }
+    .blob-3 { width: 300px; height: 300px; background: #ec4899; bottom: -60px; right: 20%; }
+
+    /* ── Dot grid pattern ── */
+    .dot-grid { background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px); background-size: 24px 24px; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideIn  { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes pulse-ring { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.08);opacity:1} }
+    .anim-up  { animation: fadeUp .7s ease both; }
+    .anim-in  { animation: fadeIn .6s ease both; }
+    .bar-anim { animation: slideIn .5s ease both; opacity: 0; }
+
+    /* ── Nav ── */
+    .nav-glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+    /* ── Feature cards ── */
+    .feature-card { transition: transform .2s, box-shadow .2s, border-color .2s; }
+    .feature-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -12px rgba(124,58,237,.15); border-color: #c4b5fd; }
+
+    /* ── Pricing cards ── */
+    .price-card { transition: transform .2s, box-shadow .2s; }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-popular { background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%); }
+
+    /* ── Testimonial cards ── */
+    .testi-card { position: relative; overflow: hidden; }
+    .testi-card::before { content: '"'; position: absolute; top: -8px; left: 16px; font-size: 96px; line-height: 1; color: #ede9fe; font-family: Georgia, serif; pointer-events: none; }
+
+    /* ── Table ── */
+    .compare-check { color: #16a34a; font-weight: 700; }
+    .compare-cross  { color: #dc2626; }
+
+    /* ── Glow badge ── */
+    .badge-glow { animation: pulse-ring 2.5s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(139,92,246,.4); }
+
+    /* ── Scroll bar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f9fafb; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
   </style>
   <link rel="canonical" href="https://nkusib.github.io/TasktimelineSaaS/"/>
   <meta name="keywords" content="gantt chart, project timeline, project management, task tracker, team collaboration, free gantt tool"/>
@@ -104,419 +154,554 @@
   }
   </script>
 </head>
-<body class="bg-white text-gray-900">
+<body>
 
-<!-- NAVIGATION -->
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
+<!-- ═══════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════ -->
+<nav class="sticky top-0 z-50 nav-glass border-b border-gray-100/80">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
-        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    <!-- Logo -->
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-md shadow-violet-200">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
       </div>
-      <span class="font-bold text-lg">TaskTimeline Pro</span>
+      <span class="font-bold text-gray-900" style="font-size:1.05rem;letter-spacing:-.01em">TaskTimeline <span class="gradient-text">Pro</span></span>
     </div>
-    <div class="hidden md:flex items-center gap-6 text-sm text-gray-600">
-      <a href="#features" class="hover:text-gray-900">Features</a>
-      <a href="#pricing" class="hover:text-gray-900">Pricing</a>
-      <a href="#demo" class="hover:text-gray-900">Demo</a>
+    <!-- Links -->
+    <div class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-500">
+      <a href="#features" class="hover:text-gray-900 transition-colors">Features</a>
+      <a href="#pricing"  class="hover:text-gray-900 transition-colors">Pricing</a>
+      <a href="#demo"     class="hover:text-gray-900 transition-colors">Demo</a>
     </div>
-    <div class="flex items-center gap-3">
-      <a href="#pricing" class="px-4 py-2 rounded-lg gradient-bg text-white text-sm font-medium hover:opacity-90 transition-opacity">
-        Get started free
+    <!-- CTA -->
+    <div class="flex items-center gap-2">
+      <a href="./app.html" class="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2">Try free</a>
+      <a href="#pricing" class="px-4 py-2 rounded-xl gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-md shadow-violet-200">
+        Get started →
       </a>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="pt-20 pb-16 px-4 text-center">
-  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-6">
-    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
-    New: AI-powered task suggestions in Pro
-  </div>
-  <h1 class="text-5xl sm:text-6xl font-bold leading-tight mb-6 max-w-3xl mx-auto">
-    Project timelines your <span class="gradient-text">team will actually use</span>
-  </h1>
-  <p class="text-xl text-gray-500 mb-8 max-w-2xl mx-auto leading-relaxed">
-    The simplest, most beautiful Gantt chart tool for modern teams. Plan work, track progress, and share with stakeholders — all in one gorgeous timeline.
-  </p>
-  <div class="flex flex-col sm:flex-row gap-3 justify-center">
-    <a href="#pricing" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl gradient-bg text-white font-semibold hover:opacity-90 transition-opacity shadow-lg">
-      Start for free →
-    </a>
-    <a href="./app.html" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800">
-      Try it free — no signup
-    </a>
-  </div>
-  <p class="mt-4 text-sm text-gray-400">No credit card required. Cancel anytime.</p>
-</section>
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section class="relative overflow-hidden pt-24 pb-20 px-4 text-center dot-grid">
+  <!-- Background blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-<!-- PRODUCT SCREENSHOT MOCKUP -->
-<section id="demo" class="max-w-6xl mx-auto px-4 pb-16">
-  <div class="rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
-    <div class="bg-gray-800 px-4 py-2.5 flex items-center gap-2">
-      <div class="w-3 h-3 rounded-full bg-red-400"></div>
-      <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-      <div class="w-3 h-3 rounded-full bg-green-400"></div>
-      <span class="ml-3 text-gray-400 text-xs">tasktimelinepro.com/dashboard</span>
+  <div class="relative z-10 max-w-4xl mx-auto">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-sm font-semibold mb-8 anim-up badge-glow" style="animation-delay:.1s">
+      <span class="w-2 h-2 rounded-full bg-violet-500 inline-block"></span>
+      Save 76% vs Asana — flat-rate pricing for teams
     </div>
-    <div class="bg-white p-6">
-      <div class="flex items-center justify-between mb-5">
-        <div>
-          <div class="font-bold text-gray-900 text-lg">Q3 Product Launch</div>
-          <div class="text-sm text-gray-400">8 tasks · In progress · 3 team members</div>
-        </div>
-        <div class="flex gap-2">
-          <span class="px-2.5 py-1 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">3 Done</span>
-          <span class="px-2.5 py-1 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200 font-medium">2 In Progress</span>
-          <span class="px-2.5 py-1 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200 font-medium">3 Planned</span>
-        </div>
-      </div>
-      <!-- Mini Gantt chart -->
-      <div class="space-y-2.5">
-        <div id="demo-tasks"></div>
-      </div>
-      <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between text-xs text-gray-400">
-        <span>Last updated 2 minutes ago</span>
-        <div class="flex gap-3">
-          <button class="hover:text-gray-700">Share link</button>
-          <button class="hover:text-gray-700">Export CSV</button>
-        </div>
-      </div>
+
+    <!-- Headline -->
+    <h1 class="font-black text-gray-900 mb-6 anim-up" style="font-size:clamp(2.6rem,6vw,4.2rem);line-height:1.1;letter-spacing:-.03em;animation-delay:.15s">
+      Project timelines your<br/>
+      <span class="gradient-text">team will actually use</span>
+    </h1>
+
+    <!-- Sub -->
+    <p class="text-lg sm:text-xl text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed anim-up" style="animation-delay:.22s">
+      The most beautiful Gantt chart tool for modern teams — at one flat monthly rate. No per-seat pricing. No surprises.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center anim-up" style="animation-delay:.3s">
+      <a href="#pricing" class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl gradient-bg text-white font-bold text-base hover:opacity-90 transition-opacity shadow-xl shadow-violet-300/40">
+        Start for free →
+      </a>
+      <a href="./app.html" class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-white border-2 border-gray-200 text-gray-800 font-bold text-base hover:border-violet-300 hover:bg-violet-50 transition-all">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Live demo — no signup
+      </a>
     </div>
+    <p class="mt-4 text-sm text-gray-400 anim-up" style="animation-delay:.36s">No credit card required · Cancel anytime · 14-day free trial</p>
   </div>
 </section>
 
-<!-- SOCIAL PROOF -->
-<section class="py-10 border-y border-gray-100 bg-gray-50">
-  <div class="max-w-5xl mx-auto px-4 text-center">
-    <div class="flex items-center justify-center gap-1 mb-2">
-      <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-      <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-      <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-      <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-      <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-      <span class="ml-2 text-sm text-gray-600 font-medium">4.9/5 from 1,200+ reviews</span>
+<!-- ═══════════════════════════════════════════
+     PRODUCT DEMO MOCKUP
+════════════════════════════════════════════ -->
+<section id="demo" class="max-w-5xl mx-auto px-4 pb-20">
+  <div class="rounded-2xl overflow-hidden shadow-2xl border border-gray-200" style="box-shadow:0 32px 64px -16px rgba(124,58,237,.18)">
+    <!-- Browser chrome -->
+    <div class="bg-gray-800 px-4 py-3 flex items-center gap-2">
+      <div class="w-3 h-3 rounded-full bg-red-400/90"></div>
+      <div class="w-3 h-3 rounded-full bg-yellow-400/90"></div>
+      <div class="w-3 h-3 rounded-full bg-green-400/90"></div>
+      <div class="flex-1 mx-4">
+        <div class="bg-gray-700 rounded-md px-3 py-1 text-gray-400 text-xs text-center max-w-xs mx-auto">
+          🔒 tasktimelinepro.com/dashboard
+        </div>
+      </div>
     </div>
-    <p class="text-sm text-gray-400">Trusted by 5,000+ project managers at startups and Fortune 500 companies</p>
+    <!-- App body -->
+    <div class="bg-white">
+      <!-- App toolbar -->
+      <div class="border-b border-gray-100 px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <div class="font-bold text-gray-900 text-sm">Q3 Product Launch</div>
+            <div class="text-[11px] text-gray-400">8 tasks · 3 team members</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-full text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">3 Done</span>
+          <span class="px-2.5 py-1 rounded-full text-[11px] bg-blue-50 text-blue-700 border border-blue-200 font-semibold">2 In Progress</span>
+          <span class="px-2.5 py-1 rounded-full text-[11px] bg-amber-50 text-amber-700 border border-amber-200 font-semibold">3 Planned</span>
+        </div>
+      </div>
+      <!-- Gantt area -->
+      <div class="p-5">
+        <!-- Month header -->
+        <div class="flex items-center gap-4 mb-3 pl-36">
+          <div class="flex-1 grid grid-cols-4 gap-0">
+            <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center">Jul</div>
+            <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center">Aug</div>
+            <div class="text-[10px] font-semibold text-violet-500 uppercase tracking-wider text-center">Sep ◂ now</div>
+            <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center">Oct</div>
+          </div>
+        </div>
+        <!-- Tasks -->
+        <div id="demo-tasks" class="space-y-2"></div>
+        <!-- Footer row -->
+        <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-400">
+          <span>Last updated 2 min ago</span>
+          <div class="flex gap-4">
+            <button class="hover:text-violet-600 transition-colors">Share link ↗</button>
+            <button class="hover:text-violet-600 transition-colors">Export CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- FEATURES -->
-<section id="features" class="py-24 px-4">
+<!-- ═══════════════════════════════════════════
+     SOCIAL PROOF BAR
+════════════════════════════════════════════ -->
+<section class="py-12 border-y border-gray-100" style="background:linear-gradient(135deg,#faf5ff,#eff6ff)">
+  <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 text-center">
+    <div>
+      <div class="text-3xl font-black text-gray-900">5,000+</div>
+      <div class="text-sm text-gray-500 mt-0.5">teams using it</div>
+    </div>
+    <div class="hidden sm:block w-px h-10 bg-gray-200"></div>
+    <div>
+      <div class="flex items-center justify-center gap-0.5 mb-1">
+        <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+      </div>
+      <div class="text-3xl font-black text-gray-900">4.9 / 5</div>
+      <div class="text-sm text-gray-500 mt-0.5">from 1,200+ reviews</div>
+    </div>
+    <div class="hidden sm:block w-px h-10 bg-gray-200"></div>
+    <div>
+      <div class="text-3xl font-black gradient-text">$732</div>
+      <div class="text-sm text-gray-500 mt-0.5">avg. yearly savings vs Asana</div>
+    </div>
+    <div class="hidden sm:block w-px h-10 bg-gray-200"></div>
+    <div>
+      <div class="text-3xl font-black text-gray-900">&lt; 2 min</div>
+      <div class="text-sm text-gray-500 mt-0.5">to get up and running</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════ -->
+<section id="features" class="py-28 px-4">
   <div class="max-w-6xl mx-auto">
     <div class="text-center mb-16">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">Everything you need, nothing you don't</h2>
-      <p class="text-xl text-gray-500 max-w-2xl mx-auto">Built for real teams. Powerful enough for complex projects, simple enough for daily use.</p>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold uppercase tracking-widest mb-5">Features</div>
+      <h2 class="font-black text-gray-900 mb-4" style="font-size:clamp(2rem,4vw,2.8rem);letter-spacing:-.025em">Everything you need,<br/>nothing you don't</h2>
+      <p class="text-lg text-gray-500 max-w-xl mx-auto">Built for real teams. Powerful enough for complex projects, simple enough for daily use.</p>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all">
-        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-          <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- card -->
+      <div class="feature-card p-7 rounded-2xl border border-gray-100 bg-white">
+        <div class="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center mb-5 shadow-lg shadow-violet-200/60">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </div>
-        <h3 class="font-semibold text-gray-900 mb-2">Visual Gantt Timelines</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2">Visual Gantt Timelines</h3>
         <p class="text-sm text-gray-500 leading-relaxed">Color-coded bars, drag-to-reschedule, instant progress tracking. Your entire project at a glance.</p>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all">
-        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-4">
-          <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+
+      <div class="feature-card p-7 rounded-2xl border border-gray-100 bg-white">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-lg" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);box-shadow:0 8px 24px -4px rgba(139,92,246,.35)">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </div>
-        <h3 class="font-semibold text-gray-900 mb-2">Team Collaboration</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2">Team Collaboration</h3>
         <p class="text-sm text-gray-500 leading-relaxed">Invite teammates, assign owners, leave comments, track progress together in real time.</p>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all">
-        <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-4">
-          <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+
+      <div class="feature-card p-7 rounded-2xl border border-gray-100 bg-white">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-lg" style="background:linear-gradient(135deg,#f59e0b,#f97316);box-shadow:0 8px 24px -4px rgba(245,158,11,.35)">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
-        <h3 class="font-semibold text-gray-900 mb-2">Blazing Fast Setup</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2">Blazing Fast Setup</h3>
         <p class="text-sm text-gray-500 leading-relaxed">No bloat, no 50-tab learning curve. You're up and running in under 2 minutes. Guaranteed.</p>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+
+      <div class="feature-card p-7 rounded-2xl border border-gray-100 bg-white">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-lg" style="background:linear-gradient(135deg,#10b981,#0ea5e9);box-shadow:0 8px 24px -4px rgba(16,185,129,.35)">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
         </div>
-        <h3 class="font-semibold text-gray-900 mb-2">Share Anywhere</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">One link shares your entire timeline. Embed in Google Sites, Notion, or Confluence.</p>
+        <h3 class="font-bold text-gray-900 text-base mb-2">Share Anywhere</h3>
+        <p class="text-sm text-gray-500 leading-relaxed">One link shares your entire timeline. Embed in Notion, Google Sites, or Confluence.</p>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all">
-        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center mb-4">
-          <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+
+      <div class="feature-card p-7 rounded-2xl border border-gray-100 bg-white">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-lg" style="background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 8px 24px -4px rgba(239,68,68,.35)">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         </div>
-        <h3 class="font-semibold text-gray-900 mb-2">Secure &amp; Private</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2">Secure &amp; Private</h3>
         <p class="text-sm text-gray-500 leading-relaxed">Data encrypted at rest and in transit. GDPR compliant. We never sell your data.</p>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all">
-        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-          <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+
+      <div class="feature-card p-7 rounded-2xl border border-gray-100 bg-white">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-lg" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);box-shadow:0 8px 24px -4px rgba(14,165,233,.35)">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </div>
-        <h3 class="font-semibold text-gray-900 mb-2">Export Everything</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2">Export Everything</h3>
         <p class="text-sm text-gray-500 leading-relaxed">CSV, PDF, PNG, or JSON. Take your data anywhere. No lock-in, ever.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PRICING -->
-<section id="pricing" class="py-24 px-4 bg-gray-50">
+<!-- ═══════════════════════════════════════════
+     PRICING
+════════════════════════════════════════════ -->
+<section id="pricing" class="py-28 px-4 dot-grid" style="background-color:#f8f7ff">
   <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">Simple, transparent pricing</h2>
-      <p class="text-xl text-gray-500">Start free. Upgrade when you need more. Cancel anytime.</p>
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 border border-violet-200 text-violet-700 text-xs font-semibold uppercase tracking-widest mb-5">Pricing</div>
+      <h2 class="font-black text-gray-900 mb-4" style="font-size:clamp(2rem,4vw,2.8rem);letter-spacing:-.025em">Simple, transparent pricing</h2>
+      <p class="text-lg text-gray-500">Start free. Upgrade when you need more. Cancel anytime.</p>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+
       <!-- Free -->
-      <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
-        <div class="mb-4">
+      <div class="price-card bg-white rounded-2xl border border-gray-200 p-7 flex flex-col shadow-sm">
+        <div class="mb-5">
           <div class="font-bold text-gray-900 text-lg">Free</div>
-          <div class="text-sm text-gray-500 mt-1">Perfect for personal projects</div>
+          <div class="text-sm text-gray-400 mt-1">Perfect for personal projects</div>
         </div>
         <div class="mb-6">
-          <span class="text-3xl font-bold text-gray-900">$0</span>
-          <span class="text-gray-400 text-sm"> forever</span>
+          <span class="text-4xl font-black text-gray-900">$0</span>
+          <span class="text-gray-400 text-sm ml-1">forever</span>
         </div>
-        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>1 project</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>10 tasks</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Export to JSON</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Shareable links</li>
+        <ul class="space-y-2.5 flex-1 mb-7 text-sm text-gray-600">
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-green-600 text-xs font-bold">✓</span>1 project</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-green-600 text-xs font-bold">✓</span>10 tasks</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-green-600 text-xs font-bold">✓</span>Export to JSON</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-green-600 text-xs font-bold">✓</span>Shareable links</li>
         </ul>
-        <a href="./app.html" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">
+        <a href="./app.html" class="w-full py-3 rounded-xl bg-gray-900 text-white font-bold text-center text-sm hover:bg-gray-700 transition-colors">
           Try free — no signup
         </a>
       </div>
 
       <!-- Pro — HIGHLIGHTED -->
-      <div class="relative bg-white rounded-2xl border-2 border-blue-500 shadow-xl shadow-blue-100 p-6 flex flex-col">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-bg text-white text-xs font-semibold">
-          Most popular
+      <div class="price-card relative price-popular rounded-2xl p-7 flex flex-col shadow-2xl" style="box-shadow:0 32px 64px -16px rgba(124,58,237,.4)">
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold shadow-lg whitespace-nowrap">
+          ⭐ Most popular
         </div>
-        <div class="mb-4">
-          <div class="font-bold text-gray-900 text-lg">Pro</div>
-          <div class="text-sm text-gray-500 mt-1">For serious project managers</div>
+        <div class="mb-5">
+          <div class="font-bold text-white text-lg">Pro</div>
+          <div class="text-sm text-indigo-200 mt-1">For serious project managers</div>
         </div>
         <div class="mb-1">
-          <span class="text-3xl font-bold text-gray-900">$19</span>
-          <span class="text-gray-400 text-sm">/month</span>
+          <span class="text-4xl font-black text-white">$19</span>
+          <span class="text-indigo-200 text-sm ml-1">/month</span>
         </div>
-        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
-        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Unlimited projects</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Unlimited tasks</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>CSV &amp; PDF export</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Custom colors &amp; themes</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Priority support</li>
+        <div class="text-xs text-indigo-300 mb-6 font-medium">14-day free trial · no card needed</div>
+        <ul class="space-y-2.5 flex-1 mb-7 text-sm text-indigo-100">
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">✓</span>Unlimited projects</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">✓</span>Unlimited tasks</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">✓</span>CSV &amp; PDF export</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">✓</span>Custom colors &amp; themes</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">✓</span>Priority support</li>
         </ul>
-        <button onclick="showCryptoModal('Pro','19')" class="w-full py-2.5 rounded-xl gradient-bg text-white font-semibold text-center text-sm hover:opacity-90 transition-opacity" id="pro-cta">
+        <button onclick="showCryptoModal('Pro','19')" class="w-full py-3 rounded-xl bg-white text-indigo-700 font-bold text-center text-sm hover:bg-indigo-50 transition-colors shadow-lg" id="pro-cta">
           💎 Pay with USDT →
         </button>
-        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=nkusib%40gmail.com&item_name=TaskTimeline+Pro+%2419%2Fmonth&amount=19.00&currency_code=USD" target="_blank" rel="noopener" class="w-full mt-2 py-1.5 rounded-xl border border-gray-200 text-gray-400 text-xs text-center block hover:bg-gray-50">or PayPal (coming soon)</a>
+        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=nkusib%40gmail.com&item_name=TaskTimeline+Pro+%2419%2Fmonth&amount=19.00&currency_code=USD" target="_blank" rel="noopener" class="w-full mt-2 py-2 rounded-xl border border-white/20 text-indigo-200 text-xs text-center block hover:bg-white/10">or PayPal (coming soon)</a>
       </div>
 
       <!-- Team -->
-      <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
-        <div class="mb-4">
+      <div class="price-card bg-white rounded-2xl border border-gray-200 p-7 flex flex-col shadow-sm">
+        <div class="mb-5">
           <div class="font-bold text-gray-900 text-lg">Team</div>
-          <div class="text-sm text-gray-500 mt-1">For growing teams</div>
+          <div class="text-sm text-gray-400 mt-1">For growing teams</div>
         </div>
         <div class="mb-1">
-          <span class="text-3xl font-bold text-gray-900">$49</span>
-          <span class="text-gray-400 text-sm">/month</span>
+          <span class="text-4xl font-black text-gray-900">$49</span>
+          <span class="text-gray-400 text-sm ml-1">/month</span>
         </div>
-        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
-        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Everything in Pro</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Up to 10 team members</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Real-time collaboration</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Comments &amp; mentions</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Role-based permissions</li>
+        <div class="text-xs text-blue-600 mb-6 font-medium">14-day free trial · no card needed</div>
+        <ul class="space-y-2.5 flex-1 mb-7 text-sm text-gray-600">
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Everything in Pro</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Up to 10 team members</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Real-time collaboration</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Comments &amp; mentions</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Role-based permissions</li>
         </ul>
-        <button onclick="showCryptoModal('Team','49')" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">
+        <button onclick="showCryptoModal('Team','49')" class="w-full py-3 rounded-xl gradient-bg text-white font-bold text-center text-sm hover:opacity-90 transition-opacity shadow-md shadow-violet-200">
           💎 Pay with USDT →
         </button>
-        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=nkusib%40gmail.com&item_name=TaskTimeline+Team+%2449%2Fmonth&amount=49.00&currency_code=USD" target="_blank" rel="noopener" class="w-full mt-2 py-1.5 rounded-xl border border-gray-200 text-gray-400 text-xs text-center block hover:bg-gray-50">or PayPal (coming soon)</a>
+        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=nkusib%40gmail.com&item_name=TaskTimeline+Team+%2449%2Fmonth&amount=49.00&currency_code=USD" target="_blank" rel="noopener" class="w-full mt-2 py-2 rounded-xl border border-gray-200 text-gray-400 text-xs text-center block hover:bg-gray-50">or PayPal (coming soon)</a>
       </div>
 
       <!-- Business -->
-      <div class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col">
-        <div class="mb-4">
+      <div class="price-card bg-white rounded-2xl border border-gray-200 p-7 flex flex-col shadow-sm">
+        <div class="mb-5">
           <div class="font-bold text-gray-900 text-lg">Business</div>
-          <div class="text-sm text-gray-500 mt-1">For large organizations</div>
+          <div class="text-sm text-gray-400 mt-1">For large organizations</div>
         </div>
         <div class="mb-1">
-          <span class="text-3xl font-bold text-gray-900">$199</span>
-          <span class="text-gray-400 text-sm">/month</span>
+          <span class="text-4xl font-black text-gray-900">$199</span>
+          <span class="text-gray-400 text-sm ml-1">/month</span>
         </div>
-        <div class="text-xs text-blue-600 mb-5">14-day free trial</div>
-        <ul class="space-y-2 flex-1 mb-6 text-sm text-gray-600">
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Everything in Team</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Unlimited team members</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>SSO / SAML</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>REST API access</li>
-          <li class="flex items-start gap-2"><svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Dedicated account manager</li>
+        <div class="text-xs text-blue-600 mb-6 font-medium">14-day free trial · no card needed</div>
+        <ul class="space-y-2.5 flex-1 mb-7 text-sm text-gray-600">
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Everything in Team</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Unlimited team members</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>SSO / SAML</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>REST API access</li>
+          <li class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-violet-50 flex items-center justify-center shrink-0 text-violet-600 text-xs font-bold">✓</span>Dedicated account manager</li>
         </ul>
-        <button onclick="showCryptoModal('Business','199')" class="w-full py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors">
+        <button onclick="showCryptoModal('Business','199')" class="w-full py-3 rounded-xl bg-gray-900 text-white font-bold text-center text-sm hover:bg-gray-700 transition-colors">
           💎 Pay with USDT →
         </button>
-        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=nkusib%40gmail.com&item_name=TaskTimeline+Business+%24199%2Fmonth&amount=199.00&currency_code=USD" target="_blank" rel="noopener" class="w-full mt-2 py-1.5 rounded-xl border border-gray-200 text-gray-400 text-xs text-center block hover:bg-gray-50">or PayPal (coming soon)</a>
+        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=nkusib%40gmail.com&item_name=TaskTimeline+Business+%24199%2Fmonth&amount=199.00&currency_code=USD" target="_blank" rel="noopener" class="w-full mt-2 py-2 rounded-xl border border-gray-200 text-gray-400 text-xs text-center block hover:bg-gray-50">or PayPal (coming soon)</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="py-24 px-4">
+<!-- ═══════════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════════════ -->
+<section class="py-28 px-4 bg-white">
   <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">Teams love TaskTimeline Pro</h2>
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold uppercase tracking-widest mb-5">Testimonials</div>
+      <h2 class="font-black text-gray-900" style="font-size:clamp(2rem,4vw,2.8rem);letter-spacing:-.025em">Teams love TaskTimeline Pro</h2>
     </div>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="p-6 rounded-2xl border border-gray-100 bg-white">
-        <div class="flex gap-0.5 mb-4">
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="testi-card p-7 rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-violet-50/40">
+        <div class="flex gap-0.5 mb-5 relative z-10">
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
         </div>
-        <p class="text-gray-700 mb-6 text-sm leading-relaxed">"TaskTimeline replaced our $500/month project management tool. The team was up and running in an hour. Absolutely love it."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-semibold text-sm">SC</div>
+        <p class="text-gray-700 mb-7 text-sm leading-relaxed relative z-10 pt-6">"TaskTimeline replaced our $500/month project management tool. The team was up and running in an hour. Absolutely love it."</p>
+        <div class="flex items-center gap-3 relative z-10">
+          <div class="w-11 h-11 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-sm shadow-md">SC</div>
           <div>
             <div class="font-semibold text-sm text-gray-900">Sarah Chen</div>
             <div class="text-xs text-gray-400">Engineering Manager @ Stripe</div>
           </div>
         </div>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 bg-white">
-        <div class="flex gap-0.5 mb-4">
+
+      <div class="testi-card p-7 rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-blue-50/40">
+        <div class="flex gap-0.5 mb-5 relative z-10">
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
         </div>
-        <p class="text-gray-700 mb-6 text-sm leading-relaxed">"The cleanest Gantt tool I've ever used. No bloat, no endless settings — just a beautiful timeline that actually makes sense."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-semibold text-sm">MJ</div>
+        <p class="text-gray-700 mb-7 text-sm leading-relaxed relative z-10 pt-6">"The cleanest Gantt tool I've ever used. No bloat, no endless settings — just a beautiful timeline that actually makes sense."</p>
+        <div class="flex items-center gap-3 relative z-10">
+          <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">MJ</div>
           <div>
             <div class="font-semibold text-sm text-gray-900">Marcus Johnson</div>
             <div class="text-xs text-gray-400">Product Director @ Shopify</div>
           </div>
         </div>
       </div>
-      <div class="p-6 rounded-2xl border border-gray-100 bg-white">
-        <div class="flex gap-0.5 mb-4">
+
+      <div class="testi-card p-7 rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-emerald-50/40">
+        <div class="flex gap-0.5 mb-5 relative z-10">
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
         </div>
-        <p class="text-gray-700 mb-6 text-sm leading-relaxed">"I moved my entire agency of 12 people onto this. Clients love the shared links. We cut status-meeting time in half."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-semibold text-sm">AK</div>
+        <p class="text-gray-700 mb-7 text-sm leading-relaxed relative z-10 pt-6">"I moved my entire agency of 12 people onto this. Clients love the shared links. We cut status-meeting time in half."</p>
+        <div class="flex items-center gap-3 relative z-10">
+          <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md" style="background:linear-gradient(135deg,#10b981,#0ea5e9)">AK</div>
           <div>
             <div class="font-semibold text-sm text-gray-900">Aisha Kamara</div>
             <div class="text-xs text-gray-400">Founder @ BuildFast Agency</div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- COMPARISON TABLE -->
-<section class="py-24 px-4 bg-white">
+<!-- ═══════════════════════════════════════════
+     COMPARISON TABLE
+════════════════════════════════════════════ -->
+<section class="py-28 px-4" style="background:linear-gradient(135deg,#f8f7ff,#eff6ff)">
   <div class="max-w-4xl mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">How we compare</h2>
-      <p class="text-xl text-gray-500">Flat-rate pricing beats per-seat pricing every time for growing teams.</p>
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-semibold uppercase tracking-widest mb-5">Compare</div>
+      <h2 class="font-black text-gray-900 mb-4" style="font-size:clamp(2rem,4vw,2.8rem);letter-spacing:-.025em">How we compare</h2>
+      <p class="text-lg text-gray-500">Flat-rate pricing beats per-seat every time for growing teams.</p>
     </div>
-    <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+    <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-xl" style="box-shadow:0 20px 40px -12px rgba(124,58,237,.12)">
       <table class="w-full text-sm">
         <thead>
-          <tr class="bg-gray-50 border-b border-gray-200">
-            <th class="text-left p-4 font-semibold text-gray-700">Feature</th>
-            <th class="text-center p-4 font-bold text-blue-600">TaskTimeline Pro<br/><span class="font-normal text-xs text-gray-500">$49/mo flat (Team)</span></th>
-            <th class="text-center p-4 font-semibold text-gray-500">Asana<br/><span class="font-normal text-xs text-gray-400">$10.99/user/mo</span></th>
-            <th class="text-center p-4 font-semibold text-gray-500">Monday.com<br/><span class="font-normal text-xs text-gray-400">$9/user/mo</span></th>
+          <tr class="border-b border-gray-200">
+            <th class="text-left p-5 font-semibold text-gray-600 bg-white">Feature</th>
+            <th class="text-center p-5 font-bold gradient-bg text-white">TaskTimeline Pro<br/><span class="font-normal text-xs opacity-80">$49/mo flat (Team)</span></th>
+            <th class="text-center p-5 font-semibold text-gray-500 bg-gray-50">Asana<br/><span class="font-normal text-xs text-gray-400">$10.99/user/mo</span></th>
+            <th class="text-center p-5 font-semibold text-gray-500 bg-gray-50">Monday.com<br/><span class="font-normal text-xs text-gray-400">$9/user/mo</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr><td class="p-4 text-gray-700">10-user team cost</td><td class="p-4 text-center font-bold text-blue-600">$49/mo</td><td class="p-4 text-center text-gray-500">$110/mo</td><td class="p-4 text-center text-gray-500">$90/mo</td></tr>
-          <tr class="bg-gray-50"><td class="p-4 text-gray-700">Gantt timeline view</td><td class="p-4 text-center text-green-600">&#10003;</td><td class="p-4 text-center text-gray-400">Premium only</td><td class="p-4 text-center text-green-600">&#10003;</td></tr>
-          <tr><td class="p-4 text-gray-700">Free plan</td><td class="p-4 text-center text-green-600">&#10003; Forever</td><td class="p-4 text-center text-green-600">&#10003; Limited</td><td class="p-4 text-center text-gray-400">14-day trial only</td></tr>
-          <tr class="bg-gray-50"><td class="p-4 text-gray-700">Setup time</td><td class="p-4 text-center text-green-600">Under 2 min</td><td class="p-4 text-center text-gray-500">30+ min</td><td class="p-4 text-center text-gray-500">45+ min</td></tr>
-          <tr><td class="p-4 text-gray-700">CSV export</td><td class="p-4 text-center text-green-600">&#10003; All plans</td><td class="p-4 text-center text-gray-400">Premium only</td><td class="p-4 text-center text-gray-400">Premium only</td></tr>
-          <tr class="bg-gray-50"><td class="p-4 text-gray-700">Flat-rate pricing</td><td class="p-4 text-center text-green-600">&#10003;</td><td class="p-4 text-center text-gray-400">&#10007; Per seat</td><td class="p-4 text-center text-gray-400">&#10007; Per seat</td></tr>
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <td class="p-5 text-gray-700 font-medium">10-user team cost</td>
+            <td class="p-5 text-center font-black text-white gradient-bg text-lg">$49/mo</td>
+            <td class="p-5 text-center text-gray-500">$110/mo</td>
+            <td class="p-5 text-center text-gray-500">$90/mo</td>
+          </tr>
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <td class="p-5 text-gray-700 font-medium">Gantt timeline view</td>
+            <td class="p-5 text-center compare-check text-base gradient-bg text-white">✓</td>
+            <td class="p-5 text-center text-gray-400 text-xs">Premium only</td>
+            <td class="p-5 text-center compare-check text-base">✓</td>
+          </tr>
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <td class="p-5 text-gray-700 font-medium">Free plan</td>
+            <td class="p-5 text-center text-white font-semibold gradient-bg text-xs">✓ Forever</td>
+            <td class="p-5 text-center text-green-600 font-medium text-xs">✓ Limited</td>
+            <td class="p-5 text-center text-gray-400 text-xs">14-day trial only</td>
+          </tr>
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <td class="p-5 text-gray-700 font-medium">Setup time</td>
+            <td class="p-5 text-center text-white font-semibold gradient-bg text-xs">Under 2 min</td>
+            <td class="p-5 text-center text-gray-500 text-xs">30+ min</td>
+            <td class="p-5 text-center text-gray-500 text-xs">45+ min</td>
+          </tr>
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <td class="p-5 text-gray-700 font-medium">CSV export</td>
+            <td class="p-5 text-center text-white gradient-bg text-xs font-semibold">✓ All plans</td>
+            <td class="p-5 text-center text-gray-400 text-xs">Premium only</td>
+            <td class="p-5 text-center text-gray-400 text-xs">Premium only</td>
+          </tr>
+          <tr class="hover:bg-gray-50/50 transition-colors">
+            <td class="p-5 text-gray-700 font-medium">Flat-rate pricing</td>
+            <td class="p-5 text-center text-white gradient-bg font-bold">✓</td>
+            <td class="p-5 text-center compare-cross">✗ Per seat</td>
+            <td class="p-5 text-center compare-cross">✗ Per seat</td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <p class="text-center mt-6 text-sm text-gray-400">* Prices as of 2025. Asana Business plan required for Gantt. Monday.com Pro plan required for Timeline.</p>
+    <p class="text-center mt-5 text-xs text-gray-400">* Prices as of 2025. Asana Business required for Gantt. Monday.com Pro required for Timeline view.</p>
   </div>
 </section>
 
-<!-- FAQ SECTION -->
-<section class="py-24 px-4 bg-gray-50">
+<!-- ═══════════════════════════════════════════
+     FAQ
+════════════════════════════════════════════ -->
+<section class="py-28 px-4 bg-white">
   <div class="max-w-3xl mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">Frequently asked questions</h2>
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-600 text-xs font-semibold uppercase tracking-widest mb-5">FAQ</div>
+      <h2 class="font-black text-gray-900" style="font-size:clamp(2rem,4vw,2.8rem);letter-spacing:-.025em">Frequently asked questions</h2>
     </div>
-    <div class="space-y-4">
-      <details class="bg-white rounded-2xl border border-gray-200 p-6 group">
-        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+    <div class="space-y-3">
+      <details class="rounded-2xl border border-gray-200 overflow-hidden group">
+        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
           How is TaskTimeline Pro different from Asana or Monday.com?
-          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </summary>
-        <p class="mt-3 text-gray-500 text-sm leading-relaxed">TaskTimeline Pro charges a flat monthly rate ($19–$199) regardless of team size. Asana charges $10.99/user/month and Monday.com starts at $9/user. For a 10-person team, TaskTimeline Team ($49/mo) saves you $60+/month vs Asana.</p>
+        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">TaskTimeline Pro charges a flat monthly rate ($19–$199) regardless of team size. Asana charges $10.99/user/month and Monday.com starts at $9/user. For a 10-person team, TaskTimeline Team ($49/mo) saves you $60+/month vs Asana.</div>
       </details>
-      <details class="bg-white rounded-2xl border border-gray-200 p-6 group">
-        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+      <details class="rounded-2xl border border-gray-200 overflow-hidden group">
+        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
           Is there a free plan?
-          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </summary>
-        <p class="mt-3 text-gray-500 text-sm leading-relaxed">Yes. The free plan includes 1 project, 10 tasks, shareable links, and JSON export — forever, no credit card required. Upgrade only when you need more.</p>
+        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">Yes. The free plan includes 1 project, 10 tasks, shareable links, and JSON export — forever, no credit card required. Upgrade only when you need more.</div>
       </details>
-      <details class="bg-white rounded-2xl border border-gray-200 p-6 group">
-        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+      <details class="rounded-2xl border border-gray-200 overflow-hidden group">
+        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
           How long is the free trial for paid plans?
-          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </summary>
-        <p class="mt-3 text-gray-500 text-sm leading-relaxed">All paid plans (Pro, Team, Business) include a 14-day free trial. No credit card required to start your trial.</p>
+        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">All paid plans (Pro, Team, Business) include a 14-day free trial. No credit card required to start your trial.</div>
       </details>
-      <details class="bg-white rounded-2xl border border-gray-200 p-6 group">
-        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+      <details class="rounded-2xl border border-gray-200 overflow-hidden group">
+        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
           Can I export my project data?
-          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </summary>
-        <p class="mt-3 text-gray-500 text-sm leading-relaxed">Yes. Free users export to JSON. Pro and above export to CSV and PDF. All plans support shareable public links. Your data is always yours — no lock-in.</p>
+        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">Yes. Free users export to JSON. Pro and above export to CSV and PDF. All plans support shareable public links. Your data is always yours — no lock-in.</div>
       </details>
-      <details class="bg-white rounded-2xl border border-gray-200 p-6 group">
-        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+      <details class="rounded-2xl border border-gray-200 overflow-hidden group">
+        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
           Does it work for remote or distributed teams?
-          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </summary>
-        <p class="mt-3 text-gray-500 text-sm leading-relaxed">Absolutely. TaskTimeline Pro is built for remote teams — real-time collaboration, share-by-link timelines, and no software to install. Works in any browser on any device.</p>
+        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">Absolutely. TaskTimeline Pro is built for remote teams — real-time collaboration, share-by-link timelines, and no software to install. Works in any browser on any device.</div>
       </details>
-      <details class="bg-white rounded-2xl border border-gray-200 p-6 group">
-        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+      <details class="rounded-2xl border border-gray-200 overflow-hidden group">
+        <summary class="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
           Can I cancel my subscription anytime?
-          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </summary>
-        <p class="mt-3 text-gray-500 text-sm leading-relaxed">Yes. Cancel anytime from your billing dashboard with one click. You keep full access until the end of your billing period. No cancellation fees, ever.</p>
+        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">Yes. Cancel anytime from your billing dashboard with one click. You keep full access until the end of your billing period. No cancellation fees, ever.</div>
       </details>
     </div>
-    <div class="text-center mt-8">
-      <p class="text-gray-500 text-sm">Still have questions? <a href="mailto:nkusib@gmail.com" class="text-blue-600 hover:underline">Email us</a> and we'll reply within 24 hours.</p>
+    <div class="text-center mt-10">
+      <p class="text-gray-500 text-sm">Still have questions? <a href="mailto:nkusib@gmail.com" class="text-violet-600 font-semibold hover:underline">Email us</a> — we reply within 24 hours.</p>
     </div>
   </div>
 </section>
 
-<!-- EMAIL CAPTURE / WAITLIST -->
-<section id="signup" class="py-24 px-4 gradient-bg text-white">
-  <div class="max-w-2xl mx-auto text-center">
-    <h2 class="text-4xl font-bold mb-4">Ready to plan smarter?</h2>
-    <p class="text-blue-100 text-xl mb-8">Join 5,000+ teams. Free forever plan, no credit card needed.</p>
+<!-- ═══════════════════════════════════════════
+     EMAIL CTA
+════════════════════════════════════════════ -->
+<section id="signup" class="py-28 px-4 relative overflow-hidden" style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4c1d95 70%,#7c3aed 100%)">
+  <!-- Decorative blobs -->
+  <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10" style="background:radial-gradient(circle,#f0abfc,transparent);transform:translate(30%,-30%)"></div>
+  <div class="absolute bottom-0 left-0 w-72 h-72 rounded-full opacity-10" style="background:radial-gradient(circle,#38bdf8,transparent);transform:translate(-30%,30%)"></div>
+
+  <div class="relative z-10 max-w-2xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/80 text-xs font-semibold uppercase tracking-widest mb-6">
+      Free to start
+    </div>
+    <h2 class="font-black text-white mb-4" style="font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em">Ready to plan smarter?</h2>
+    <p class="text-indigo-200 text-lg mb-10">Join 5,000+ teams. Free forever plan, no credit card needed.</p>
     <form id="waitlist-form" action="https://formsubmit.co/nkusib@gmail.com" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
       <input type="hidden" name="_subject" value="New TaskTimeline Pro signup interest"/>
       <input type="hidden" name="_next" value="https://nkusib.github.io/TasktimelineSaaS/app.html"/>
@@ -527,74 +712,80 @@
         id="waitlist-email"
         placeholder="your@email.com"
         required
-        class="flex-1 px-4 py-3.5 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-white"
+        class="flex-1 px-5 py-4 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-white shadow-xl"
       />
       <button
         type="submit"
-        class="px-6 py-3.5 rounded-xl bg-white text-blue-700 font-bold text-sm hover:bg-blue-50 transition-colors whitespace-nowrap"
+        class="px-6 py-4 rounded-2xl bg-white text-indigo-700 font-black text-sm hover:bg-indigo-50 transition-colors whitespace-nowrap shadow-xl"
       >
-        Get early access →
+        Get started free →
       </button>
     </form>
-    <p id="waitlist-success" class="hidden mt-4 text-blue-100 text-sm">You're on the list! We'll email you when it's ready.</p>
-    <p class="mt-4 text-blue-200 text-sm">No spam ever. Unsubscribe anytime.</p>
+    <p id="waitlist-success" class="hidden mt-4 text-indigo-200 text-sm">You're on the list!</p>
+    <p class="mt-5 text-indigo-300 text-xs">No spam ever · Unsubscribe anytime · Cancel subscription anytime</p>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="py-12 px-4 border-t border-gray-100">
-  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-    <div class="flex items-center gap-2">
-      <div class="w-6 h-6 rounded-md gradient-bg flex items-center justify-center">
-        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer class="py-14 px-4 border-t border-gray-100 bg-white">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-xl gradient-bg flex items-center justify-center shadow-md shadow-violet-200">
+        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
       </div>
-      <span class="font-bold text-sm">TaskTimeline Pro</span>
+      <span class="font-bold text-gray-900">TaskTimeline <span class="gradient-text">Pro</span></span>
     </div>
-    <div class="flex gap-6 text-sm text-gray-400">
-      <a href="#" class="hover:text-gray-700">Privacy</a>
-      <a href="#" class="hover:text-gray-700">Terms</a>
-      <a href="mailto:nkusib@gmail.com" class="hover:text-gray-700">Contact</a>
+    <div class="flex gap-8 text-sm text-gray-400">
+      <a href="#" class="hover:text-gray-700 transition-colors">Privacy</a>
+      <a href="#" class="hover:text-gray-700 transition-colors">Terms</a>
+      <a href="mailto:nkusib@gmail.com" class="hover:text-gray-700 transition-colors">Contact</a>
     </div>
-    <p class="text-sm text-gray-400">&copy; 2026 TaskTimeline Pro</p>
+    <p class="text-sm text-gray-400">&copy; 2026 TaskTimeline Pro. All rights reserved.</p>
   </div>
 </footer>
 
-<!-- Crypto Payment Modal -->
-<div id="crypto-modal" class="hidden fixed inset-0 bg-black/70 items-center justify-center p-4 z-50" onclick="closeCryptoModal()">
-  <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl" onclick="event.stopPropagation()">
-    <div class="text-3xl mb-1">💎</div>
-    <h3 class="font-bold text-lg mb-0.5">Pay with USDT</h3>
-    <p id="crypto-plan-label" class="text-blue-600 font-semibold text-sm mb-4"></p>
+<!-- ═══════════════════════════════════════════
+     CRYPTO PAYMENT MODAL
+════════════════════════════════════════════ -->
+<div id="crypto-modal" class="hidden fixed inset-0 items-center justify-center p-4 z-50" style="background:rgba(15,10,40,.75);backdrop-filter:blur(6px)" onclick="closeCryptoModal()">
+  <div class="bg-white rounded-3xl p-7 max-w-sm w-full text-center shadow-2xl" style="box-shadow:0 32px 64px -16px rgba(124,58,237,.5)" onclick="event.stopPropagation()">
+    <div class="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-3 shadow-lg shadow-violet-300/50 text-2xl">💎</div>
+    <h3 class="font-black text-gray-900 text-lg mb-0.5">Pay with USDT</h3>
+    <p id="crypto-plan-label" class="text-violet-600 font-semibold text-sm mb-5"></p>
 
     <!-- QR Code -->
     <div class="flex justify-center mb-4">
-      <canvas id="crypto-qr" class="rounded-xl border border-gray-100 shadow-sm" style="width:144px;height:144px"></canvas>
+      <div class="p-2.5 rounded-2xl border-2 border-violet-100 shadow-md">
+        <canvas id="crypto-qr" class="rounded-xl" style="width:148px;height:148px;display:block"></canvas>
+      </div>
     </div>
 
-    <!-- Network badge -->
-    <div class="flex items-center justify-center gap-3 mb-3">
-      <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold border border-red-100">TRON network</span>
-      <span class="px-2.5 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold border border-green-100">TRC-20 USDT</span>
+    <!-- Network badges -->
+    <div class="flex items-center justify-center gap-2 mb-4">
+      <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold border border-red-100">TRON network</span>
+      <span class="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold border border-green-100">TRC-20 USDT</span>
     </div>
 
     <!-- Address box -->
-    <div class="bg-gray-50 rounded-xl p-3 mb-3 text-left">
-      <div class="text-xs text-gray-400 mb-1">Wallet address</div>
+    <div class="bg-gray-50 rounded-2xl p-3.5 mb-3 text-left border border-gray-100">
+      <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Wallet address</div>
       <div class="font-mono text-[11px] break-all text-gray-800 select-all leading-relaxed">TVKV2w9wzaWZ4L9yFJAXWLRLz7vHDXqmCy</div>
     </div>
 
-    <button id="copy-btn" onclick="copyAddress()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-purple-600 text-white text-sm font-bold mb-2 hover:opacity-90 transition-opacity">
+    <button id="copy-btn" onclick="copyAddress()" class="w-full py-3 rounded-2xl gradient-bg text-white text-sm font-bold mb-2 hover:opacity-90 transition-opacity shadow-lg shadow-violet-200">
       Copy address
     </button>
 
-    <a id="notify-link" href="#" class="block w-full py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-medium hover:bg-gray-50 mb-3">
+    <a id="notify-link" href="#" class="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-2xl border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 mb-4 transition-colors">
       ✉ I've paid — notify us
     </a>
 
     <p class="text-xs text-gray-400 leading-relaxed">
-      Send the exact USDT amount shown above. After payment, click <strong>"I've paid"</strong> to email your transaction hash. Access granted within 24 hours.
+      Send exact USDT amount shown. Click <strong>"I've paid"</strong> to email your transaction hash. Access granted within 24 hours.
     </p>
-    <button onclick="closeCryptoModal()" class="mt-3 text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+    <button onclick="closeCryptoModal()" class="mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors">Cancel</button>
   </div>
 </div>
 
@@ -605,7 +796,7 @@ let _cryptoPlan = '', _cryptoAmount = '';
 function showCryptoModal(plan, amount) {
   _cryptoPlan = plan; _cryptoAmount = amount;
   document.getElementById('crypto-plan-label').textContent = plan + ' plan — ' + amount + ' USDT / month';
-  QRCode.toCanvas(document.getElementById('crypto-qr'), USDT_ADDRESS, { width: 144, margin: 1 });
+  QRCode.toCanvas(document.getElementById('crypto-qr'), USDT_ADDRESS, { width: 148, margin: 1, color: { dark: '#1e1b4b', light: '#fff' } });
   const subject = encodeURIComponent('TaskTimeline ' + plan + ' Payment - USDT Transaction');
   const body = encodeURIComponent(
     'Hello,\n\nI have sent ' + amount + ' USDT (TRC-20) for the TaskTimeline ' + plan + ' plan.\n\nTransaction hash: [PASTE TX HASH HERE]\nWallet I sent from: [YOUR WALLET]\n\nPlease activate my account.\n\nThank you!'
@@ -630,37 +821,42 @@ function copyAddress() {
 </script>
 
 <script>
-// Animated demo tasks
+// Animated demo Gantt tasks
 const demoTasks = [
-  { title: 'Market research', owner: 'Sarah', w: '20%', l: '0%', color: 'bg-emerald-100 border-emerald-200', delay: 0.1 },
-  { title: 'Competitive analysis', owner: 'Marcus', w: '25%', l: '18%', color: 'bg-emerald-100 border-emerald-200', delay: 0.2 },
-  { title: 'Feature spec', owner: 'Sarah', w: '30%', l: '20%', color: 'bg-blue-100 border-blue-200', delay: 0.3 },
-  { title: 'Design system', owner: 'Aisha', w: '35%', l: '30%', color: 'bg-blue-100 border-blue-200', delay: 0.4 },
-  { title: 'Backend API', owner: 'Marcus', w: '40%', l: '38%', color: 'bg-amber-100 border-amber-200', delay: 0.5 },
-  { title: 'Frontend build', owner: 'Aisha', w: '35%', l: '50%', color: 'bg-amber-100 border-amber-200', delay: 0.6 },
-  { title: 'QA & testing', owner: 'Sarah', w: '20%', l: '70%', color: 'bg-amber-100 border-amber-200', delay: 0.7 },
-  { title: 'Launch', owner: 'Marcus', w: '15%', l: '85%', color: 'bg-amber-100 border-amber-200', delay: 0.8 },
+  { title: 'Market research',    owner: 'Sarah',  w: '20%', l: '0%',  color: '#d1fae5', border: '#6ee7b7', dot: '#059669', done: true  },
+  { title: 'Competitive analysis', owner: 'Marcus', w: '22%', l: '18%', color: '#d1fae5', border: '#6ee7b7', dot: '#059669', done: true  },
+  { title: 'Feature spec',       owner: 'Sarah',  w: '28%', l: '22%', color: '#dbeafe', border: '#93c5fd', dot: '#3b82f6', done: true  },
+  { title: 'Design system',      owner: 'Aisha',  w: '32%', l: '32%', color: '#ede9fe', border: '#c4b5fd', dot: '#7c3aed', done: false },
+  { title: 'Backend API',        owner: 'Marcus', w: '36%', l: '40%', color: '#ede9fe', border: '#c4b5fd', dot: '#7c3aed', done: false },
+  { title: 'Frontend build',     owner: 'Aisha',  w: '30%', l: '52%', color: '#fef3c7', border: '#fcd34d', dot: '#f59e0b', done: false },
+  { title: 'QA & testing',       owner: 'Sarah',  w: '18%', l: '72%', color: '#fef3c7', border: '#fcd34d', dot: '#f59e0b', done: false },
+  { title: 'Launch 🚀',          owner: 'Marcus', w: '12%', l: '86%', color: '#fce7f3', border: '#f9a8d4', dot: '#ec4899', done: false },
 ];
 
 const container = document.getElementById('demo-tasks');
-demoTasks.forEach(task => {
+demoTasks.forEach((task, i) => {
   const row = document.createElement('div');
-  row.className = 'flex items-center gap-4 bar-anim';
-  row.style.animationDelay = task.delay + 's';
+  row.className = 'flex items-center gap-3 bar-anim';
+  row.style.animationDelay = (0.08 * i + 0.1) + 's';
   row.innerHTML = `
-    <div class="w-36 shrink-0">
-      <div class="text-xs font-medium text-gray-800 truncate">${task.title}</div>
-      <div class="text-[11px] text-gray-400">${task.owner}</div>
+    <div class="w-32 shrink-0 flex items-center gap-1.5">
+      <div class="w-2 h-2 rounded-full shrink-0" style="background:${task.dot}"></div>
+      <div>
+        <div class="text-xs font-semibold text-gray-800 truncate leading-tight">${task.title}</div>
+        <div class="text-[10px] text-gray-400">${task.owner}</div>
+      </div>
     </div>
-    <div class="flex-1 relative h-7 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
-      <div class="absolute inset-y-1 rounded-md border ${task.color} flex items-center px-2" style="left:${task.l};width:${task.w}">
-        <span class="text-[10px] font-medium truncate">${task.title}</span>
+    <div class="flex-1 relative h-8 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+      <div class="absolute inset-y-1 rounded-md border flex items-center px-2 gap-1.5"
+           style="left:${task.l};width:${task.w};background:${task.color};border-color:${task.border}">
+        ${task.done ? '<svg class="w-3 h-3 shrink-0" style="color:' + task.dot + '" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
+        <span class="text-[10px] font-semibold truncate" style="color:${task.dot}">${task.title}</span>
       </div>
     </div>
   `;
   container.appendChild(row);
 });
-
 </script>
+
 </body>
 </html>
