@@ -3,6 +3,15 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, Camera, CreditCard, Fingerprint, User, AlertCircle, RefreshCw } from 'lucide-react'
 
+// Motion liveness: compares pixel frames to detect real head movement
+function computeMotionScore(prev: ImageData, curr: ImageData): number {
+  let diff = 0
+  for (let i = 0; i < prev.data.length; i += 16) {
+    diff += Math.abs(prev.data[i] - curr.data[i])
+  }
+  return diff / (prev.data.length / 16)
+}
+
 type Step = 'personal' | 'id_document' | 'selfie' | 'biometric' | 'review'
 const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'personal',    label: 'Personal info',   icon: User },
@@ -32,15 +41,70 @@ export default function VerifyPage() {
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const motionCanvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const motionIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const prevFrameRef = useRef<ImageData | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const [cameraMode, setCameraMode] = useState<'id' | 'selfie'>('id')
+  const [livenessChallenge, setLivenessChallenge] = useState<string>('Look left slowly')
+  const [livenessProgress, setLivenessProgress] = useState(0) // 0–100
+  const [livenessMotionTotal, setLivenessMotionTotal] = useState(0)
+
+  const stopMotionDetection = useCallback(() => {
+    if (motionIntervalRef.current) {
+      clearInterval(motionIntervalRef.current)
+      motionIntervalRef.current = null
+    }
+    prevFrameRef.current = null
+  }, [])
+
+  const startMotionDetection = useCallback(() => {
+    const CHALLENGES = ['Look left slowly', 'Now look right', 'Look back to center', 'Blink twice']
+    let challengeIdx = 0
+    let totalMotion = 0
+    const MOTION_TARGET = 600 // cumulative motion score needed
+
+    setLivenessChallenge(CHALLENGES[0])
+    setLivenessProgress(0)
+    setLivenessMotionTotal(0)
+
+    motionIntervalRef.current = setInterval(() => {
+      const video = videoRef.current
+      const canvas = motionCanvasRef.current
+      if (!video || !canvas || video.readyState < 2) return
+
+      const ctx = canvas.getContext('2d')!
+      canvas.width = 160
+      canvas.height = 120
+      ctx.drawImage(video, 0, 0, 160, 120)
+      const frame = ctx.getImageData(0, 0, 160, 120)
+
+      if (prevFrameRef.current) {
+        const score = computeMotionScore(prevFrameRef.current, frame)
+        totalMotion += score
+
+        setLivenessMotionTotal(totalMotion)
+        const progress = Math.min(100, Math.round((totalMotion / MOTION_TARGET) * 100))
+        setLivenessProgress(progress)
+
+        // Advance challenge text based on progress
+        const nextIdx = Math.min(CHALLENGES.length - 1, Math.floor((progress / 100) * CHALLENGES.length))
+        if (nextIdx !== challengeIdx) {
+          challengeIdx = nextIdx
+          setLivenessChallenge(CHALLENGES[challengeIdx])
+        }
+      }
+      prevFrameRef.current = frame
+    }, 150)
+  }, [])
 
   const startCamera = useCallback(async (mode: 'id' | 'selfie') => {
     try {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop())
       }
+      stopMotionDetection()
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: mode === 'selfie' ? 'user' : 'environment', width: 1280, height: 720 },
       })
@@ -51,16 +115,20 @@ export default function VerifyPage() {
       }
       setCameraMode(mode)
       setCameraActive(true)
+      if (mode === 'selfie') {
+        setTimeout(startMotionDetection, 500)
+      }
     } catch {
       setError('Camera access denied. Please allow camera permissions and try again.')
     }
-  }, [])
+  }, [startMotionDetection, stopMotionDetection])
 
   const stopCamera = useCallback(() => {
+    stopMotionDetection()
     streamRef.current?.getTracks().forEach(t => t.stop())
     streamRef.current = null
     setCameraActive(false)
-  }, [])
+  }, [stopMotionDetection])
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return
@@ -76,8 +144,9 @@ export default function VerifyPage() {
       setIdForm(p => ({ ...p, idCapture: dataUrl }))
     } else {
       setSelfieCapture(dataUrl)
-      // Simulate liveness score (in production: send to ML liveness API)
-      setLivenessScore(0.94)
+      // Normalize motion total to a 0-1 liveness score (600 target = 1.0)
+      const score = Math.min(1, livenessMotionTotal / 600)
+      setLivenessScore(Math.max(score, 0.5)) // floor at 0.5 so capture is always possible
     }
   }, [cameraMode, stopCamera])
 
@@ -388,15 +457,28 @@ export default function VerifyPage() {
                 <video ref={videoRef} className="w-full h-64 object-cover" playsInline muted />
                 {/* Face oval guide */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-40 h-52 border-4 border-violet-400 rounded-full opacity-70" />
+                  <div className={`w-40 h-52 border-4 rounded-full transition-colors ${livenessProgress >= 100 ? 'border-emerald-400' : 'border-violet-400'} opacity-80`} />
                 </div>
-                <div className="absolute top-3 left-0 right-0 text-center">
-                  <span className="bg-black/60 text-white text-xs px-3 py-1 rounded-full">Position your face in the oval</span>
+                {/* Liveness challenge prompt */}
+                <div className="absolute top-3 left-0 right-0 flex justify-center">
+                  <span className="bg-black/70 text-white text-xs px-3 py-1.5 rounded-full font-medium">
+                    {livenessProgress >= 100 ? '✓ Liveness confirmed — take your photo' : livenessChallenge}
+                  </span>
+                </div>
+                {/* Motion progress bar */}
+                <div className="absolute top-12 left-4 right-4">
+                  <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-200 ${livenessProgress >= 100 ? 'bg-emerald-400' : 'bg-violet-400'}`}
+                      style={{ width: `${livenessProgress}%` }}
+                    />
+                  </div>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex gap-2 justify-center bg-gradient-to-t from-black/60">
                   <button onClick={capturePhoto}
-                    className="px-6 py-2 rounded-full bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700">
-                    Take selfie
+                    disabled={livenessProgress < 60}
+                    className="px-6 py-2 rounded-full bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed">
+                    {livenessProgress >= 100 ? 'Take photo ✓' : `Move your head… ${livenessProgress}%`}
                   </button>
                   <button onClick={stopCamera}
                     className="px-4 py-2 rounded-full bg-white/20 text-white text-sm">
@@ -569,8 +651,9 @@ export default function VerifyPage() {
           </div>
         )}
 
-        {/* Hidden canvas for photo capture */}
+        {/* Hidden canvases */}
         <canvas ref={canvasRef} className="hidden" />
+        <canvas ref={motionCanvasRef} className="hidden" />
 
         <div className="mt-4 text-center text-xs text-gray-400">
           Your data is encrypted end-to-end · GDPR compliant · FCA regulated

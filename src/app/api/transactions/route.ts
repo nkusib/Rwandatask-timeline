@@ -41,13 +41,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: limit.error, retryAfter: limit.retryAfter }, { status: 429 })
   }
 
-  // KYC check: must be at least level 1
-  if (user.kyc_level < 1 || user.kyc_status !== 'verified') {
-    return NextResponse.json(
-      { error: 'Identity verification required before sending money.', code: 'KYC_REQUIRED' },
-      { status: 403 }
-    )
-  }
+  // Pre-KYC allowance: £50/week for unverified users (progressive KYC)
+  const PRE_KYC_WEEKLY_LIMIT_GBP = 50
+  const isUnverified = user.kyc_level < 1 || user.kyc_status !== 'verified'
 
   try {
     const body = await req.json()
@@ -108,32 +104,65 @@ export async function POST(req: NextRequest) {
     const totalAmount = Math.round((sendAmount + fee) * 100) / 100
     const receiveAmount = Math.round(sendAmount * customerRate * 100) / 100
 
-    // === DAILY LIMIT CHECK ===
-    const today = new Date().toISOString().slice(0, 10)
-
-    // Convert to GBP for limit comparison
+    // === GBP EQUIVALENT (used for all limit checks) ===
     const gbpRate = sendCurrency === 'GBP' ? 1 :
       (db.prepare('SELECT rate FROM exchange_rates WHERE from_currency = ? AND to_currency = ?')
         .get(sendCurrency, 'GBP') as { rate: number } | undefined)?.rate || 1
-
     const gbpEquivalent = sendAmount / gbpRate
+
+    // === PRE-KYC WEEKLY CAP (£50/week, resets Monday) ===
+    if (isUnverified) {
+      const monday = new Date()
+      monday.setDate(monday.getDate() - monday.getDay() + (monday.getDay() === 0 ? -6 : 1))
+      monday.setHours(0, 0, 0, 0)
+      const weekStartTs = Math.floor(monday.getTime() / 1000)
+
+      const weeklyRow = db.prepare(
+        `SELECT COALESCE(SUM(send_amount / CASE send_currency
+            WHEN 'GBP' THEN 1
+            WHEN 'EUR' THEN 1.17
+            WHEN 'USD' THEN 0.79
+            ELSE 0.79 END), 0) as total_gbp
+         FROM transactions WHERE user_id = ? AND created_at >= ? AND status != 'cancelled'`
+      ).get(user.id, weekStartTs) as { total_gbp: number }
+
+      const weeklySentGbp = weeklyRow.total_gbp || 0
+
+      if (weeklySentGbp + gbpEquivalent > PRE_KYC_WEEKLY_LIMIT_GBP) {
+        const remaining = Math.max(0, PRE_KYC_WEEKLY_LIMIT_GBP - weeklySentGbp)
+        return NextResponse.json(
+          {
+            error: `You've used £${weeklySentGbp.toFixed(2)} of your £${PRE_KYC_WEEKLY_LIMIT_GBP}/week allowance. Verify your identity to unlock higher limits.`,
+            code: 'PRE_KYC_LIMIT',
+            remainingGbp: remaining,
+            upgradeUrl: '/verify',
+          },
+          { status: 403 }
+        )
+      }
+    }
+
+    // === DAILY LIMIT CHECK (verified users) ===
+    const today = new Date().toISOString().slice(0, 10)
     const dailyLimit = KYC_DAILY_LIMITS[user.kyc_level] ?? 0
 
-    const todayRow = db.prepare(
-      'SELECT total_sent FROM daily_transaction_totals WHERE user_id = ? AND date = ?'
-    ).get(user.id, today) as { total_sent: number } | undefined
+    if (!isUnverified) {
+      const todayRow = db.prepare(
+        'SELECT total_sent FROM daily_transaction_totals WHERE user_id = ? AND date = ?'
+      ).get(user.id, today) as { total_sent: number } | undefined
 
-    const todaySentGbp = todayRow?.total_sent || 0
+      const todaySentGbp = todayRow?.total_sent || 0
 
-    if (todaySentGbp + gbpEquivalent > dailyLimit) {
-      return NextResponse.json(
-        {
-          error: `Daily limit of £${dailyLimit} exceeded. Used: £${Math.round(todaySentGbp)}, requested: £${Math.round(gbpEquivalent)}.`,
-          code: 'DAILY_LIMIT_EXCEEDED',
-          upgradeUrl: '/verify',
-        },
-        { status: 403 }
-      )
+      if (todaySentGbp + gbpEquivalent > dailyLimit) {
+        return NextResponse.json(
+          {
+            error: `Daily limit of £${dailyLimit} exceeded. Used: £${Math.round(todaySentGbp)}, requested: £${Math.round(gbpEquivalent)}.`,
+            code: 'DAILY_LIMIT_EXCEEDED',
+            upgradeUrl: '/verify',
+          },
+          { status: 403 }
+        )
+      }
     }
 
     const id = nanoid()
@@ -158,12 +187,14 @@ export async function POST(req: NextRequest) {
       recipientDetails, reference, estimatedDelivery
     )
 
-    // Update daily total
-    db.prepare(`
-      INSERT INTO daily_transaction_totals (user_id, date, total_sent)
-      VALUES (?, ?, ?)
-      ON CONFLICT(user_id, date) DO UPDATE SET total_sent = total_sent + excluded.total_sent
-    `).run(user.id, today, gbpEquivalent)
+    // Update daily total (for verified users' daily cap tracking)
+    if (!isUnverified) {
+      db.prepare(`
+        INSERT INTO daily_transaction_totals (user_id, date, total_sent)
+        VALUES (?, ?, ?)
+        ON CONFLICT(user_id, date) DO UPDATE SET total_sent = total_sent + excluded.total_sent
+      `).run(user.id, today, gbpEquivalent)
+    }
 
     // Simulate async completion via payment processor webhook (15s for demo)
     setTimeout(() => {

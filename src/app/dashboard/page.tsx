@@ -35,6 +35,22 @@ export default async function DashboardPage() {
     'SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10'
   ).all(user.id) as Transaction[]
 
+  // EDD status and pre-KYC weekly usage
+  const userExtra = db.prepare(
+    'SELECT edd_required, edd_deadline FROM users WHERE id = ?'
+  ).get(user.id) as { edd_required: number; edd_deadline: number | null } | undefined
+
+  const monday = new Date()
+  monday.setDate(monday.getDate() - monday.getDay() + (monday.getDay() === 0 ? -6 : 1))
+  monday.setHours(0, 0, 0, 0)
+  const weekStartTs = Math.floor(monday.getTime() / 1000)
+
+  const weeklyPreKyc = user.kyc_level < 1 ? (db.prepare(
+    `SELECT COALESCE(SUM(send_amount / CASE send_currency
+       WHEN 'GBP' THEN 1 WHEN 'EUR' THEN 1.17 WHEN 'USD' THEN 0.79 ELSE 0.79 END), 0) as total_gbp
+     FROM transactions WHERE user_id = ? AND created_at >= ? AND status != 'cancelled'`
+  ).get(user.id, weekStartTs) as { total_gbp: number })?.total_gbp ?? 0 : 0
+
   const primaryWallet = wallets.find(w => w.is_primary) ?? wallets[0]
   const totalSentThisMonth = recentTxns
     .filter(t => t.status === 'completed' && t.created_at > Date.now() / 1000 - 2592000)
@@ -80,26 +96,70 @@ export default async function DashboardPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        {/* EDD (Enhanced Due Diligence) banner — highest priority */}
+        {userExtra?.edd_required === 1 && userExtra.edd_deadline && (() => {
+          const daysLeft = Math.max(0, Math.ceil((userExtra.edd_deadline - Date.now() / 1000) / 86400))
+          const isUrgent = daysLeft <= 7
+          return (
+            <div className={`mb-5 p-4 rounded-xl border flex items-center justify-between gap-4 ${isUrgent ? 'bg-red-50 border-red-200 text-red-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <div>
+                  <div className="font-semibold text-sm">Additional verification required</div>
+                  <div className="text-xs opacity-80">
+                    Please upload a proof of address (utility bill or bank statement dated within 3 months).{' '}
+                    <strong>{daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining.</strong>
+                    {daysLeft <= 7 && ' Transfers will be suspended if not submitted.'}
+                  </div>
+                </div>
+              </div>
+              <Link href="/verify/edd" className="shrink-0 px-4 py-2 rounded-lg bg-white font-semibold text-sm shadow-sm hover:shadow transition-all whitespace-nowrap">
+                Upload now →
+              </Link>
+            </div>
+          )
+        })()}
+
+        {/* KYC status banner */}
         {user.kyc_status !== 'verified' && (
           <div className={`mb-5 p-4 rounded-xl border flex items-center justify-between gap-4 ${kycClass}`}>
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 shrink-0" />
               <div>
                 <div className="font-semibold text-sm">
-                  {user.kyc_status === 'unverified' ? 'Verify your identity to start sending' :
-                   user.kyc_status === 'pending' ? 'Verification in progress — usually 2 hours' :
+                  {user.kyc_status === 'unverified' ? 'Unlock higher limits — verify your identity' :
+                   user.kyc_status === 'pending' ? 'Verification in progress — usually 1-2 hours' :
                    'Verification rejected — please resubmit'}
                 </div>
                 {user.kyc_status === 'unverified' && (
-                  <div className="text-xs opacity-75">Upload ID to unlock transfers up to £5,000/day</div>
+                  <div className="text-xs opacity-75">
+                    Weekly allowance: £{weeklyPreKyc.toFixed(0)}/£50 used · Verify to unlock up to £5,000/day
+                  </div>
                 )}
               </div>
             </div>
-            {user.kyc_status === 'unverified' && (
+            {(user.kyc_status === 'unverified' || user.kyc_status === 'rejected') && (
               <Link href="/verify" className="shrink-0 px-4 py-2 rounded-lg bg-white font-semibold text-sm shadow-sm hover:shadow transition-all whitespace-nowrap">
                 Verify now →
               </Link>
             )}
+          </div>
+        )}
+
+        {/* Pre-KYC weekly usage progress bar */}
+        {user.kyc_status === 'unverified' && weeklyPreKyc > 0 && (
+          <div className="mb-5 bg-white rounded-xl p-4 border border-gray-100">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-medium text-gray-600">Weekly allowance (unverified)</span>
+              <span className="text-xs font-bold text-gray-900">£{weeklyPreKyc.toFixed(2)} / £50</span>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${weeklyPreKyc >= 45 ? 'bg-red-400' : weeklyPreKyc >= 30 ? 'bg-amber-400' : 'bg-violet-500'}`}
+                style={{ width: `${Math.min(100, (weeklyPreKyc / 50) * 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1.5">Resets every Monday · <Link href="/verify" className="text-violet-600 hover:underline">Verify ID to remove this limit</Link></p>
           </div>
         )}
 
