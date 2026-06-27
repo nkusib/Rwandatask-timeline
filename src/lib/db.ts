@@ -161,6 +161,16 @@ function migrate(db: Database.Database) {
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
+    CREATE TABLE IF NOT EXISTS webauthn_challenges (
+      id TEXT PRIMARY KEY,
+      challenge TEXT NOT NULL UNIQUE,
+      user_id TEXT,
+      purpose TEXT NOT NULL DEFAULT 'login',
+      expires_at INTEGER NOT NULL,
+      used INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
     CREATE TABLE IF NOT EXISTS otp_codes (
       id TEXT PRIMARY KEY,
       phone TEXT NOT NULL,
@@ -217,6 +227,7 @@ function migrate(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_recipients_user ON recipients(user_id);
     CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+    CREATE INDEX IF NOT EXISTS idx_webauthn_challenges ON webauthn_challenges(challenge, used);
     CREATE INDEX IF NOT EXISTS idx_otp_phone ON otp_codes(phone, used, created_at);
     CREATE INDEX IF NOT EXISTS idx_webauthn_user ON webauthn_credentials(user_id);
     CREATE INDEX IF NOT EXISTS idx_kyc_sessions_user ON kyc_sessions(user_id);
