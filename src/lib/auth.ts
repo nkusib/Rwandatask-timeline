@@ -9,18 +9,19 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export const COOKIE_NAME = 'rf_session'
 
-export async function createToken(userId: string): Promise<string> {
-  return new SignJWT({ sub: userId })
+export async function createToken(userId: string, role: string): Promise<string> {
+  return new SignJWT({ sub: userId, role })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('30d')
+    .setExpirationTime('24h')
     .sign(JWT_SECRET)
 }
 
-export async function verifyToken(token: string): Promise<string | null> {
+export async function verifyToken(token: string): Promise<{ userId: string; role: string } | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET)
-    return payload.sub as string
+    if (!payload.sub) return null
+    return { userId: payload.sub as string, role: (payload.role as string) || 'user' }
   } catch {
     return null
   }
@@ -32,12 +33,16 @@ export async function getSession(): Promise<User | null> {
     const token = cookieStore.get(COOKIE_NAME)?.value
     if (!token) return null
 
-    const userId = await verifyToken(token)
-    if (!userId) return null
+    const verified = await verifyToken(token)
+    if (!verified) return null
 
     const user = db.prepare(
-      'SELECT * FROM users WHERE id = ? AND is_active = 1'
-    ).get(userId) as User | undefined
+      `SELECT id, email, name, phone, country, plan, kyc_status, kyc_level,
+              date_of_birth, address, nationality, role, is_active,
+              stripe_customer_id, stripe_subscription_id, subscription_status,
+              created_at, updated_at
+       FROM users WHERE id = ? AND is_active = 1`
+    ).get(verified.userId) as User | undefined
 
     return user ?? null
   } catch {
@@ -63,8 +68,8 @@ export function setSessionCookie(token: string) {
     value: token,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    maxAge: 60 * 60 * 24 * 30,
+    sameSite: 'strict' as const,
+    maxAge: 60 * 60 * 24,
     path: '/',
   }
 }
@@ -75,5 +80,8 @@ export function clearSessionCookie() {
     value: '',
     maxAge: 0,
     path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
   }
 }

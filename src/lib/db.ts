@@ -154,10 +154,55 @@ function migrate(db: Database.Database) {
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
+    CREATE TABLE IF NOT EXISTS webauthn_credentials (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      credential_id TEXT NOT NULL UNIQUE,
+      public_key TEXT NOT NULL,
+      counter INTEGER NOT NULL DEFAULT 0,
+      device_type TEXT,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
+    CREATE TABLE IF NOT EXISTS kyc_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      status TEXT NOT NULL DEFAULT 'pending',
+      date_of_birth TEXT,
+      nationality TEXT,
+      address TEXT,
+      id_type TEXT,
+      id_number TEXT,
+      id_document_ref TEXT,
+      selfie_ref TEXT,
+      liveness_score REAL,
+      webauthn_verified INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      id TEXT PRIMARY KEY,
+      ip TEXT NOT NULL,
+      email TEXT NOT NULL,
+      success INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
+    CREATE TABLE IF NOT EXISTS daily_transaction_totals (
+      user_id TEXT NOT NULL,
+      date TEXT NOT NULL,
+      total_sent REAL NOT NULL DEFAULT 0,
+      PRIMARY KEY (user_id, date)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_wallets_user ON wallets(user_id);
     CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_recipients_user ON recipients(user_id);
     CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+    CREATE INDEX IF NOT EXISTS idx_webauthn_user ON webauthn_credentials(user_id);
+    CREATE INDEX IF NOT EXISTS idx_kyc_sessions_user ON kyc_sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts(ip, created_at);
 
     -- Seed exchange rates
     INSERT OR IGNORE INTO exchange_rates (id, from_currency, to_currency, rate, margin) VALUES
