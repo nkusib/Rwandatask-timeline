@@ -164,9 +164,19 @@ export default async function TransactionDetailPage({ params }: { params: Promis
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Link href="/send" className="block py-3 rounded-xl text-white font-semibold text-sm text-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
-            Send again
-          </Link>
+          {txn.status === 'completed' ? (
+            <Link
+              href={`/send?from_transaction=${txn.id}`}
+              className="flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+            >
+              Send again
+            </Link>
+          ) : (
+            <span className="flex items-center justify-center py-3 rounded-xl font-semibold text-sm bg-gray-100 text-gray-400 cursor-not-allowed">
+              Cannot repeat
+            </span>
+          )}
           <Link href="/transactions" className="block py-3 rounded-xl font-semibold text-sm text-center border border-gray-200 text-gray-700 hover:bg-gray-50">
             Back to history
           </Link>

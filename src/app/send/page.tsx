@@ -1,8 +1,8 @@
 'use client'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, ChevronDown, Info, CheckCircle, Loader } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronDown, Info, CheckCircle, Loader, AlertCircle, RefreshCw } from 'lucide-react'
 
 const SEND_COUNTRIES = [
   { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP' },
@@ -74,6 +74,7 @@ function SendPageContent() {
   const router = useRouter()
   const params = useSearchParams()
   const presetTo = params.get('to')
+  const fromTxnId = params.get('from_transaction')
 
   const [step, setStep] = useState<Step>('amount')
   const [fromCountry, setFromCountry] = useState(SEND_COUNTRIES[0])
@@ -86,18 +87,72 @@ function SendPageContent() {
   const [loading, setLoading] = useState(false)
   const [txnId, setTxnId] = useState('')
 
+  // Repeat-transfer state
+  const [prefilled, setPrefilled] = useState(false)
+  const [prefillBanner, setPrefillBanner] = useState('')
+  const [prefillError, setPrefillError] = useState('')
+  const [repeatWarnings, setRepeatWarnings] = useState<string[]>([])
+  const [origRate, setOrigRate] = useState<number | null>(null)
+  const [origFee, setOrigFee] = useState<number | null>(null)
+  // Prevents the toCountry effect from overriding mobileProvider set during prefill
+  const skipToCountryEffect = useRef(false)
+
   const rate = MOCK_RATES[fromCountry.currency]?.[toCountry.currency] ?? 1000
   const fee = paymentMethod === 'bank_transfer' ? 0.99 : 1.99
   const net = Math.max(0, parseFloat(sendAmount) - fee)
   const receives = (net * rate).toFixed(0)
   const total = (parseFloat(sendAmount)).toFixed(2)
 
+  const rateChanged = prefilled && origRate !== null && Math.abs(rate - origRate) / Math.max(origRate, 1) > 0.001
+  const feeChanged = prefilled && origFee !== null && Math.abs(fee - origFee) > 0.005
+
   useEffect(() => {
+    if (skipToCountryEffect.current) {
+      skipToCountryEffect.current = false
+      return
+    }
     const providers = MOBILE_PROVIDERS[toCountry.code] ?? []
     if (providers.length > 0) setMobileProvider(providers[0])
     const methods = toCountry.methods
     if (!methods.includes(deliveryMethod)) setDeliveryMethod(methods[0] as any)
   }, [toCountry])
+
+  // Prefill from a previous transaction when ?from_transaction= is present
+  useEffect(() => {
+    if (!fromTxnId) return
+    fetch(`/api/transactions/${fromTxnId}/repeat`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.ok) {
+          setPrefillError(data.reason ?? 'This transfer cannot be repeated.')
+          return
+        }
+        const p = data.prefill
+        const from = SEND_COUNTRIES.find(c => c.currency === p.sendCurrency)
+        const to = RECEIVE_COUNTRIES.find(c => c.code === p.toCountryCode)
+        if (from) setFromCountry(from)
+        if (to) {
+          skipToCountryEffect.current = true
+          setToCountry(to)
+        }
+        setSendAmount(p.sendAmount || '200')
+        if (p.deliveryMethod) setDeliveryMethod(p.deliveryMethod)
+        if (p.paymentMethod) setPaymentMethod(p.paymentMethod)
+        if (p.mobileProvider) setMobileProvider(p.mobileProvider)
+        setRecipient({
+          name: p.recipientName ?? '',
+          phone: p.recipientPhone ?? '',
+          bankName: p.bankName ?? '',
+          bankAccount: p.bankAccount ?? '',
+        })
+        setOrigRate(data.originalRate ?? null)
+        setOrigFee(data.originalFee ?? null)
+        setRepeatWarnings(data.warnings ?? [])
+        setPrefilled(true)
+        setPrefillBanner(`Prefilled from your last transfer to ${p.recipientName || 'recipient'} · Edit below to adjust`)
+      })
+      .catch(() => setPrefillError('Could not load transfer details. Please fill in the form manually.'))
+  }, [fromTxnId])
 
   async function submitTransfer() {
     setLoading(true)
@@ -186,6 +241,18 @@ function SendPageContent() {
         {/* Step: Amount */}
         {step === 'amount' && (
           <div className="bg-white rounded-2xl p-6 border border-gray-100 animate-fadeIn">
+            {prefillError && (
+              <div className="mb-5 flex items-start gap-2 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{prefillError}</span>
+              </div>
+            )}
+            {prefillBanner && !prefillError && (
+              <div className="mb-5 flex items-start gap-2 p-3.5 bg-violet-50 border border-violet-200 rounded-xl text-violet-700 text-sm">
+                <RefreshCw className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{prefillBanner}</span>
+              </div>
+            )}
             <h2 className="font-bold text-gray-900 text-lg mb-5">How much to send?</h2>
 
             <div className="grid grid-cols-2 gap-3 mb-5">
@@ -483,6 +550,31 @@ function SendPageContent() {
                 Money-back guarantee if transfer fails
               </div>
             </div>
+
+            {(rateChanged || feeChanged || repeatWarnings.length > 0) && (
+              <div className="space-y-2 mb-4">
+                {rateChanged && (
+                  <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                      Exchange rate has changed: was 1 {fromCountry.currency} = {origRate?.toLocaleString()} {toCountry.currency}, now {rate.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {feeChanged && (
+                  <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>Fee has changed: was {fromSym}{origFee?.toFixed(2)}, now {fromSym}{fee.toFixed(2)}</span>
+                  </div>
+                )}
+                {repeatWarnings.map((w, i) => (
+                  <div key={i} className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{w}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <button
               onClick={submitTransfer}

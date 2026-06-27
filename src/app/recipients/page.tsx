@@ -45,7 +45,7 @@ export default async function RecipientsPage() {
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
             {recipients.map(r => (
-              <div key={r.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
+              <Link key={r.id} href={`/recipients/${r.id}`} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
                 <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"
                   style={{ backgroundColor: r.avatar_color ?? '#7c3aed' }}>
                   {r.name.charAt(0).toUpperCase()}
@@ -61,10 +61,10 @@ export default async function RecipientsPage() {
                     )}
                   </div>
                 </div>
-                <Link href={`/send?recipient=${r.id}`} className="px-3 py-1.5 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors">
-                  Send
-                </Link>
-              </div>
+                <span className="px-3 py-1.5 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold">
+                  View
+                </span>
+              </Link>
             ))}
           </div>
         )}

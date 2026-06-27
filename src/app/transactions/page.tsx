@@ -76,34 +76,46 @@ export default async function TransactionsPage() {
               const sendCur = CURRENCIES[t.send_currency as keyof typeof CURRENCIES]
               const recCur = CURRENCIES[t.receive_currency as keyof typeof CURRENCIES]
               return (
-                <Link href={`/transactions/${t.id}`} key={t.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
-                  <div className="w-11 h-11 rounded-full bg-gray-50 flex items-center justify-center text-xl shrink-0 border border-gray-100">
-                    {t.recipient_country ? (COUNTRY_FLAGS[t.recipient_country] ?? '🌍') : '🌍'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm truncate">{t.recipient_name ?? 'Transfer'}</div>
-                    <div className="text-xs text-gray-400 flex items-center gap-2">
-                      <span>{timeAgo(t.created_at)}</span>
-                      {t.delivery_method && (
-                        <>
-                          <span>·</span>
-                          <span>{t.delivery_method === 'mobile_money' ? '📱 Mobile money' : '🏦 Bank'}</span>
-                        </>
-                      )}
+                <div key={t.id} className="flex items-center gap-3 px-4 py-4 hover:bg-gray-50 transition-colors">
+                  <Link href={`/transactions/${t.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-11 h-11 rounded-full bg-gray-50 flex items-center justify-center text-xl shrink-0 border border-gray-100">
+                      {t.recipient_country ? (COUNTRY_FLAGS[t.recipient_country] ?? '🌍') : '🌍'}
                     </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-bold text-gray-900 text-sm">
-                      -{sendCur?.symbol}{t.send_amount.toFixed(2)}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-900 text-sm truncate">{t.recipient_name ?? 'Transfer'}</div>
+                      <div className="text-xs text-gray-400 flex items-center gap-2">
+                        <span>{timeAgo(t.created_at)}</span>
+                        {t.delivery_method && (
+                          <>
+                            <span>·</span>
+                            <span>{t.delivery_method === 'mobile_money' ? '📱 Mobile money' : '🏦 Bank'}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {recCur?.symbol}{Number(t.receive_amount).toLocaleString()} {t.receive_currency}
+                    <div className="text-right shrink-0">
+                      <div className="font-bold text-gray-900 text-sm">
+                        -{sendCur?.symbol}{t.send_amount.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {recCur?.symbol}{Number(t.receive_amount).toLocaleString()} {t.receive_currency}
+                      </div>
                     </div>
+                  </Link>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${st?.bg} ${st?.color}`}>
+                      {st?.label}
+                    </span>
+                    {t.status === 'completed' && (
+                      <Link
+                        href={`/send?from_transaction=${t.id}`}
+                        className="px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors"
+                      >
+                        Repeat
+                      </Link>
+                    )}
                   </div>
-                  <span className={`ml-1 shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st?.bg} ${st?.color}`}>
-                    {st?.label}
-                  </span>
-                </Link>
+                </div>
               )
             })}
           </div>
