@@ -135,16 +135,16 @@ export default function RegisterPage() {
         <div className="flex items-center justify-center p-6 sm:p-12 bg-gray-50">
           <div className="w-full max-w-md">
             <div className="lg:hidden flex items-center gap-2 mb-8">
-              <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center font-bold text-xs text-white">RF</div>
+              <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
               <span className="font-bold text-gray-900">RemitFlow</span>
             </div>
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-              <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-5">
-                <Phone className="w-7 h-7 text-violet-600" />
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-5">
+                <Phone className="w-7 h-7 text-[#0070F3]" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-1 text-center">Verify your phone</h1>
               <p className="text-gray-500 text-sm mb-1 text-center">We sent a 6-digit code to</p>
-              <p className="text-violet-700 font-semibold text-sm text-center mb-6">{form.phone}</p>
+              <p className="text-[#005CC5] font-semibold text-sm text-center mb-6">{form.phone}</p>
 
               {devCode && (
                 <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs text-center">
@@ -168,7 +168,7 @@ export default function RegisterPage() {
                     value={d}
                     onChange={e => handleOtpInput(i, e.target.value)}
                     onKeyDown={e => handleOtpKeyDown(i, e)}
-                    className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:outline-none transition-colors"
+                    className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-gray-200 focus:border-[#0070F3] focus:outline-none transition-colors"
                   />
                 ))}
               </div>
@@ -177,7 +177,7 @@ export default function RegisterPage() {
                 onClick={verifyAndRegister}
                 disabled={loading || otp.join('').length < 6}
                 className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60 mb-4"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
               >
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -189,7 +189,7 @@ export default function RegisterPage() {
                   <span className="text-sm text-gray-400">Resend code in {resendCooldown}s</span>
                 ) : (
                   <button onClick={sendOtp} disabled={loading}
-                    className="text-sm text-violet-600 hover:underline font-medium flex items-center gap-1 mx-auto">
+                    className="text-sm text-[#0070F3] hover:underline font-medium flex items-center gap-1 mx-auto">
                     <RefreshCw className="w-3.5 h-3.5" /> Resend code
                   </button>
                 )}
@@ -212,7 +212,7 @@ export default function RegisterPage() {
       <div className="flex items-center justify-center p-6 sm:p-12 bg-gray-50">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center font-bold text-xs text-white">RF</div>
+            <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
             <span className="font-bold text-gray-900">RemitFlow</span>
           </div>
 
@@ -228,28 +228,28 @@ export default function RegisterPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
                 <input type="text" required value={form.name} onChange={update('name')} placeholder="Your full name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
                 <input type="email" required value={form.email} onChange={update('email')} placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Phone number <span className="text-violet-600 text-xs font-normal">(for verification)</span>
+                  Phone number <span className="text-[#0070F3] text-xs font-normal">(for verification)</span>
                 </label>
                 <input type="tel" required value={form.phone} onChange={update('phone')} placeholder="+44 7700 000000"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
                 <p className="text-xs text-gray-400 mt-1">We&apos;ll send a verification code to this number</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Country of residence</label>
                 <select value={form.country} onChange={update('country')}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm">
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm">
                   {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                 </select>
               </div>
@@ -259,7 +259,7 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input type={showPw ? 'text' : 'password'} required value={form.password} onChange={update('password')}
                     placeholder="At least 8 characters with numbers"
-                    className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm" />
+                    className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
                   <button type="button" onClick={() => setShowPw(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -279,13 +279,13 @@ export default function RegisterPage() {
 
               <p className="text-xs text-gray-400 leading-relaxed">
                 By creating an account you agree to our{' '}
-                <a href="#" className="text-violet-600 hover:underline">Terms of Service</a> and{' '}
-                <a href="#" className="text-violet-600 hover:underline">Privacy Policy</a>.
+                <a href="#" className="text-[#0070F3] hover:underline">Terms of Service</a> and{' '}
+                <a href="#" className="text-[#0070F3] hover:underline">Privacy Policy</a>.
               </p>
 
               <button type="submit" disabled={loading}
                 className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   : <><span>Send verification code</span><ArrowRight className="w-4 h-4" /></>}
@@ -294,7 +294,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Already have an account?{' '}
-              <Link href="/auth/login" className="text-violet-600 font-medium hover:underline">Sign in</Link>
+              <Link href="/auth/login" className="text-[#0070F3] font-medium hover:underline">Sign in</Link>
             </p>
           </div>
         </div>
@@ -305,14 +305,14 @@ export default function RegisterPage() {
 
 function LeftPanel() {
   return (
-    <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%)' }}>
+    <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: 'linear-gradient(135deg, #0D1B2A 0%, #1B3A5C 60%, #0A1929 100%)' }}>
       <Link href="/" className="flex items-center gap-2 mb-16">
-        <div className="w-9 h-9 rounded-xl bg-violet-500 flex items-center justify-center font-bold text-sm">RF</div>
+        <div className="w-9 h-9 rounded-xl bg-[#0070F3] flex items-center justify-center font-bold text-sm">RF</div>
         <span className="font-bold text-lg">RemitFlow</span>
       </Link>
       <div className="flex-1 flex flex-col justify-center">
         <h2 className="text-3xl font-bold mb-4">Send money home in minutes</h2>
-        <p className="text-violet-200 mb-10">Join 2 million people who trust RemitFlow to send money to Africa.</p>
+        <p className="text-blue-200 mb-10">Join 2 million people who trust RemitFlow to send money to Africa.</p>
         <div className="space-y-4">
           {[
             'Free to sign up — send up to £50 before verifying',

@@ -31,7 +31,7 @@ export default async function AdminTransactionsPage() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <div className="flex items-center gap-2.5">
-            <TrendingUp className="w-5 h-5 text-violet-600" />
+            <TrendingUp className="w-5 h-5 text-[#0070F3]" />
             <span className="font-bold text-gray-900">Transactions</span>
           </div>
           <div className="ml-auto text-sm text-gray-500">{txns.length} transactions</div>

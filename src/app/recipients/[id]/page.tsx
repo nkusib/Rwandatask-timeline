@@ -90,7 +90,7 @@ export default async function RecipientDetailPage({ params }: { params: Promise<
         <div className="bg-white rounded-2xl p-6 border border-gray-100 text-center">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-3"
-            style={{ backgroundColor: recipient.avatar_color ?? '#7c3aed' }}
+            style={{ backgroundColor: recipient.avatar_color ?? '#0070F3' }}
           >
             {initials}
           </div>
@@ -175,7 +175,7 @@ export default async function RecipientDetailPage({ params }: { params: Promise<
                       {t.status === 'completed' && (
                         <Link
                           href={`/send?from_transaction=${t.id}`}
-                          className="px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors"
+                          className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#005CC5] text-xs font-semibold hover:bg-blue-100 transition-colors"
                         >
                           Repeat
                         </Link>
@@ -196,7 +196,7 @@ export default async function RecipientDetailPage({ params }: { params: Promise<
             <Link
               href={`/send?from_transaction=${lastCompleted.id}`}
               className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-white font-bold text-sm"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               <RefreshCw className="w-4 h-4" />
               Send again
@@ -205,7 +205,7 @@ export default async function RecipientDetailPage({ params }: { params: Promise<
             <Link
               href="/send"
               className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-white font-bold text-sm"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               Send
               <ArrowRight className="w-4 h-4" />

@@ -209,7 +209,7 @@ function SendPageContent() {
             <div className="flex justify-between"><span className="text-gray-500">Estimated arrival</span><span className="font-medium">Under 30 minutes</span></div>
           </div>
           <div className="space-y-3">
-            <Link href={`/transactions/${txnId}`} className="block w-full py-3 rounded-xl font-semibold text-sm text-white" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+            <Link href={`/transactions/${txnId}`} className="block w-full py-3 rounded-xl font-semibold text-sm text-white" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
               Track transfer
             </Link>
             <Link href="/dashboard" className="block w-full py-3 rounded-xl font-semibold text-sm border border-gray-200 text-gray-700 hover:bg-gray-50">
@@ -231,7 +231,7 @@ function SendPageContent() {
           <span className="font-bold text-gray-900">Send money</span>
           <div className="ml-auto flex items-center gap-1">
             {steps.map((s, i) => (
-              <div key={s} className={`h-1.5 rounded-full transition-all ${i <= stepIndex ? 'bg-violet-600 w-8' : 'bg-gray-200 w-4'}`}></div>
+              <div key={s} className={`h-1.5 rounded-full transition-all ${i <= stepIndex ? 'bg-[#191C1F] w-8' : 'bg-gray-200 w-4'}`}></div>
             ))}
           </div>
         </div>
@@ -248,7 +248,7 @@ function SendPageContent() {
               </div>
             )}
             {prefillBanner && !prefillError && (
-              <div className="mb-5 flex items-start gap-2 p-3.5 bg-violet-50 border border-violet-200 rounded-xl text-violet-700 text-sm">
+              <div className="mb-5 flex items-start gap-2 p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-[#005CC5] text-sm">
                 <RefreshCw className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{prefillBanner}</span>
               </div>
@@ -261,7 +261,7 @@ function SendPageContent() {
                 <select
                   value={fromCountry.code}
                   onChange={e => setFromCountry(SEND_COUNTRIES.find(c => c.code === e.target.value)!)}
-                  className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                 >
                   {SEND_COUNTRIES.map(c => (
                     <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
@@ -273,7 +273,7 @@ function SendPageContent() {
                 <select
                   value={toCountry.code}
                   onChange={e => setToCountry(RECEIVE_COUNTRIES.find(c => c.code === e.target.value)!)}
-                  className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                 >
                   {RECEIVE_COUNTRIES.map(c => (
                     <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
@@ -291,7 +291,7 @@ function SendPageContent() {
                   value={sendAmount}
                   onChange={e => setSendAmount(e.target.value)}
                   min={1}
-                  className="w-full pl-8 pr-4 py-4 rounded-xl border border-gray-200 text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full pl-8 pr-4 py-4 rounded-xl border border-gray-200 text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                 />
               </div>
             </div>
@@ -323,10 +323,10 @@ function SendPageContent() {
                   <button
                     key={m}
                     onClick={() => setDeliveryMethod(m as any)}
-                    className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${deliveryMethod === m ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 text-gray-700 hover:border-gray-300'}`}
+                    className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${deliveryMethod === m ? 'border-[#0070F3] bg-blue-50 text-[#005CC5]' : 'border-gray-200 text-gray-700 hover:border-gray-300'}`}
                   >
                     <div>{m === 'mobile_money' ? '📱 Mobile Money' : '🏦 Bank Deposit'}</div>
-                    <div className={`text-xs mt-0.5 ${deliveryMethod === m ? 'text-violet-500' : 'text-gray-400'}`}>
+                    <div className={`text-xs mt-0.5 ${deliveryMethod === m ? 'text-[#0070F3]' : 'text-gray-400'}`}>
                       {m === 'mobile_money' ? 'Under 10 min' : '1-2 hours'}
                     </div>
                   </button>
@@ -338,7 +338,7 @@ function SendPageContent() {
               onClick={() => setStep('recipient')}
               disabled={!sendAmount || parseFloat(sendAmount) < 1}
               className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               Continue <ArrowRight className="w-4 h-4" />
             </button>
@@ -361,7 +361,7 @@ function SendPageContent() {
                   value={recipient.name}
                   onChange={e => setRecipient(p => ({ ...p, name: e.target.value }))}
                   placeholder="Recipient's full name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                 />
               </div>
 
@@ -372,7 +372,7 @@ function SendPageContent() {
                     <select
                       value={mobileProvider}
                       onChange={e => setMobileProvider(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                     >
                       {(MOBILE_PROVIDERS[toCountry.code] ?? []).map(p => (
                         <option key={p} value={p}>{PROVIDER_NAMES[p]}</option>
@@ -386,7 +386,7 @@ function SendPageContent() {
                       value={recipient.phone}
                       onChange={e => setRecipient(p => ({ ...p, phone: e.target.value }))}
                       placeholder="+234 700 000 0000"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                     />
                   </div>
                 </>
@@ -399,7 +399,7 @@ function SendPageContent() {
                       value={recipient.bankName}
                       onChange={e => setRecipient(p => ({ ...p, bankName: e.target.value }))}
                       placeholder="e.g. Zenith Bank, Equity Bank"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                     />
                   </div>
                   <div>
@@ -409,14 +409,14 @@ function SendPageContent() {
                       value={recipient.bankAccount}
                       onChange={e => setRecipient(p => ({ ...p, bankAccount: e.target.value }))}
                       placeholder="Bank account number"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                     />
                   </div>
                 </>
               )}
             </div>
 
-            <div className="mt-4 bg-violet-50 rounded-xl p-3 text-xs text-violet-700 flex items-start gap-2">
+            <div className="mt-4 bg-blue-50 rounded-xl p-3 text-xs text-[#005CC5] flex items-start gap-2">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               We verify the recipient&apos;s details before processing. Your money is protected.
             </div>
@@ -425,7 +425,7 @@ function SendPageContent() {
               onClick={() => setStep('payment')}
               disabled={!recipient.name || (deliveryMethod === 'mobile_money' ? !recipient.phone : !recipient.bankAccount)}
               className="w-full mt-5 py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               Continue <ArrowRight className="w-4 h-4" />
             </button>
@@ -445,15 +445,15 @@ function SendPageContent() {
                 <button
                   key={pm.id}
                   onClick={() => setPaymentMethod(pm.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${paymentMethod === pm.id ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-gray-300'}`}
+                  className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${paymentMethod === pm.id ? 'border-[#0070F3] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
                 >
                   <span className="text-2xl">{pm.icon}</span>
                   <div className="flex-1">
-                    <div className={`font-semibold text-sm ${paymentMethod === pm.id ? 'text-violet-900' : 'text-gray-900'}`}>{pm.name}</div>
+                    <div className={`font-semibold text-sm ${paymentMethod === pm.id ? 'text-slate-900' : 'text-gray-900'}`}>{pm.name}</div>
                     <div className="text-xs text-gray-500">{pm.desc}</div>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === pm.id ? 'border-violet-500' : 'border-gray-300'}`}>
-                    {paymentMethod === pm.id && <div className="w-2.5 h-2.5 rounded-full bg-violet-500"></div>}
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === pm.id ? 'border-[#0070F3]' : 'border-gray-300'}`}>
+                    {paymentMethod === pm.id && <div className="w-2.5 h-2.5 rounded-full bg-[#0070F3]"></div>}
                   </div>
                 </button>
               ))}
@@ -464,18 +464,18 @@ function SendPageContent() {
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">Card number</label>
                   <input type="text" placeholder="0000 0000 0000 0000" maxLength={19}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white font-mono" />
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3] bg-white font-mono" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1.5">Expiry</label>
                     <input type="text" placeholder="MM / YY" maxLength={7}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white font-mono" />
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1.5">CVC</label>
                     <input type="text" placeholder="000" maxLength={4}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white font-mono" />
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3] bg-white font-mono" />
                   </div>
                 </div>
               </div>
@@ -484,7 +484,7 @@ function SendPageContent() {
             <button
               onClick={() => setStep('review')}
               className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               Review transfer <ArrowRight className="w-4 h-4" />
             </button>
@@ -580,7 +580,7 @@ function SendPageContent() {
               onClick={submitTransfer}
               disabled={loading}
               className="w-full py-4 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               {loading ? <><Loader className="w-4 h-4 animate-spin" /> Processing...</> : <>Confirm & send {fromSym}{total}</>}
             </button>

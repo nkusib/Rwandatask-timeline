@@ -56,7 +56,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#191C1F] flex items-center justify-center">
               <span className="text-white font-bold text-sm">RF</span>
             </div>
             <span className="font-bold text-lg text-gray-900">RemitFlow</span>
@@ -69,7 +69,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/auth/login" className="text-sm font-medium text-gray-600 hover:text-gray-900">Sign in</Link>
-            <Link href="/auth/register" className="px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors">
+            <Link href="/auth/register" className="px-4 py-2 rounded-xl bg-[#191C1F] text-white text-sm font-semibold hover:bg-[#16181D] transition-colors">
               Get started
             </Link>
           </div>
@@ -77,7 +77,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%)' }}>
+      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #0D1B2A 0%, #1B3A5C 60%, #0A1929 100%)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -96,7 +96,7 @@ export default function LandingPage() {
                 Up to 8x cheaper than banks. Money in minutes.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-10">
-                <Link href="/auth/register" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+                <Link href="/auth/register" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
                   Send money now
                   <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -139,13 +139,13 @@ export default function LandingPage() {
                       type="number"
                       value={sendAmount}
                       onChange={e => setSendAmount(e.target.value)}
-                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-900 font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-900 font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:border-transparent"
                       min="1"
                     />
                     <select
                       value={fromCurrency}
                       onChange={e => setFromCurrency(e.target.value)}
-                      className="px-3 py-3 rounded-xl border border-gray-200 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="px-3 py-3 rounded-xl border border-gray-200 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                     >
                       <option value="GBP">🇬🇧 GBP</option>
                       <option value="EUR">🇪🇺 EUR</option>
@@ -167,13 +167,13 @@ export default function LandingPage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">Recipient gets</label>
                   <div className="flex gap-2">
-                    <div className="flex-1 px-4 py-3 rounded-xl bg-violet-50 border border-violet-200 text-violet-800 font-bold text-lg">
+                    <div className="flex-1 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200 text-[#003D99] font-bold text-lg">
                       {Number(received).toLocaleString()}
                     </div>
                     <select
                       value={toCurrency}
                       onChange={e => setToCurrency(e.target.value)}
-                      className="px-3 py-3 rounded-xl border border-gray-200 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="px-3 py-3 rounded-xl border border-gray-200 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3]"
                     >
                       <option value="NGN">🇳🇬 NGN</option>
                       <option value="KES">🇰🇪 KES</option>
@@ -190,7 +190,7 @@ export default function LandingPage() {
                   Typically arrives in under 10 minutes
                 </div>
 
-                <Link href="/auth/register" className="block w-full py-3.5 rounded-xl text-white font-bold text-center text-sm transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+                <Link href="/auth/register" className="block w-full py-3.5 rounded-xl text-white font-bold text-center text-sm transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
                   Send {sendAmount} {fromCurrency} now →
                 </Link>
                 <p className="text-center text-xs text-gray-400">No sign-up fee · Cancel anytime</p>
@@ -249,9 +249,9 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((f) => (
-              <div key={f.title} className="p-6 rounded-2xl border border-gray-100 hover:border-violet-200 hover:shadow-lg transition-all group">
-                <div className="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center mb-4 group-hover:bg-violet-100 transition-colors">
-                  <f.icon className="w-5 h-5 text-violet-600" />
+              <div key={f.title} className="p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all group">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
+                  <f.icon className="w-5 h-5 text-[#0070F3]" />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
@@ -266,7 +266,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 text-violet-700 text-xs font-medium mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-[#005CC5] text-xs font-medium mb-4">
                 <Smartphone className="w-3.5 h-3.5" />
                 Mobile Money Network
               </div>
@@ -285,14 +285,14 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth/register" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors">
+              <Link href="/auth/register" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#191C1F] text-white text-sm font-semibold hover:bg-[#16181D] transition-colors">
                 Start sending
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="grid grid-cols-1 gap-3">
               {MOBILE_PROVIDERS.map((p) => (
-                <div key={p.name} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-violet-200 hover:shadow-sm transition-all">
+                <div key={p.name} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-200 hover:shadow-sm transition-all">
                   <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-2xl">
                     {p.logo}
                   </div>
@@ -322,7 +322,7 @@ export default function LandingPage() {
               { step: '03', title: 'Send & track', desc: 'Pay by card or bank transfer. Track your transfer in real-time. Gets there fast.', icon: TrendingUp },
             ].map((s) => (
               <div key={s.step} className="relative text-center">
-                <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl font-black text-violet-600 bg-violet-50">
+                <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl font-black text-[#0070F3] bg-blue-50">
                   {s.step}
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{s.title}</h3>
@@ -345,7 +345,7 @@ export default function LandingPage() {
               { icon: '🇧🇪', title: 'Bancontact', desc: 'Belgium' },
               { icon: '🇳🇱', title: 'iDEAL', desc: 'Netherlands' },
             ].map((m) => (
-              <div key={m.title} className="p-4 bg-white rounded-xl border border-gray-200 hover:border-violet-200 transition-colors">
+              <div key={m.title} className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-200 transition-colors">
                 <div className="text-2xl mb-2">{m.icon}</div>
                 <div className="font-semibold text-gray-900 text-sm">{m.title}</div>
                 <div className="text-xs text-gray-500">{m.desc}</div>
@@ -373,7 +373,7 @@ export default function LandingPage() {
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed mb-6">&ldquo;{t.quote}&rdquo;</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-[#191C1F] flex items-center justify-center text-white font-bold text-sm">
                     {t.avatar}
                   </div>
                   <div>
@@ -392,7 +392,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="text-5xl mb-4">📱</div>
           <h2 className="text-3xl font-bold text-white mb-4">Get the RemitFlow app</h2>
-          <p className="text-violet-200 mb-8 max-w-xl mx-auto">
+          <p className="text-blue-200 mb-8 max-w-xl mx-auto">
             Send money anytime, anywhere. Track transfers, manage recipients, and get instant notifications.
             Available on iOS and Android.
           </p>
@@ -422,7 +422,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center">
                   <span className="text-white font-bold text-xs">RF</span>
                 </div>
                 <span className="text-white font-bold">RemitFlow</span>

@@ -48,14 +48,14 @@ export default async function TransactionsPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-6">
         {txns.length > 0 && (
-          <div className="bg-violet-50 border border-violet-100 rounded-2xl p-4 mb-5 flex items-center justify-between">
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5 flex items-center justify-between">
             <div>
-              <div className="text-xs text-violet-600 font-medium mb-0.5">Total sent (all time)</div>
-              <div className="text-2xl font-bold text-violet-900">{sym}{totalSent.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+              <div className="text-xs text-[#0070F3] font-medium mb-0.5">Total sent (all time)</div>
+              <div className="text-2xl font-bold text-slate-900">{sym}{totalSent.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-violet-500">{txns.length} transfers</div>
-              <div className="text-xs text-violet-500">{txns.filter(t => t.status === 'completed').length} completed</div>
+              <div className="text-xs text-[#0070F3]">{txns.length} transfers</div>
+              <div className="text-xs text-[#0070F3]">{txns.filter(t => t.status === 'completed').length} completed</div>
             </div>
           </div>
         )}
@@ -65,7 +65,7 @@ export default async function TransactionsPage() {
             <div className="text-4xl mb-3">💸</div>
             <div className="font-semibold text-gray-900 mb-1">No transfers yet</div>
             <div className="text-sm text-gray-500 mb-4">Your transfer history will appear here</div>
-            <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+            <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
               Send money
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default async function TransactionsPage() {
                     {t.status === 'completed' && (
                       <Link
                         href={`/send?from_transaction=${t.id}`}
-                        className="px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors"
+                        className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#005CC5] text-xs font-semibold hover:bg-blue-100 transition-colors"
                       >
                         Repeat
                       </Link>

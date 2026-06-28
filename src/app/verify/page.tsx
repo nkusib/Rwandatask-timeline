@@ -251,14 +251,14 @@ export default function VerifyPage() {
             We&apos;re reviewing your documents and biometric data. This usually takes 1-2 hours.
             We&apos;ll notify you once complete.
           </p>
-          <div className="bg-violet-50 rounded-xl p-3 text-xs text-violet-700 mb-6 text-left space-y-1">
+          <div className="bg-blue-50 rounded-xl p-3 text-xs text-[#005CC5] mb-6 text-left space-y-1">
             <div className="font-semibold">What happens next:</div>
             <div>✓ Document authenticity check</div>
             <div>✓ Face match verification</div>
             <div>✓ AML &amp; sanctions screening</div>
             <div>✓ Account unlocked to Level 1 (£500/day)</div>
           </div>
-          <Link href="/dashboard" className="block w-full py-3 rounded-xl text-white font-semibold text-sm" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+          <Link href="/dashboard" className="block w-full py-3 rounded-xl text-white font-semibold text-sm" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
             Back to dashboard
           </Link>
         </div>
@@ -289,12 +289,12 @@ export default function VerifyPage() {
                 <div className="flex flex-col items-center gap-1">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all ${
                     i < currentStep ? 'bg-emerald-500 text-white' :
-                    i === currentStep ? 'bg-violet-600 text-white' :
+                    i === currentStep ? 'bg-[#191C1F] text-white' :
                     'bg-gray-200 text-gray-400'
                   }`}>
                     {i < currentStep ? <CheckCircle className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                   </div>
-                  <span className={`text-[10px] font-medium hidden sm:block ${i === currentStep ? 'text-violet-700' : 'text-gray-400'}`}>{s.label}</span>
+                  <span className={`text-[10px] font-medium hidden sm:block ${i === currentStep ? 'text-[#005CC5]' : 'text-gray-400'}`}>{s.label}</span>
                 </div>
                 {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 mx-1 mb-4 ${i < currentStep ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
               </div>
@@ -320,32 +320,32 @@ export default function VerifyPage() {
                 <input type="date" value={personal.dob}
                   onChange={e => setPersonal(p => ({ ...p, dob: e.target.value }))}
                   max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Nationality</label>
                 <input type="text" value={personal.nationality} placeholder="e.g. British, Nigerian"
                   onChange={e => setPersonal(p => ({ ...p, nationality: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Street address</label>
                 <input type="text" value={personal.address} placeholder="123 High Street"
                   onChange={e => setPersonal(p => ({ ...p, address: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">City</label>
                   <input type="text" value={personal.city} placeholder="London"
                     onChange={e => setPersonal(p => ({ ...p, city: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP</label>
                   <input type="text" value={personal.postcode} placeholder="SW1A 1AA"
                     onChange={e => setPersonal(p => ({ ...p, postcode: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3]" />
                 </div>
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function VerifyPage() {
               onClick={() => setCurrentStep(1)}
               disabled={!personal.dob || !personal.nationality || !personal.address || !personal.city}
               className="w-full mt-5 py-3.5 rounded-xl text-white font-bold text-sm disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               Continue
             </button>
@@ -370,7 +370,7 @@ export default function VerifyPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Document type</label>
                 <select value={idForm.idType}
                   onChange={e => setIdForm(p => ({ ...p, idType: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3]">
                   <option value="passport">Passport</option>
                   <option value="national_id">National ID card</option>
                   <option value="driving_license">Driving licence</option>
@@ -381,17 +381,17 @@ export default function VerifyPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Document number</label>
                 <input type="text" value={idForm.idNumber} placeholder="e.g. 123456789"
                   onChange={e => setIdForm(p => ({ ...p, idNumber: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0070F3] font-mono" />
               </div>
 
               {/* Camera / capture area */}
               {cameraActive && cameraMode === 'id' ? (
                 <div className="relative rounded-xl overflow-hidden bg-black">
                   <video ref={videoRef} className="w-full h-56 object-cover" playsInline muted />
-                  <div className="absolute inset-0 border-4 border-violet-400 border-dashed rounded-xl pointer-events-none" />
+                  <div className="absolute inset-0 border-4 border-[#0070F3] border-dashed rounded-xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 right-0 p-3 flex gap-2 justify-center bg-gradient-to-t from-black/60">
                     <button onClick={capturePhoto}
-                      className="px-6 py-2 rounded-full bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700">
+                      className="px-6 py-2 rounded-full bg-[#191C1F] text-white text-sm font-semibold hover:bg-[#16181D]">
                       Capture photo
                     </button>
                     <button onClick={stopCamera}
@@ -416,9 +416,9 @@ export default function VerifyPage() {
               ) : (
                 <button
                   onClick={() => startCamera('id')}
-                  className="w-full border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-violet-300 transition-colors group"
+                  className="w-full border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-blue-300 transition-colors group"
                 >
-                  <Camera className="w-8 h-8 text-gray-400 group-hover:text-violet-500 mx-auto mb-2 transition-colors" />
+                  <Camera className="w-8 h-8 text-gray-400 group-hover:text-[#0070F3] mx-auto mb-2 transition-colors" />
                   <div className="text-sm font-medium text-gray-700">Tap to use camera</div>
                   <div className="text-xs text-gray-400 mt-1">Place your document in the frame and capture</div>
                 </button>
@@ -438,7 +438,7 @@ export default function VerifyPage() {
                 onClick={() => setCurrentStep(2)}
                 disabled={!idForm.idNumber}
                 className="flex-1 py-3 rounded-xl text-white font-bold text-sm disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
               >
                 Continue
               </button>
@@ -457,7 +457,7 @@ export default function VerifyPage() {
                 <video ref={videoRef} className="w-full h-64 object-cover" playsInline muted />
                 {/* Face oval guide */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className={`w-40 h-52 border-4 rounded-full transition-colors ${livenessProgress >= 100 ? 'border-emerald-400' : 'border-violet-400'} opacity-80`} />
+                  <div className={`w-40 h-52 border-4 rounded-full transition-colors ${livenessProgress >= 100 ? 'border-emerald-400' : 'border-[#0070F3]'} opacity-80`} />
                 </div>
                 {/* Liveness challenge prompt */}
                 <div className="absolute top-3 left-0 right-0 flex justify-center">
@@ -477,7 +477,7 @@ export default function VerifyPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex gap-2 justify-center bg-gradient-to-t from-black/60">
                   <button onClick={capturePhoto}
                     disabled={livenessProgress < 60}
-                    className="px-6 py-2 rounded-full bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed">
+                    className="px-6 py-2 rounded-full bg-[#191C1F] text-white text-sm font-semibold hover:bg-[#16181D] disabled:opacity-40 disabled:cursor-not-allowed">
                     {livenessProgress >= 100 ? 'Take photo ✓' : `Move your head… ${livenessProgress}%`}
                   </button>
                   <button onClick={stopCamera}
@@ -504,9 +504,9 @@ export default function VerifyPage() {
             ) : (
               <button
                 onClick={() => startCamera('selfie')}
-                className="w-full border-2 border-dashed border-gray-200 rounded-xl p-10 text-center hover:border-violet-300 transition-colors group"
+                className="w-full border-2 border-dashed border-gray-200 rounded-xl p-10 text-center hover:border-blue-300 transition-colors group"
               >
-                <Camera className="w-10 h-10 text-gray-400 group-hover:text-violet-500 mx-auto mb-2 transition-colors" />
+                <Camera className="w-10 h-10 text-gray-400 group-hover:text-[#0070F3] mx-auto mb-2 transition-colors" />
                 <div className="text-sm font-medium text-gray-700">Open front camera</div>
                 <div className="text-xs text-gray-400 mt-1">Look directly at the camera in good lighting</div>
               </button>
@@ -525,7 +525,7 @@ export default function VerifyPage() {
                 onClick={() => setCurrentStep(3)}
                 disabled={!selfieCapture}
                 className="flex-1 py-3 rounded-xl text-white font-bold text-sm disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
               >
                 Continue
               </button>
@@ -551,11 +551,11 @@ export default function VerifyPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="bg-violet-50 rounded-xl p-4 space-y-2">
-                  <div className="flex items-center gap-2 text-violet-800 font-semibold text-sm">
+                <div className="bg-blue-50 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-[#003D99] font-semibold text-sm">
                     <Fingerprint className="w-5 h-5" /> What you can use:
                   </div>
-                  <div className="text-xs text-violet-700 space-y-1">
+                  <div className="text-xs text-[#005CC5] space-y-1">
                     <div>📱 <strong>iPhone/iPad:</strong> Face ID or Touch ID</div>
                     <div>🤖 <strong>Android:</strong> Fingerprint or Face Unlock</div>
                     <div>💻 <strong>Mac:</strong> Touch ID</div>
@@ -573,7 +573,7 @@ export default function VerifyPage() {
                 <button
                   onClick={registerBiometric}
                   className="w-full py-4 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                  style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
                 >
                   <Fingerprint className="w-5 h-5" />
                   Register biometric now
@@ -594,7 +594,7 @@ export default function VerifyPage() {
                 <button
                   onClick={() => setCurrentStep(4)}
                   className="flex-1 py-3 rounded-xl text-white font-bold text-sm"
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                  style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
                 >
                   Continue
                 </button>
@@ -628,7 +628,7 @@ export default function VerifyPage() {
 
             <div className="bg-gray-50 rounded-xl p-4 text-xs text-gray-500 mb-5">
               By submitting, you confirm that all information is accurate and consent to biometric processing for identity verification purposes under our{' '}
-              <a href="/privacy" className="text-violet-600 underline">Privacy Policy</a> and GDPR.
+              <a href="/privacy" className="text-[#0070F3] underline">Privacy Policy</a> and GDPR.
             </div>
 
             {error && (
@@ -641,7 +641,7 @@ export default function VerifyPage() {
                 onClick={handleSubmit}
                 disabled={submitting}
                 className="flex-1 py-3 rounded-xl text-white font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
               >
                 {submitting ? (
                   <><RefreshCw className="w-4 h-4 animate-spin" /> Submitting…</>
@@ -669,7 +669,7 @@ function ReviewRow({ label, value, step, onEdit }: { label: string; value: strin
       <span className="text-sm text-gray-500">{label}</span>
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-gray-900">{value || '—'}</span>
-        <button onClick={() => onEdit(step)} className="text-xs text-violet-600 hover:underline">Edit</button>
+        <button onClick={() => onEdit(step)} className="text-xs text-[#0070F3] hover:underline">Edit</button>
       </div>
     </div>
   )

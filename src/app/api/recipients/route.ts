@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const colors = ['#7c3aed', '#059669', '#0284c7', '#d97706', '#dc2626', '#7c3aed']
+  const colors = ['#0070F3', '#059669', '#0284c7', '#d97706', '#dc2626', '#7C3AED']
   const color = colors[Math.floor(Math.random() * colors.length)]
 
   const id = nanoid()

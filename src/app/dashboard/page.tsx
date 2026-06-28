@@ -72,11 +72,11 @@ export default async function DashboardPage() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center font-bold text-xs text-white">RF</div>
+            <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
             <span className="font-bold text-gray-900">RemitFlow</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link href="/dashboard" className="text-violet-600 font-semibold">Home</Link>
+            <Link href="/dashboard" className="text-[#0070F3] font-semibold">Home</Link>
             <Link href="/send" className="text-gray-600 hover:text-gray-900">Send</Link>
             <Link href="/transactions" className="text-gray-600 hover:text-gray-900">History</Link>
             <Link href="/recipients" className="text-gray-600 hover:text-gray-900">Recipients</Link>
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
             <Link href="/settings" className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600">
               <Settings className="w-5 h-5" />
             </Link>
-            <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-9 h-9 rounded-full bg-[#191C1F] flex items-center justify-center text-white font-bold text-sm">
               {user.name.charAt(0).toUpperCase()}
             </div>
           </div>
@@ -155,16 +155,16 @@ export default async function DashboardPage() {
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${weeklyPreKyc >= 45 ? 'bg-red-400' : weeklyPreKyc >= 30 ? 'bg-amber-400' : 'bg-violet-500'}`}
+                className={`h-full rounded-full transition-all ${weeklyPreKyc >= 45 ? 'bg-red-400' : weeklyPreKyc >= 30 ? 'bg-amber-400' : 'bg-[#0070F3]'}`}
                 style={{ width: `${Math.min(100, (weeklyPreKyc / 50) * 100)}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">Resets every Monday · <Link href="/verify" className="text-violet-600 hover:underline">Verify ID to remove this limit</Link></p>
+            <p className="text-xs text-gray-400 mt-1.5">Resets every Monday · <Link href="/verify" className="text-[#0070F3] hover:underline">Verify ID to remove this limit</Link></p>
           </div>
         )}
 
         <div className="grid md:grid-cols-3 gap-4 mb-5">
-          <div className="md:col-span-2 rounded-2xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #4c1d95, #7c3aed)' }}>
+          <div className="md:col-span-2 rounded-2xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #0D1B2A, #1B3A5C)' }}>
             <div className="text-white/70 text-sm mb-1">Good {greeting}, {user.name.split(' ')[0]}</div>
             {primaryWallet ? (
               <>
@@ -206,7 +206,7 @@ export default async function DashboardPage() {
             { icon: '🇬🇭', label: 'To Ghana', href: '/send?to=GH' },
             { icon: '🌍', label: 'More', href: '/send' },
           ].map(a => (
-            <Link key={a.label} href={a.href} className="bg-white rounded-2xl p-4 border border-gray-100 hover:border-violet-200 hover:shadow-sm transition-all text-center">
+            <Link key={a.label} href={a.href} className="bg-white rounded-2xl p-4 border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all text-center">
               <div className="text-2xl mb-1">{a.icon}</div>
               <div className="text-xs font-medium text-gray-700">{a.label}</div>
             </Link>
@@ -216,7 +216,7 @@ export default async function DashboardPage() {
         <div className="bg-white rounded-2xl border border-gray-100">
           <div className="flex items-center justify-between p-5 border-b border-gray-50">
             <h2 className="font-bold text-gray-900">Recent transfers</h2>
-            <Link href="/transactions" className="text-sm text-violet-600 hover:underline font-medium flex items-center gap-1">
+            <Link href="/transactions" className="text-sm text-[#0070F3] hover:underline font-medium flex items-center gap-1">
               See all <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -226,7 +226,7 @@ export default async function DashboardPage() {
               <div className="text-4xl mb-3">💸</div>
               <div className="font-semibold text-gray-900 mb-1">No transfers yet</div>
               <div className="text-sm text-gray-500 mb-4">Send money to your first recipient</div>
-              <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}>
+              <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
                 <Plus className="w-4 h-4" /> Send money
               </Link>
             </div>
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
                 const recCur = CURRENCIES[t.receive_currency as keyof typeof CURRENCIES]
                 return (
                   <Link href={`/transactions/${t.id}`} key={t.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center text-lg shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-lg shrink-0">
                       {t.recipient_country ? (COUNTRY_FLAGS[t.recipient_country] ?? '🌍') : '🌍'}
                     </div>
                     <div className="flex-1 min-w-0">

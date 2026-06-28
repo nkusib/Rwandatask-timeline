@@ -90,7 +90,7 @@ export default async function TransactionDetailPage({ params }: { params: Promis
         <div className="bg-white rounded-2xl p-5 border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Recipient</h3>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-bold">
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-[#005CC5] font-bold">
               {txn.recipient_name?.charAt(0) ?? '?'}
             </div>
             <div>
@@ -168,7 +168,7 @@ export default async function TransactionDetailPage({ params }: { params: Promis
             <Link
               href={`/send?from_transaction=${txn.id}`}
               className="flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+              style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
             >
               Send again
             </Link>

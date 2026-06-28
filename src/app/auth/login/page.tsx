@@ -147,14 +147,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%)' }}>
+      <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: 'linear-gradient(135deg, #0D1B2A 0%, #1B3A5C 60%, #0A1929 100%)' }}>
         <Link href="/" className="flex items-center gap-2 mb-16">
-          <div className="w-9 h-9 rounded-xl bg-violet-500 flex items-center justify-center font-bold text-sm">RF</div>
+          <div className="w-9 h-9 rounded-xl bg-[#0070F3] flex items-center justify-center font-bold text-sm">RF</div>
           <span className="font-bold text-lg">RemitFlow</span>
         </Link>
         <div className="flex-1 flex flex-col justify-center">
           <h2 className="text-3xl font-bold mb-4">Welcome back</h2>
-          <p className="text-violet-200 mb-6">Continue sending money to your loved ones in Africa, faster and cheaper than ever.</p>
+          <p className="text-blue-200 mb-6">Continue sending money to your loved ones in Africa, faster and cheaper than ever.</p>
           <div className="space-y-3 text-sm text-white/70">
             <p>📱 Track transfers in real-time</p>
             <p>💱 Live exchange rates, best on the market</p>
@@ -169,7 +169,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center p-6 sm:p-12 bg-gray-50">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center font-bold text-xs text-white">RF</div>
+            <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
             <span className="font-bold text-gray-900">RemitFlow</span>
           </div>
 
@@ -192,12 +192,12 @@ export default function LoginPage() {
                 biometricState === 'success'
                   ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
                   : biometricState === 'prompting'
-                  ? 'border-violet-300 bg-violet-50 text-violet-600 cursor-wait'
-                  : 'border-gray-200 bg-white text-gray-900 hover:border-violet-400 hover:bg-violet-50 hover:text-violet-700'
+                  ? 'border-blue-300 bg-blue-50 text-[#0070F3] cursor-wait'
+                  : 'border-gray-200 bg-white text-gray-900 hover:border-[#0070F3] hover:bg-blue-50 hover:text-[#005CC5]'
               } disabled:opacity-70`}
             >
               {biometricState === 'prompting' ? (
-                <div className="w-5 h-5 border-2 border-violet-400/40 border-t-violet-600 rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[#0070F3]/40 border-t-[#0070F3] rounded-full animate-spin" />
               ) : biometricState === 'success' ? (
                 <span className="text-lg">✓</span>
               ) : (
@@ -225,7 +225,7 @@ export default function LoginPage() {
                 <input
                   type="email" required value={form.email} onChange={update('email')}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm"
                 />
                 {form.email && (
                   <p className="text-xs text-gray-400 mt-1">
@@ -237,13 +237,13 @@ export default function LoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-sm font-medium text-gray-700">Password</label>
-                  <a href="#" className="text-xs text-violet-600 hover:underline">Forgot password?</a>
+                  <a href="#" className="text-xs text-[#0070F3] hover:underline">Forgot password?</a>
                 </div>
                 <div className="relative">
                   <input
                     type={showPw ? 'text' : 'password'} required value={form.password}
                     onChange={update('password')} placeholder="Your password"
-                    className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                    className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm"
                   />
                   <button type="button" onClick={() => setShowPw(p => !p)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -255,7 +255,7 @@ export default function LoginPage() {
               <button
                 type="submit" disabled={loading}
                 className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)' }}
+                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
               >
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -265,7 +265,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-gray-500 mt-5">
               New to RemitFlow?{' '}
-              <Link href="/auth/register" className="text-violet-600 font-medium hover:underline">Create account</Link>
+              <Link href="/auth/register" className="text-[#0070F3] font-medium hover:underline">Create account</Link>
             </p>
           </div>
         </div>
