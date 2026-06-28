@@ -6,6 +6,7 @@ import { verifyPhoneOtp } from '@/lib/otp'
 import { rateLimit } from '@/lib/rate-limit'
 import { validateEmail, validatePassword, validateName, validatePhone, validateCountry } from '@/lib/validation'
 import { nanoid } from 'nanoid'
+import { sendWelcomeEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1'
@@ -85,6 +86,10 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await createSession(id, 'user', ip, userAgent)
+
+    // Fire-and-forget welcome email
+    sendWelcomeEmail({ to: email, name, country }).catch(() => {})
+
     const res = NextResponse.json({ ok: true, role: 'user' })
     res.cookies.set(setSessionCookie(token))
     // Clear the nonce cookie

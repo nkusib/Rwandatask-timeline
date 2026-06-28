@@ -6,6 +6,7 @@ import { validateAmount, validateCurrency, sanitizeString } from '@/lib/validati
 import { nanoid } from 'nanoid'
 import crypto from 'crypto'
 import type { ExchangeRate } from '@/lib/db'
+import { sendTransferReceipt } from '@/lib/email'
 
 const STEP_UP_THRESHOLD_GBP = 200
 
@@ -235,19 +236,49 @@ export async function POST(req: NextRequest) {
     }
 
     // Simulate async completion via payment processor webhook (15s for demo)
+    const completionPayload = {
+      userId: user.id,
+      userEmail: user.email,
+      userName: user.name,
+      reference,
+      sendAmount, sendCurrency,
+      receiveAmount, receiveCurrency,
+      recipientName, recipientCountry,
+      exchangeRate: customerRate,
+      fee, totalAmount,
+      estimatedDelivery,
+    }
     setTimeout(() => {
       try {
+        const completedAt = Math.floor(Date.now() / 1000)
         db.prepare(
           'UPDATE transactions SET status = ?, completed_at = ?, updated_at = ? WHERE id = ?'
-        ).run('completed', Math.floor(Date.now() / 1000), Math.floor(Date.now() / 1000), id)
+        ).run('completed', completedAt, completedAt, id)
 
         db.prepare(
           'INSERT INTO notifications (id, user_id, type, title, message) VALUES (?, ?, ?, ?, ?)'
         ).run(
-          nanoid(), user.id, 'transfer_complete',
+          nanoid(), completionPayload.userId, 'transfer_complete',
           'Transfer completed!',
-          `Your transfer of ${sendCurrency} ${sendAmount} to ${recipientName} is complete.`
+          `Your transfer of ${completionPayload.sendCurrency} ${completionPayload.sendAmount} to ${completionPayload.recipientName} is complete.`
         )
+
+        sendTransferReceipt({
+          to: completionPayload.userEmail,
+          name: completionPayload.userName,
+          reference: completionPayload.reference,
+          sendAmount: completionPayload.sendAmount,
+          sendCurrency: completionPayload.sendCurrency,
+          receiveAmount: completionPayload.receiveAmount,
+          receiveCurrency: completionPayload.receiveCurrency,
+          recipientName: completionPayload.recipientName,
+          recipientCountry: completionPayload.recipientCountry,
+          exchangeRate: completionPayload.exchangeRate,
+          fee: completionPayload.fee,
+          totalAmount: completionPayload.totalAmount,
+          estimatedDelivery: completionPayload.estimatedDelivery,
+          completedAt: new Date(completedAt * 1000),
+        }).catch(() => {})
       } catch {}
     }, 15000)
 

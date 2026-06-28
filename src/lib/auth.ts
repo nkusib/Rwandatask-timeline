@@ -4,6 +4,7 @@ import { db } from './db'
 import { nanoid } from 'nanoid'
 import crypto from 'crypto'
 import type { User } from './db'
+import { sendNewDeviceAlert } from './email'
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'remitflow-secret-change-in-production-min-32-chars'
@@ -63,11 +64,24 @@ export async function createSession(
 
   // Track device — upsert on fingerprint
   const existing = db.prepare('SELECT id FROM trusted_devices WHERE user_id = ? AND fingerprint_hash = ?').get(userId, fingerprint) as { id: string } | undefined
-  if (!existing) {
+  const isNewDevice = !existing
+  if (isNewDevice) {
     db.prepare(`
       INSERT OR IGNORE INTO trusted_devices (id, user_id, fingerprint_hash, user_agent, is_new)
       VALUES (?, ?, ?, ?, 1)
     `).run(nanoid(), userId, fingerprint, userAgent.slice(0, 255))
+
+    // Fire-and-forget new-device email alert
+    const userRow = db.prepare('SELECT email, name FROM users WHERE id = ?').get(userId) as { email: string; name: string } | undefined
+    if (userRow) {
+      sendNewDeviceAlert({
+        to: userRow.email,
+        name: userRow.name,
+        ip,
+        userAgent,
+        loginAt: new Date(),
+      }).catch(() => {})
+    }
   } else {
     db.prepare('UPDATE trusted_devices SET last_seen_at = unixepoch(), is_new = 0 WHERE id = ?').run(existing.id)
   }
