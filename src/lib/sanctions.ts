@@ -1,6 +1,8 @@
 export type SanctionsResult =
   | { clear: true }
   | { clear: false; reason: string; matches: SanctionsMatch[] }
+  // API unavailable — caller must treat this as a hard block, not a pass
+  | { clear: false; reason: string; matches: []; apiUnavailable: true }
 
 export type SanctionsMatch = {
   name: string
@@ -14,7 +16,11 @@ const MATCH_THRESHOLD = 0.75
 
 /**
  * Screen a person against OpenSanctions datasets (OFAC, UN, EU, PEP lists).
- * Uses the /match/default endpoint which covers all datasets.
+ *
+ * FAIL-CLOSED: if the API is unreachable or returns an error, the result is
+ * treated as an unresolved risk — the caller must NOT allow the user through.
+ * MLR 2017 requires that CDD is completed before onboarding; inability to
+ * screen is not equivalent to a clear result.
  */
 export async function screenPerson(
   fullName: string,
@@ -49,9 +55,14 @@ export async function screenPerson(
     })
 
     if (!res.ok) {
-      // If API is unavailable, fail open (log + allow) — do not block all registrations
+      // API returned an error — fail closed, queue for manual review
       console.error('[sanctions] OpenSanctions API error:', res.status)
-      return { clear: true }
+      return {
+        clear: false,
+        reason: 'Sanctions screening service temporarily unavailable. Manual review required before onboarding.',
+        matches: [],
+        apiUnavailable: true,
+      }
     }
 
     const data = await res.json()
@@ -76,8 +87,13 @@ export async function screenPerson(
 
     return { clear: true }
   } catch (err: any) {
-    // Network timeout or error — fail open, log for audit
+    // Network timeout or other error — fail closed
     console.error('[sanctions] Screening failed:', err.message)
-    return { clear: true }
+    return {
+      clear: false,
+      reason: 'Sanctions screening service unreachable. Manual review required before onboarding.',
+      matches: [],
+      apiUnavailable: true,
+    }
   }
 }

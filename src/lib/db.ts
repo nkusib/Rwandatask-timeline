@@ -270,6 +270,34 @@ function migrate(db: Database.Database) {
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
+    -- GDPR Article 7 consent records — required to demonstrate lawful basis
+    CREATE TABLE IF NOT EXISTS gdpr_consents (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      purpose TEXT NOT NULL,       -- 'biometric_processing' | 'marketing' | 'data_sharing'
+      granted INTEGER NOT NULL,    -- 1=granted, 0=withdrawn
+      policy_version TEXT NOT NULL DEFAULT '1.0',
+      ip_address TEXT,
+      user_agent TEXT,
+      granted_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+    CREATE INDEX IF NOT EXISTS idx_gdpr_consents_user ON gdpr_consents(user_id, purpose);
+
+    -- Transaction risk flags for AML monitoring
+    CREATE TABLE IF NOT EXISTS transaction_risk_flags (
+      id TEXT PRIMARY KEY,
+      transaction_id TEXT NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      flag_type TEXT NOT NULL,    -- 'velocity' | 'structuring' | 'high_risk_corridor' | 'round_amount'
+      details TEXT,               -- JSON
+      reviewed INTEGER NOT NULL DEFAULT 0,
+      reviewed_by TEXT,
+      reviewed_at INTEGER,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+    CREATE INDEX IF NOT EXISTS idx_risk_flags_user ON transaction_risk_flags(user_id, reviewed);
+    CREATE INDEX IF NOT EXISTS idx_risk_flags_txn ON transaction_risk_flags(transaction_id);
+
     CREATE INDEX IF NOT EXISTS idx_wallets_user ON wallets(user_id);
     CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_recipients_user ON recipients(user_id);
@@ -332,6 +360,9 @@ function applyColumnMigrations(db: Database.Database) {
   // Add columns to existing tables safely (fails silently if already present)
   const addColumn = (sql: string) => { try { db.exec(sql) } catch {} }
   addColumn('ALTER TABLE otp_codes ADD COLUMN session_nonce TEXT')
+  // SAR (Suspicious Activity Report) flag on users — set by AML monitoring
+  addColumn('ALTER TABLE users ADD COLUMN sar_required INTEGER NOT NULL DEFAULT 0')
+  addColumn('ALTER TABLE users ADD COLUMN sar_reason TEXT')
 }
 
 export const db = new Proxy({} as Database.Database, {

@@ -208,6 +208,36 @@ export async function POST(req: NextRequest) {
     const reference = `RF${Date.now().toString(36).toUpperCase()}`
     const estimatedDelivery = deliveryMethod === 'mobile_money' ? 'Under 30 minutes' : '1-2 business hours'
 
+    // === AML RISK FLAGGING ===
+    // Run after limit checks but before insert — flags don't block the transfer,
+    // they queue it for compliance review per a risk-based approach (MLR 2017 r.28)
+    const riskFlags: { type: string; details: object }[] = []
+
+    // Velocity: >3 transfers in 24 hours to different recipients
+    const last24h = db.prepare(
+      `SELECT COUNT(DISTINCT recipient_name) as unique_recipients, COUNT(*) as count
+       FROM transactions WHERE user_id = ? AND created_at > ? AND status != 'cancelled'`
+    ).get(user.id, Math.floor(Date.now() / 1000) - 86400) as { unique_recipients: number; count: number }
+
+    if (last24h.count >= 3 && last24h.unique_recipients >= 3) {
+      riskFlags.push({ type: 'velocity', details: { count: last24h.count, unique_recipients: last24h.unique_recipients, window: '24h' } })
+    }
+
+    // Structuring: multiple transfers just under the £200 step-up threshold
+    const stepUpWindow = db.prepare(
+      `SELECT COUNT(*) as count FROM transactions
+       WHERE user_id = ? AND created_at > ? AND send_amount BETWEEN 150 AND 199.99 AND status != 'cancelled'`
+    ).get(user.id, Math.floor(Date.now() / 1000) - 7 * 86400) as { count: number }
+
+    if (stepUpWindow.count >= 2 && gbpEquivalent >= 150 && gbpEquivalent <= 199.99) {
+      riskFlags.push({ type: 'structuring', details: { recent_sub_threshold: stepUpWindow.count, current_amount_gbp: gbpEquivalent } })
+    }
+
+    // Round amounts over £500 (common money laundering indicator)
+    if (gbpEquivalent >= 500 && sendAmount % 100 === 0) {
+      riskFlags.push({ type: 'round_amount', details: { amount: sendAmount, currency: sendCurrency } })
+    }
+
     // Insert transaction
     db.prepare(`
       INSERT INTO transactions (
@@ -225,6 +255,24 @@ export async function POST(req: NextRequest) {
       recipientName, recipientCountry,
       recipientDetails, reference, estimatedDelivery
     )
+
+    // Persist AML risk flags
+    if (riskFlags.length > 0) {
+      for (const flag of riskFlags) {
+        db.prepare(
+          'INSERT INTO transaction_risk_flags (id, transaction_id, user_id, flag_type, details) VALUES (?, ?, ?, ?, ?)'
+        ).run(nanoid(), id, user.id, flag.type, JSON.stringify(flag.details))
+      }
+      // Mark user for SAR review if not already flagged
+      db.prepare(
+        `UPDATE users SET sar_required = 1, sar_reason = ? WHERE id = ? AND sar_required = 0`
+      ).run(riskFlags.map(f => f.type).join(', '), user.id)
+
+      db.prepare(
+        `INSERT INTO admin_logs (id, admin_id, action, target_type, target_id, details)
+         VALUES (?, 'system', 'aml_flag', 'transaction', ?, ?)`
+      ).run(nanoid(), id, JSON.stringify({ flags: riskFlags, userId: user.id, amount: sendAmount, currency: sendCurrency }))
+    }
 
     // Update daily total (for verified users' daily cap tracking)
     if (!isUnverified) {

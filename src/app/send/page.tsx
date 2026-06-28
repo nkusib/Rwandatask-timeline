@@ -119,14 +119,50 @@ function SendPageContent() {
   const [origFee, setOrigFee] = useState<number | null>(null)
   const skipToCountryEffect = useRef(false)
 
-  const rate = MOCK_RATES[fromCountry.currency]?.[toCountry.currency] ?? 1000
-  const fee = paymentMethod === 'bank_transfer' ? 0.99 : 1.99
-  const net = Math.max(0, parseFloat(sendAmount) - fee)
-  const receives = (net * rate).toFixed(0)
-  const total = (parseFloat(sendAmount)).toFixed(2)
+  // Live preview state — fetched from /api/rates/preview (debounced)
+  const [livePreview, setLivePreview] = useState<{
+    customerRate: number; fee: number; totalAmount: number; receiveAmount: number
+  } | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const previewTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Fallback to MOCK_RATES while live preview loads
+  const mockRate = MOCK_RATES[fromCountry.currency]?.[toCountry.currency] ?? 1000
+  const rate = livePreview?.customerRate ?? mockRate
+  const fee = livePreview?.fee ?? (paymentMethod === 'bank_transfer' ? 0.99 : 1.99)
+  const receives = livePreview?.receiveAmount?.toFixed(0) ?? (Math.max(0, parseFloat(sendAmount || '0') - fee) * rate).toFixed(0)
+  const total = (parseFloat(sendAmount || '0')).toFixed(2)
 
   const rateChanged = prefilled && origRate !== null && Math.abs(rate - origRate) / Math.max(origRate, 1) > 0.001
   const feeChanged = prefilled && origFee !== null && Math.abs(fee - origFee) > 0.005
+
+  // Debounced live rate+fee fetch
+  useEffect(() => {
+    const amt = parseFloat(sendAmount)
+    if (!amt || amt <= 0 || !fromCountry.currency || !toCountry.currency) return
+    if (previewTimer.current) clearTimeout(previewTimer.current)
+    previewTimer.current = setTimeout(async () => {
+      setPreviewLoading(true)
+      try {
+        const params = new URLSearchParams({
+          from: fromCountry.currency,
+          to: toCountry.currency,
+          amount: amt.toString(),
+          paymentMethod,
+          deliveryMethod,
+          fromCountry: fromCountry.code,
+          toCountry: toCountry.code,
+        })
+        const res = await fetch(`/api/rates/preview?${params}`)
+        if (res.ok) {
+          const data = await res.json()
+          setLivePreview(data)
+        }
+      } catch {}
+      setPreviewLoading(false)
+    }, 400)
+    return () => { if (previewTimer.current) clearTimeout(previewTimer.current) }
+  }, [sendAmount, fromCountry, toCountry, paymentMethod, deliveryMethod])
 
   useEffect(() => {
     if (skipToCountryEffect.current) {
@@ -372,15 +408,24 @@ function SendPageContent() {
             <div className="bg-[#F7F8FA] rounded-xl p-4 mb-4 space-y-2 text-sm">
               <div className="flex justify-between text-[#667085]">
                 <span>Transfer fee</span>
-                <span className="text-gray-900 font-medium">{fromSym}{fee.toFixed(2)}</span>
+                {previewLoading
+                  ? <span className="flex items-center gap-1 text-gray-400"><Loader className="w-3 h-3 animate-spin" />calculating…</span>
+                  : <span className="text-gray-900 font-medium">{fromSym}{fee.toFixed(2)}</span>
+                }
               </div>
               <div className="flex justify-between text-[#667085]">
                 <span>Exchange rate</span>
-                <span className="text-gray-900 font-medium">1 {fromCountry.currency} = {rate.toLocaleString()} {toCountry.currency}</span>
+                {previewLoading
+                  ? <span className="text-gray-400">—</span>
+                  : <span className="text-gray-900 font-medium">1 {fromCountry.currency} = {rate.toLocaleString()} {toCountry.currency}</span>
+                }
               </div>
               <div className="border-t border-[#E5E7EB] pt-2 flex justify-between">
                 <span className="font-semibold text-gray-900">Recipient gets</span>
-                <span className="font-bold text-[#008F5A] text-base">{toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
+                {previewLoading
+                  ? <span className="flex items-center gap-1 font-bold text-gray-400"><Loader className="w-3.5 h-3.5 animate-spin" />—</span>
+                  : <span className="font-bold text-[#008F5A] text-base">{toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
+                }
               </div>
             </div>
 

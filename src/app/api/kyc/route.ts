@@ -112,7 +112,8 @@ export async function POST(req: NextRequest) {
     const hasLiveness = livenessScore !== null && livenessScore >= 0.85
     const hasAllFields = !!(dateOfBirth && nationality && address && idType && idNumber && idDocumentRef && selfieRef)
     const hasBiometric = webauthnVerified === 1
-    const isSanctionsClear = sanctionsResult.clear
+    // apiUnavailable → sanctions unresolved → cannot auto-approve (fail-closed)
+    const isSanctionsClear = sanctionsResult.clear === true
 
     const autoApprove = hasLiveness && hasAllFields && isSanctionsClear && hasBiometric
 
@@ -151,10 +152,11 @@ export async function POST(req: NextRequest) {
       VALUES (?, ?, 'kyc_submitted', 'Verification received', 'Your documents are under review. We will notify you within 1-2 hours.')
     `).run(nanoid(), user.id)
 
+    const sanctionsUnavailable = !sanctionsResult.clear && 'apiUnavailable' in sanctionsResult
     const queueReason = [
       !hasLiveness ? 'liveness score below threshold' : null,
       !hasBiometric ? 'biometric not registered' : null,
-      !isSanctionsClear ? 'compliance review required' : null,
+      sanctionsUnavailable ? 'sanctions screening service unavailable — must screen before approval' : (!isSanctionsClear ? 'compliance review required' : null),
     ].filter(Boolean).join(', ')
 
     return NextResponse.json({
