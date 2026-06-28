@@ -26,7 +26,7 @@ export default async function RecipientsPage() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <span className="font-bold text-gray-900">Recipients</span>
-          <Link href="/send" className="ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#191C1F] text-white text-sm font-semibold hover:bg-[#16181D] transition-colors">
+          <Link href="/send" className="ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#161618] text-white text-sm font-semibold hover:bg-[#0D1DBD] transition-colors">
             <Plus className="w-4 h-4" /> Add
           </Link>
         </div>
@@ -38,7 +38,7 @@ export default async function RecipientsPage() {
             <div className="text-4xl mb-3">👤</div>
             <div className="font-semibold text-gray-900 mb-1">No recipients yet</div>
             <div className="text-sm text-gray-500 mb-4">Recipients are saved automatically when you send money</div>
-            <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
+            <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: '#1326FD' }}>
               <Plus className="w-4 h-4" /> Send money
             </Link>
           </div>
@@ -47,7 +47,7 @@ export default async function RecipientsPage() {
             {recipients.map(r => (
               <Link key={r.id} href={`/recipients/${r.id}`} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
                 <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-                  style={{ backgroundColor: r.avatar_color ?? '#0070F3' }}>
+                  style={{ backgroundColor: r.avatar_color ?? '#1326FD' }}>
                   {r.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -61,7 +61,7 @@ export default async function RecipientsPage() {
                     )}
                   </div>
                 </div>
-                <span className="px-3 py-1.5 rounded-lg bg-blue-50 text-[#005CC5] text-xs font-semibold">
+                <span className="px-3 py-1.5 rounded-lg bg-blue-50 text-[#0D1DBD] text-xs font-semibold">
                   View
                 </span>
               </Link>

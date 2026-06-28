@@ -8,17 +8,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+        primary: {
+          DEFAULT: '#1326FD',
+          hover: '#0D1DBD',
+          soft: '#EAF2FF',
+        },
+        surface: {
+          dark: '#161618',
+          page: '#F7F8FA',
+        },
+        success: {
+          DEFAULT: '#008F5A',
+          soft: '#E8F8F1',
+        },
+        accent: {
+          lime: '#BFFF37',
         },
         emerald: {
           50: '#ecfdf5',
@@ -27,16 +31,11 @@ module.exports = {
           500: '#10b981',
           600: '#059669',
           700: '#047857',
-        }
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
-      backgroundImage: {
-        'gradient-hero': 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
-        'gradient-brand': 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
-        'gradient-success': 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-      }
     },
   },
   plugins: [],

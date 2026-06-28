@@ -63,7 +63,7 @@ export default function EddPage() {
             Our compliance team will review your document within 1-2 business days.
             You&apos;ll receive a notification once it&apos;s approved.
           </p>
-          <Link href="/dashboard" className="block w-full py-3 rounded-xl text-white font-semibold text-sm" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
+          <Link href="/dashboard" className="block w-full py-3 rounded-xl text-white font-semibold text-sm" style={{ background: '#1326FD' }}>
             Back to dashboard
           </Link>
         </div>
@@ -102,9 +102,9 @@ export default function EddPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Document type</label>
             <div className="space-y-2">
               {DOC_TYPES.map(d => (
-                <label key={d.value} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${docType === d.value ? 'border-[#0070F3] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                <label key={d.value} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${docType === d.value ? 'border-[#1326FD] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
                   <input type="radio" name="docType" value={d.value} checked={docType === d.value}
-                    onChange={() => setDocType(d.value)} className="accent-[#0070F3]" />
+                    onChange={() => setDocType(d.value)} className="accent-[#1326FD]" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">{d.label}</div>
                     <div className="text-xs text-gray-500">{d.desc}</div>
@@ -120,7 +120,7 @@ export default function EddPage() {
                 <img src={capture} alt="Document" className="w-full max-h-64 object-contain bg-gray-50" />
               ) : (
                 <div className="p-6 flex items-center gap-3 bg-gray-50">
-                  <FileText className="w-8 h-8 text-[#0070F3]" />
+                  <FileText className="w-8 h-8 text-[#1326FD]" />
                   <span className="text-sm font-medium text-gray-700">Document uploaded</span>
                 </div>
               )}
@@ -149,7 +149,7 @@ export default function EddPage() {
 
           <button onClick={submit} disabled={!capture || submitting}
             className="w-full py-3.5 rounded-xl text-white font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
+            style={{ background: '#1326FD' }}>
             {submitting
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               : 'Submit document'}

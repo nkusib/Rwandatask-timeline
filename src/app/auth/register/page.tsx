@@ -20,6 +20,22 @@ const COUNTRIES = [
   { code: 'TZ', name: '🇹🇿 Tanzania' },
 ]
 
+const PHONE_PLACEHOLDERS: Record<string, string> = {
+  GB: '+44 7700 000000',
+  DE: '+49 151 00000000',
+  FR: '+33 6 00 00 00 00',
+  BE: '+32 470 00 00 00',
+  NL: '+31 6 00000000',
+  ES: '+34 600 000000',
+  IT: '+39 300 000000',
+  US: '+1 555 000 0000',
+  NG: '+234 803 000 0000',
+  KE: '+254 700 000000',
+  GH: '+233 244 000000',
+  ZA: '+27 71 000 0000',
+  TZ: '+255 754 000000',
+}
+
 type Stage = 'form' | 'otp'
 
 export default function RegisterPage() {
@@ -132,19 +148,19 @@ export default function RegisterPage() {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
         <LeftPanel />
-        <div className="flex items-center justify-center p-6 sm:p-12 bg-gray-50">
+        <div className="flex items-center justify-center p-6 sm:p-12 bg-[#F7F8FA]">
           <div className="w-full max-w-md">
             <div className="lg:hidden flex items-center gap-2 mb-8">
-              <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
+              <div className="w-8 h-8 rounded-lg bg-[#161618] flex items-center justify-center font-bold text-xs text-white">RF</div>
               <span className="font-bold text-gray-900">RemitFlow</span>
             </div>
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-5">
-                <Phone className="w-7 h-7 text-[#0070F3]" />
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#E5E7EB]">
+              <div className="w-14 h-14 rounded-2xl bg-[#EAF2FF] flex items-center justify-center mx-auto mb-5">
+                <Phone className="w-7 h-7 text-[#1326FD]" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-1 text-center">Verify your phone</h1>
               <p className="text-gray-500 text-sm mb-1 text-center">We sent a 6-digit code to</p>
-              <p className="text-[#005CC5] font-semibold text-sm text-center mb-6">{form.phone}</p>
+              <p className="text-[#1326FD] font-semibold text-sm text-center mb-6">{form.phone}</p>
 
               {devCode && (
                 <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs text-center">
@@ -156,7 +172,6 @@ export default function RegisterPage() {
                 <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>
               )}
 
-              {/* OTP digit inputs */}
               <div className="flex gap-2 justify-center mb-6" onPaste={handleOtpPaste}>
                 {otp.map((d, i) => (
                   <input
@@ -168,7 +183,7 @@ export default function RegisterPage() {
                     value={d}
                     onChange={e => handleOtpInput(i, e.target.value)}
                     onKeyDown={e => handleOtpKeyDown(i, e)}
-                    className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-gray-200 focus:border-[#0070F3] focus:outline-none transition-colors"
+                    className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-[#E5E7EB] focus:border-[#1326FD] focus:ring-2 focus:ring-[#1326FD]/20 focus:outline-none transition-colors"
                   />
                 ))}
               </div>
@@ -176,8 +191,7 @@ export default function RegisterPage() {
               <button
                 onClick={verifyAndRegister}
                 disabled={loading || otp.join('').length < 6}
-                className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60 mb-4"
-                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
+                className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed mb-4"
               >
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -189,7 +203,7 @@ export default function RegisterPage() {
                   <span className="text-sm text-gray-400">Resend code in {resendCooldown}s</span>
                 ) : (
                   <button onClick={sendOtp} disabled={loading}
-                    className="text-sm text-[#0070F3] hover:underline font-medium flex items-center gap-1 mx-auto">
+                    className="text-sm text-[#1326FD] hover:underline font-medium flex items-center gap-1 mx-auto">
                     <RefreshCw className="w-3.5 h-3.5" /> Resend code
                   </button>
                 )}
@@ -209,14 +223,14 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <LeftPanel />
-      <div className="flex items-center justify-center p-6 sm:p-12 bg-gray-50">
+      <div className="flex items-center justify-center p-6 sm:p-12 bg-[#F7F8FA]">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
+            <div className="w-8 h-8 rounded-lg bg-[#161618] flex items-center justify-center font-bold text-xs text-white">RF</div>
             <span className="font-bold text-gray-900">RemitFlow</span>
           </div>
 
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#E5E7EB]">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Create your account</h1>
             <p className="text-gray-500 text-sm mb-6">Start sending money in under 2 minutes</p>
 
@@ -228,30 +242,35 @@ export default function RegisterPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
                 <input type="text" required value={form.name} onChange={update('name')} placeholder="Your full name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-gray-900 placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
                 <input type="email" required value={form.email} onChange={update('email')} placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-gray-900 placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Phone number <span className="text-[#0070F3] text-xs font-normal">(for verification)</span>
+                  Country of residence
                 </label>
-                <input type="tel" required value={form.phone} onChange={update('phone')} placeholder="+44 7700 000000"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
-                <p className="text-xs text-gray-400 mt-1">We&apos;ll send a verification code to this number</p>
+                <select value={form.country} onChange={update('country')}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm">
+                  {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Country of residence</label>
-                <select value={form.country} onChange={update('country')}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm">
-                  {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-                </select>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Phone number <span className="text-[#1326FD] text-xs font-normal">(for verification)</span>
+                </label>
+                <input
+                  type="tel" required value={form.phone} onChange={update('phone')}
+                  placeholder={PHONE_PLACEHOLDERS[form.country] ?? '+44 7700 000000'}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-gray-900 placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm"
+                />
+                <p className="text-xs text-[#98A2B3] mt-1">We&apos;ll send a verification code to this number</p>
               </div>
 
               <div>
@@ -259,7 +278,7 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input type={showPw ? 'text' : 'password'} required value={form.password} onChange={update('password')}
                     placeholder="At least 8 characters with numbers"
-                    className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm" />
+                    className="w-full px-4 py-3 pr-11 rounded-xl border border-[#E5E7EB] text-gray-900 placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm" />
                   <button type="button" onClick={() => setShowPw(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -269,23 +288,22 @@ export default function RegisterPage() {
                     {[1,2,3,4].map(n => (
                       <div key={n} className={`flex-1 h-1 rounded-full transition-colors ${
                         pwScore >= n
-                          ? n <= 2 ? 'bg-amber-400' : n === 3 ? 'bg-emerald-400' : 'bg-emerald-500'
-                          : 'bg-gray-200'
+                          ? n <= 2 ? 'bg-amber-400' : n === 3 ? 'bg-[#008F5A]' : 'bg-[#008F5A]'
+                          : 'bg-[#E5E7EB]'
                       }`} />
                     ))}
                   </div>
                 )}
               </div>
 
-              <p className="text-xs text-gray-400 leading-relaxed">
+              <p className="text-xs text-[#98A2B3] leading-relaxed">
                 By creating an account you agree to our{' '}
-                <a href="#" className="text-[#0070F3] hover:underline">Terms of Service</a> and{' '}
-                <a href="#" className="text-[#0070F3] hover:underline">Privacy Policy</a>.
+                <a href="#" className="text-[#1326FD] hover:underline">Terms of Service</a> and{' '}
+                <a href="#" className="text-[#1326FD] hover:underline">Privacy Policy</a>.
               </p>
 
               <button type="submit" disabled={loading}
-                className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
-                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
+                className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors hover:bg-[#0D1DBD] disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed">
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   : <><span>Send verification code</span><ArrowRight className="w-4 h-4" /></>}
@@ -294,7 +312,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Already have an account?{' '}
-              <Link href="/auth/login" className="text-[#0070F3] font-medium hover:underline">Sign in</Link>
+              <Link href="/auth/login" className="text-[#1326FD] font-medium hover:underline">Sign in</Link>
             </p>
           </div>
         </div>
@@ -305,14 +323,14 @@ export default function RegisterPage() {
 
 function LeftPanel() {
   return (
-    <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: 'linear-gradient(135deg, #0D1B2A 0%, #1B3A5C 60%, #0A1929 100%)' }}>
+    <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: '#161618' }}>
       <Link href="/" className="flex items-center gap-2 mb-16">
-        <div className="w-9 h-9 rounded-xl bg-[#0070F3] flex items-center justify-center font-bold text-sm">RF</div>
+        <div className="w-9 h-9 rounded-xl bg-[#1326FD] flex items-center justify-center font-bold text-sm">RF</div>
         <span className="font-bold text-lg">RemitFlow</span>
       </Link>
       <div className="flex-1 flex flex-col justify-center">
         <h2 className="text-3xl font-bold mb-4">Send money home in minutes</h2>
-        <p className="text-blue-200 mb-10">Join 2 million people who trust RemitFlow to send money to Africa.</p>
+        <p className="text-gray-400 mb-10">Join 2 million people who trust RemitFlow to send money to Africa.</p>
         <div className="space-y-4">
           {[
             'Free to sign up — send up to £50 before verifying',
@@ -322,17 +340,17 @@ function LeftPanel() {
             'FCA regulated and fully licensed',
           ].map(f => (
             <div key={f} className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span className="text-sm text-white/90">{f}</span>
+              <CheckCircle className="w-5 h-5 text-[#008F5A] shrink-0" />
+              <span className="text-sm text-gray-300">{f}</span>
             </div>
           ))}
         </div>
-        <div className="mt-10 p-4 rounded-xl bg-white/10 border border-white/20">
-          <p className="text-sm text-white/80 italic">&ldquo;RemitFlow cut my transfer cost by 70%. My family in Lagos gets the money in 5 minutes now.&rdquo;</p>
-          <p className="text-xs text-white/50 mt-2">— Emeka O., London</p>
+        <div className="mt-10 p-4 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-sm text-gray-400 italic">&ldquo;RemitFlow cut my transfer cost by 70%. My family in Lagos gets the money in 5 minutes now.&rdquo;</p>
+          <p className="text-xs text-gray-600 mt-2">— Emeka O., London</p>
         </div>
       </div>
-      <p className="text-xs text-white/40">© 2025 RemitFlow Ltd. FCA regulated.</p>
+      <p className="text-xs text-gray-600">© 2025 RemitFlow Ltd. FCA regulated.</p>
     </div>
   )
 }

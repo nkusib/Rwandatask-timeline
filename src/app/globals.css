@@ -4,22 +4,45 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #1326FD;
+  --color-primary-hover: #0D1DBD;
+  --color-primary-soft: #EAF2FF;
+
+  --color-text-primary: #000000;
+  --color-text-secondary: #667085;
+  --color-text-muted: #98A2B3;
+
+  --color-bg-page: #F7F8FA;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-dark: #161618;
+
+  --color-border: #E5E7EB;
+  --color-border-strong: #D0D5DD;
+
+  --color-success: #008F5A;
+  --color-success-soft: #E8F8F1;
+  --color-warning: #F79009;
+  --color-error: #D92D20;
+
+  --color-accent-lime: #BFFF37;
+}
+
 body {
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
 }
 
 @layer utilities {
-  .gradient-text {
-    background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .text-primary-blue {
+    color: var(--color-primary);
   }
 
-  .gradient-hero {
-    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  .bg-primary-soft {
+    background-color: var(--color-primary-soft);
   }
 
   .glass {

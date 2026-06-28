@@ -27,7 +27,6 @@ export default function LoginPage() {
     else router.push('/dashboard')
   }
 
-  // ── Password login ──────────────────────────────────────────────────────────
   async function submitPassword(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -51,7 +50,6 @@ export default function LoginPage() {
     }
   }
 
-  // ── Biometric login (WebAuthn passkey) ──────────────────────────────────────
   const loginWithBiometric = useCallback(async () => {
     setError('')
     setBiometricState('prompting')
@@ -70,14 +68,12 @@ export default function LoginPage() {
         return
       }
 
-      // Fetch challenge from server (pass email if typed to target specific credentials)
       const email = form.email.trim()
       const qs = email ? `?email=${encodeURIComponent(email)}` : ''
       const challengeRes = await fetch(`/api/auth/webauthn/authenticate${qs}`)
       if (!challengeRes.ok) throw new Error('Could not start biometric authentication')
       const opts = await challengeRes.json()
 
-      // Build publicKey options
       const publicKey: PublicKeyCredentialRequestOptions = {
         challenge: Uint8Array.from(
           atob(opts.challenge.replace(/-/g, '+').replace(/_/g, '/')),
@@ -92,7 +88,6 @@ export default function LoginPage() {
         })),
       }
 
-      // Prompt biometric — this triggers Face ID / Touch ID / Windows Hello
       const assertion = await navigator.credentials.get({ publicKey }) as PublicKeyCredential | null
 
       if (!assertion) {
@@ -103,7 +98,6 @@ export default function LoginPage() {
 
       const response = assertion.response as AuthenticatorAssertionResponse
 
-      // Send assertion to server for cryptographic verification
       const verifyRes = await fetch('/api/auth/webauthn/authenticate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -147,33 +141,33 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: 'linear-gradient(135deg, #0D1B2A 0%, #1B3A5C 60%, #0A1929 100%)' }}>
+      <div className="hidden lg:flex flex-col p-12 text-white" style={{ background: '#161618' }}>
         <Link href="/" className="flex items-center gap-2 mb-16">
-          <div className="w-9 h-9 rounded-xl bg-[#0070F3] flex items-center justify-center font-bold text-sm">RF</div>
+          <div className="w-9 h-9 rounded-xl bg-[#1326FD] flex items-center justify-center font-bold text-sm">RF</div>
           <span className="font-bold text-lg">RemitFlow</span>
         </Link>
         <div className="flex-1 flex flex-col justify-center">
           <h2 className="text-3xl font-bold mb-4">Welcome back</h2>
-          <p className="text-blue-200 mb-6">Continue sending money to your loved ones in Africa, faster and cheaper than ever.</p>
-          <div className="space-y-3 text-sm text-white/70">
+          <p className="text-gray-400 mb-6">Continue sending money to your loved ones in Africa, faster and cheaper than ever.</p>
+          <div className="space-y-3 text-sm text-gray-400">
             <p>📱 Track transfers in real-time</p>
             <p>💱 Live exchange rates, best on the market</p>
             <p>🏦 20+ countries, mobile money &amp; bank transfer</p>
             <p>🔏 Biometric sign-in — no password needed</p>
           </div>
         </div>
-        <p className="text-xs text-white/40">© 2025 RemitFlow Ltd. FCA regulated.</p>
+        <p className="text-xs text-gray-600">© 2025 RemitFlow Ltd. FCA regulated.</p>
       </div>
 
       {/* Right panel */}
-      <div className="flex items-center justify-center p-6 sm:p-12 bg-gray-50">
+      <div className="flex items-center justify-center p-6 sm:p-12 bg-[#F7F8FA]">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs text-white">RF</div>
+            <div className="w-8 h-8 rounded-lg bg-[#161618] flex items-center justify-center font-bold text-xs text-white">RF</div>
             <span className="font-bold text-gray-900">RemitFlow</span>
           </div>
 
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#E5E7EB]">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Sign in</h1>
             <p className="text-gray-500 text-sm mb-6">Welcome back to RemitFlow</p>
 
@@ -184,20 +178,20 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* ── Biometric button (primary CTA) ── */}
+            {/* Biometric button */}
             <button
               onClick={loginWithBiometric}
               disabled={biometricState === 'prompting' || biometricState === 'success'}
               className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-3 mb-5 border-2 transition-all ${
                 biometricState === 'success'
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                  ? 'border-[#008F5A] bg-[#E8F8F1] text-[#008F5A]'
                   : biometricState === 'prompting'
-                  ? 'border-blue-300 bg-blue-50 text-[#0070F3] cursor-wait'
-                  : 'border-gray-200 bg-white text-gray-900 hover:border-[#0070F3] hover:bg-blue-50 hover:text-[#005CC5]'
+                  ? 'border-[#1326FD]/30 bg-[#EAF2FF] text-[#1326FD] cursor-wait'
+                  : 'border-[#E5E7EB] bg-white text-gray-900 hover:border-[#1326FD]/50 hover:bg-[#EAF2FF]/50'
               } disabled:opacity-70`}
             >
               {biometricState === 'prompting' ? (
-                <div className="w-5 h-5 border-2 border-[#0070F3]/40 border-t-[#0070F3] rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[#1326FD]/30 border-t-[#1326FD] rounded-full animate-spin" />
               ) : biometricState === 'success' ? (
                 <span className="text-lg">✓</span>
               ) : (
@@ -206,44 +200,36 @@ export default function LoginPage() {
               <span>{biometricLabel()}</span>
             </button>
 
-            {/* Helper text for biometric */}
             <p className="text-xs text-gray-400 text-center mb-5 -mt-3">
               Uses Face ID, Touch ID, or Windows Hello · No password needed
             </p>
 
-            {/* ── Divider ── */}
             <div className="relative flex items-center gap-3 mb-5">
-              <div className="flex-1 h-px bg-gray-200" />
+              <div className="flex-1 h-px bg-[#E5E7EB]" />
               <span className="text-xs text-gray-400 font-medium">or sign in with password</span>
-              <div className="flex-1 h-px bg-gray-200" />
+              <div className="flex-1 h-px bg-[#E5E7EB]" />
             </div>
 
-            {/* ── Password form ── */}
             <form onSubmit={submitPassword} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
                 <input
                   type="email" required value={form.email} onChange={update('email')}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-gray-900 placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm"
                 />
-                {form.email && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    Tip: tap the biometric button above to use Face ID / Touch ID instead
-                  </p>
-                )}
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-sm font-medium text-gray-700">Password</label>
-                  <a href="#" className="text-xs text-[#0070F3] hover:underline">Forgot password?</a>
+                  <a href="#" className="text-xs text-[#1326FD] hover:underline">Forgot password?</a>
                 </div>
                 <div className="relative">
                   <input
                     type={showPw ? 'text' : 'password'} required value={form.password}
                     onChange={update('password')} placeholder="Your password"
-                    className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0070F3] text-sm"
+                    className="w-full px-4 py-3 pr-11 rounded-xl border border-[#E5E7EB] text-gray-900 placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent text-sm"
                   />
                   <button type="button" onClick={() => setShowPw(p => !p)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -254,8 +240,7 @@ export default function LoginPage() {
 
               <button
                 type="submit" disabled={loading}
-                className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
-                style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}
+                className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors hover:bg-[#0D1DBD] disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
               >
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -265,7 +250,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-gray-500 mt-5">
               New to RemitFlow?{' '}
-              <Link href="/auth/register" className="text-[#0070F3] font-medium hover:underline">Create account</Link>
+              <Link href="/auth/register" className="text-[#1326FD] font-medium hover:underline">Create account</Link>
             </p>
           </div>
         </div>

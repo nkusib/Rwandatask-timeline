@@ -72,7 +72,7 @@ function migrate(db: Database.Database) {
       mobile_number TEXT,
       mobile_provider TEXT,
       email TEXT,
-      avatar_color TEXT DEFAULT '#0070F3',
+      avatar_color TEXT DEFAULT '#1326FD',
       created_at INTEGER NOT NULL DEFAULT (unixepoch()),
       updated_at INTEGER NOT NULL DEFAULT (unixepoch())
     );

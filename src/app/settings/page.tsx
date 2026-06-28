@@ -28,7 +28,7 @@ export default async function SettingsPage() {
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <div className="bg-white rounded-2xl p-5 border border-gray-100">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl" style={{ background: 'linear-gradient(135deg, #191C1F, #0F3460)' }}>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl" style={{ background: '#1326FD' }}>
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1">
@@ -42,7 +42,7 @@ export default async function SettingsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
           <Link href="/verify" className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
             <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-[#0070F3]" />
+              <Shield className="w-4 h-4 text-[#1326FD]" />
             </div>
             <div className="flex-1">
               <div className="font-medium text-gray-900 text-sm">Identity verification</div>

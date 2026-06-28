@@ -25,7 +25,7 @@ export default async function AdminUsersPage() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <div className="flex items-center gap-2.5">
-            <Users className="w-5 h-5 text-[#0070F3]" />
+            <Users className="w-5 h-5 text-[#1326FD]" />
             <span className="font-bold text-gray-900">Users</span>
           </div>
           <div className="ml-auto text-sm text-gray-500">{users.length} total users</div>
@@ -50,7 +50,7 @@ export default async function AdminUsersPage() {
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#005CC5] font-bold text-sm shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0D1DBD] font-bold text-sm shrink-0">
                           {u.name.charAt(0)}
                         </div>
                         <div>
@@ -66,7 +66,7 @@ export default async function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'user' ? 'bg-gray-100 text-gray-600' : 'bg-blue-50 text-[#005CC5]'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'user' ? 'bg-gray-100 text-gray-600' : 'bg-blue-50 text-[#0D1DBD]'}`}>
                         {u.role}
                       </span>
                     </td>

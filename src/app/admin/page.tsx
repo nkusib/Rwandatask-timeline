@@ -49,7 +49,7 @@ export default async function AdminDashboard() {
         <aside className="w-64 min-h-screen bg-gray-900 text-white fixed left-0 top-0 hidden lg:flex flex-col">
           <div className="p-6 border-b border-gray-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#191C1F] flex items-center justify-center font-bold text-xs">RF</div>
+              <div className="w-8 h-8 rounded-lg bg-[#161618] flex items-center justify-center font-bold text-xs">RF</div>
               <div>
                 <div className="font-bold text-sm">RemitFlow</div>
                 <div className="text-xs text-gray-400">Admin Console</div>
@@ -66,7 +66,7 @@ export default async function AdminDashboard() {
               { icon: Settings, label: 'Settings', href: '/admin/settings' },
             ].map(n => (
               <Link key={n.label} href={n.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${n.active ? 'bg-[#191C1F] text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${n.active ? 'bg-[#161618] text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
                 <n.icon className="w-4 h-4" />
                 {n.label}
               </Link>
@@ -74,7 +74,7 @@ export default async function AdminDashboard() {
           </nav>
           <div className="p-4 border-t border-gray-800">
             <div className="flex items-center gap-3 mb-3 px-3">
-              <div className="w-8 h-8 rounded-full bg-[#191C1F] flex items-center justify-center font-bold text-xs">
+              <div className="w-8 h-8 rounded-full bg-[#161618] flex items-center justify-center font-bold text-xs">
                 {admin.name.charAt(0)}
               </div>
               <div>
@@ -99,7 +99,7 @@ export default async function AdminDashboard() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Total Users', value: stats.totalUsers.toLocaleString(), sub: `${stats.activeUsers} active`, icon: '👤', color: 'text-[#0070F3]' },
+              { label: 'Total Users', value: stats.totalUsers.toLocaleString(), sub: `${stats.activeUsers} active`, icon: '👤', color: 'text-[#1326FD]' },
               { label: 'Pending KYC', value: stats.pendingKyc.toLocaleString(), sub: 'awaiting review', icon: '🔍', color: 'text-amber-600' },
               { label: 'Total Transactions', value: stats.totalTxns.toLocaleString(), sub: `${stats.pendingTxns} pending`, icon: '💸', color: 'text-blue-600' },
               { label: 'Total Volume', value: `£${fmt(stats.totalVolume)}`, sub: `£${fmt(stats.todayVolume)} today`, icon: '📈', color: 'text-emerald-600' },
@@ -120,7 +120,7 @@ export default async function AdminDashboard() {
             <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100">
               <div className="flex items-center justify-between p-5 border-b border-gray-50">
                 <h2 className="font-bold text-gray-900">Recent Transactions</h2>
-                <Link href="/admin/transactions" className="text-sm text-[#0070F3] hover:underline">View all</Link>
+                <Link href="/admin/transactions" className="text-sm text-[#1326FD] hover:underline">View all</Link>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -168,7 +168,7 @@ export default async function AdminDashboard() {
             <div className="bg-white rounded-2xl border border-gray-100">
               <div className="flex items-center justify-between p-5 border-b border-gray-50">
                 <h2 className="font-bold text-gray-900">New Users</h2>
-                <Link href="/admin/users" className="text-sm text-[#0070F3] hover:underline">View all</Link>
+                <Link href="/admin/users" className="text-sm text-[#1326FD] hover:underline">View all</Link>
               </div>
               <div className="divide-y divide-gray-50">
                 {recentUsers.map((u: any) => {
@@ -180,7 +180,7 @@ export default async function AdminDashboard() {
                   }
                   return (
                     <div key={u.id} className="flex items-center gap-3 px-5 py-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#005CC5] font-bold text-sm shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0D1DBD] font-bold text-sm shrink-0">
                         {u.name.charAt(0)}
                       </div>
                       <div className="flex-1 min-w-0">
