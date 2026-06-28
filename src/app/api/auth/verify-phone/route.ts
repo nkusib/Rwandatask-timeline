@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'
-import { createToken, setSessionCookie } from '@/lib/auth'
+import { createSession, setSessionCookie } from '@/lib/auth'
 import { verifyPhoneOtp } from '@/lib/otp'
 import { rateLimit } from '@/lib/rate-limit'
 import { validateEmail, validatePassword, validateName, validatePhone, validateCountry } from '@/lib/validation'
 import { nanoid } from 'nanoid'
 
-/**
- * Called after OTP is collected. Verifies the code and creates the account.
- * This is the second step of registration: form data + phone + OTP code.
- */
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1'
+  const userAgent = req.headers.get('user-agent') || ''
 
   const limit = rateLimit(`verify_phone:${ip}`, 10, 15 * 60 * 1000)
   if (!limit.ok) {
@@ -23,7 +20,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { otp, ...formData } = body
 
-    // Validate all form fields
     let email: string, password: string, name: string
     try {
       email = validateEmail(formData.email)
@@ -41,19 +37,29 @@ export async function POST(req: NextRequest) {
     }
     const country = validateCountry(formData.country)
 
-    // Verify OTP
     if (!otp || typeof otp !== 'string') {
       return NextResponse.json({ error: 'Verification code is required', field: 'otp' }, { status: 400 })
     }
-    const otpResult = verifyPhoneOtp(phone, otp)
+
+    // Read session nonce from cookie (set by /api/auth/send-otp)
+    const nonce = req.cookies.get('otp_nonce')?.value
+
+    const otpResult = verifyPhoneOtp(phone, otp, nonce)
     if (!otpResult.valid) {
       return NextResponse.json({ error: otpResult.reason || 'Invalid code', field: 'otp' }, { status: 400 })
     }
 
-    // Check duplicate email
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
-    if (existing) {
+    // Duplicate email check
+    if (db.prepare('SELECT id FROM users WHERE email = ?').get(email)) {
       return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
+    }
+
+    // Duplicate phone check — one phone per account
+    if (db.prepare('SELECT id FROM users WHERE phone = ?').get(phone)) {
+      return NextResponse.json(
+        { error: 'This phone number is already linked to another account. Contact support if this is an error.' },
+        { status: 409 }
+      )
     }
 
     const id = nanoid()
@@ -78,9 +84,11 @@ export async function POST(req: NextRequest) {
       ).run(nanoid(), id, 'USD', 0, 0)
     }
 
-    const token = await createToken(id, 'user')
+    const token = await createSession(id, 'user', ip, userAgent)
     const res = NextResponse.json({ ok: true, role: 'user' })
     res.cookies.set(setSessionCookie(token))
+    // Clear the nonce cookie
+    res.cookies.set('otp_nonce', '', { maxAge: 0, path: '/' })
     return res
   } catch (err) {
     console.error('[verify-phone]', err)

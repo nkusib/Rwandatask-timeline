@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'
-import { createToken, setSessionCookie } from '@/lib/auth'
+import { createSession, setSessionCookie } from '@/lib/auth'
 import { rateLimit, recordFailedAuth, clearFailedAuth, checkAuthLock } from '@/lib/rate-limit'
 import { validateEmail } from '@/lib/validation'
 import { nanoid } from 'nanoid'
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1'
+  const userAgent = req.headers.get('user-agent') || ''
 
   // Rate limit: 10 attempts per 15 minutes per IP
   const ipLimit = rateLimit(`login_ip:${ip}`, 10, 15 * 60 * 1000)
@@ -73,10 +74,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    // Success — clear lockout
+    // Success — clear lockout and create tracked session
     clearFailedAuth(ip, email)
 
-    const token = await createToken(user.id, user.role)
+    const token = await createSession(user.id, user.role, ip, userAgent)
     const res = NextResponse.json({ ok: true, role: user.role })
     res.cookies.set(setSessionCookie(token))
     return res

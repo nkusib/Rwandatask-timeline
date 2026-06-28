@@ -1,87 +1,76 @@
-/**
- * In-memory rate limiter.
- * For multi-server deployments, replace with Redis-backed solution.
- */
+import { db } from './db'
 
-type Entry = { count: number; resetAt: number; lockedUntil?: number }
-const store = new Map<string, Entry>()
-
-// Clean up stale entries every 10 minutes to prevent memory growth
+// Purge stale rate limit records hourly so the table doesn't grow unbounded
 setInterval(() => {
-  const now = Date.now()
-  for (const [k, v] of store) {
-    if (now > v.resetAt && (!v.lockedUntil || now > v.lockedUntil)) store.delete(k)
-  }
-}, 600_000)
+  const now = Math.floor(Date.now() / 1000)
+  try {
+    db.prepare('DELETE FROM rate_limits WHERE reset_at < ? AND (locked_until IS NULL OR locked_until < ?)').run(now, now)
+  } catch {}
+}, 3_600_000)
 
 export type RateLimitResult =
   | { ok: true }
   | { ok: false; error: string; retryAfter: number }
 
-/**
- * Check a rate limit. Returns ok:false if limit exceeded.
- * @param key      - unique key (e.g. "login:127.0.0.1")
- * @param max      - max requests in window
- * @param windowMs - window in milliseconds
- */
 export function rateLimit(key: string, max: number, windowMs: number): RateLimitResult {
-  const now = Date.now()
-  const entry = store.get(key)
+  const now = Math.floor(Date.now() / 1000)
+  const windowSecs = Math.ceil(windowMs / 1000)
 
-  // Check hard lock (e.g. after too many violations)
-  if (entry?.lockedUntil && now < entry.lockedUntil) {
-    return { ok: false, error: 'Too many attempts. Try again later.', retryAfter: Math.ceil((entry.lockedUntil - now) / 1000) }
+  type Row = { count: number; reset_at: number; locked_until: number | null }
+  const row = db.prepare('SELECT count, reset_at, locked_until FROM rate_limits WHERE key = ?').get(key) as Row | undefined
+
+  if (row?.locked_until && now < row.locked_until) {
+    return { ok: false, error: 'Too many attempts. Try again later.', retryAfter: row.locked_until - now }
   }
 
-  if (!entry || now > entry.resetAt) {
-    store.set(key, { count: 1, resetAt: now + windowMs })
+  if (!row || now >= row.reset_at) {
+    db.prepare('INSERT OR REPLACE INTO rate_limits (key, count, reset_at, locked_until) VALUES (?, 1, ?, NULL)').run(key, now + windowSecs)
     return { ok: true }
   }
 
-  entry.count++
-  if (entry.count > max) {
-    return { ok: false, error: 'Too many requests. Please slow down.', retryAfter: Math.ceil((entry.resetAt - now) / 1000) }
+  const newCount = row.count + 1
+  db.prepare('UPDATE rate_limits SET count = ? WHERE key = ?').run(newCount, key)
+
+  if (newCount > max) {
+    return { ok: false, error: 'Too many requests. Please slow down.', retryAfter: row.reset_at - now }
   }
   return { ok: true }
 }
 
-/**
- * Track failed auth attempts with progressive lockout.
- * 5 failures → 5 min lock. 10 failures → 30 min lock. 15+ → 24h lock.
- */
+// Progressive lockout: 5 fails → 5 min · 10 fails → 30 min · 15+ → 24 h
 export function recordFailedAuth(ip: string, email: string): { locked: boolean; lockSeconds: number } {
   const key = `auth_fail:${ip}:${email}`
-  const now = Date.now()
-  const entry = store.get(key) ?? { count: 0, resetAt: now + 3_600_000 }
+  const now = Math.floor(Date.now() / 1000)
 
-  // Already hard-locked?
-  if (entry.lockedUntil && now < entry.lockedUntil) {
-    return { locked: true, lockSeconds: Math.ceil((entry.lockedUntil - now) / 1000) }
+  type Row = { count: number; reset_at: number; locked_until: number | null }
+  const row = db.prepare('SELECT count, reset_at, locked_until FROM rate_limits WHERE key = ?').get(key) as Row | undefined
+
+  if (row?.locked_until && now < row.locked_until) {
+    return { locked: true, lockSeconds: row.locked_until - now }
   }
 
-  entry.count++
-  let lockMs = 0
-  if (entry.count >= 15) lockMs = 86_400_000      // 24 hours
-  else if (entry.count >= 10) lockMs = 1_800_000  // 30 minutes
-  else if (entry.count >= 5) lockMs = 300_000     // 5 minutes
+  const count = (row?.count ?? 0) + 1
+  let lockUntil: number | null = null
+  if (count >= 15) lockUntil = now + 86_400
+  else if (count >= 10) lockUntil = now + 1_800
+  else if (count >= 5) lockUntil = now + 300
 
-  if (lockMs > 0) {
-    entry.lockedUntil = now + lockMs
-  }
+  const resetAt = Math.max(row?.reset_at ?? 0, now + 3_600)
+  db.prepare('INSERT OR REPLACE INTO rate_limits (key, count, reset_at, locked_until) VALUES (?, ?, ?, ?)').run(key, count, resetAt, lockUntil)
 
-  store.set(key, { ...entry, resetAt: Math.max(entry.resetAt, now + 3_600_000) })
-  return { locked: lockMs > 0, lockSeconds: Math.ceil(lockMs / 1000) }
+  return { locked: lockUntil !== null, lockSeconds: lockUntil ? lockUntil - now : 0 }
 }
 
 export function clearFailedAuth(ip: string, email: string) {
-  store.delete(`auth_fail:${ip}:${email}`)
+  db.prepare('DELETE FROM rate_limits WHERE key = ?').run(`auth_fail:${ip}:${email}`)
 }
 
 export function checkAuthLock(ip: string, email: string): { locked: boolean; lockSeconds: number } {
   const key = `auth_fail:${ip}:${email}`
-  const entry = store.get(key)
-  if (entry?.lockedUntil && Date.now() < entry.lockedUntil) {
-    return { locked: true, lockSeconds: Math.ceil((entry.lockedUntil - Date.now()) / 1000) }
+  const now = Math.floor(Date.now() / 1000)
+  const row = db.prepare('SELECT locked_until FROM rate_limits WHERE key = ?').get(key) as { locked_until: number | null } | undefined
+  if (row?.locked_until && now < row.locked_until) {
+    return { locked: true, lockSeconds: row.locked_until - now }
   }
   return { locked: false, lockSeconds: 0 }
 }

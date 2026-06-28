@@ -5,6 +5,7 @@ import {
   ArrowLeft, User, Shield, Bell, CreditCard, LogOut, ChevronRight,
   Home, Send, Users, BarChart2,
 } from 'lucide-react'
+import SessionsCard from './SessionsCard'
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', href: '/dashboard', key: 'home' },
@@ -117,6 +118,9 @@ export default async function SettingsPage() {
             <span className="font-medium text-white">{new Date(user.created_at * 1000).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</span>
           </div>
         </div>
+
+        {/* Active sessions */}
+        <SessionsCard />
 
         {/* Sign out */}
         <form action="/api/auth/logout" method="POST">

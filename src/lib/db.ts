@@ -14,10 +14,16 @@ function getDb(): Database.Database {
   _db.pragma('journal_mode = WAL')
   _db.pragma('foreign_keys = ON')
   migrate(_db)
+  applyColumnMigrations(_db)
   return _db
 }
 
 function migrate(db: Database.Database) {
+  db.exec(`
+    -- Runs before main schema, safe to repeat
+    PRAGMA journal_mode = WAL;
+    PRAGMA foreign_keys = ON;
+  `)
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
@@ -223,6 +229,47 @@ function migrate(db: Database.Database) {
       PRIMARY KEY (user_id, date)
     );
 
+    CREATE TABLE IF NOT EXISTS rate_limits (
+      key TEXT PRIMARY KEY,
+      count INTEGER NOT NULL DEFAULT 0,
+      reset_at INTEGER NOT NULL,
+      locked_until INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS trusted_devices (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      fingerprint_hash TEXT NOT NULL,
+      user_agent TEXT,
+      first_seen_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      last_seen_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      is_new INTEGER NOT NULL DEFAULT 1,
+      UNIQUE(user_id, fingerprint_hash)
+    );
+
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      session_id TEXT NOT NULL UNIQUE,
+      device_fingerprint TEXT,
+      user_agent TEXT,
+      ip_address TEXT,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      expires_at INTEGER NOT NULL,
+      last_active_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      revoked_at INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS transfer_tokens (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token TEXT NOT NULL UNIQUE,
+      context_hash TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      used INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
     CREATE INDEX IF NOT EXISTS idx_wallets_user ON wallets(user_id);
     CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_recipients_user ON recipients(user_id);
@@ -232,6 +279,9 @@ function migrate(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_webauthn_user ON webauthn_credentials(user_id);
     CREATE INDEX IF NOT EXISTS idx_kyc_sessions_user ON kyc_sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts(ip, created_at);
+    CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id, revoked_at);
+    CREATE INDEX IF NOT EXISTS idx_trusted_devices_user ON trusted_devices(user_id);
+    CREATE INDEX IF NOT EXISTS idx_transfer_tokens_user ON transfer_tokens(token, used);
 
     -- Seed exchange rates
     INSERT OR IGNORE INTO exchange_rates (id, from_currency, to_currency, rate, margin) VALUES
@@ -263,6 +313,8 @@ function migrate(db: Database.Database) {
       ('er_kesusd', 'KES', 'USD', 0.0077, 0.02),
       ('er_ghsusd', 'GHS', 'USD', 0.0658, 0.02);
 
+    -- Add session_nonce column to otp_codes if not present (idempotent via try/catch in JS)
+
     -- Seed fee rules
     INSERT OR IGNORE INTO fee_rules (id, from_country, to_country, payment_method, delivery_method, fixed_fee, percentage_fee, min_amount, max_amount) VALUES
       ('fr_eu_ng_card_mm', 'EU', 'NG', 'card', 'mobile_money', 1.99, 1.5, 1, 5000),
@@ -274,6 +326,12 @@ function migrate(db: Database.Database) {
       ('fr_us_ng_card_mm', 'US', 'NG', 'card', 'mobile_money', 1.99, 1.8, 1, 5000),
       ('fr_us_ke_card_mm', 'US', 'KE', 'card', 'mobile_money', 1.99, 1.8, 1, 5000);
   `)
+}
+
+function applyColumnMigrations(db: Database.Database) {
+  // Add columns to existing tables safely (fails silently if already present)
+  const addColumn = (sql: string) => { try { db.exec(sql) } catch {} }
+  addColumn('ALTER TABLE otp_codes ADD COLUMN session_nonce TEXT')
 }
 
 export const db = new Proxy({} as Database.Database, {

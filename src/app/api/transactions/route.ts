@@ -4,7 +4,10 @@ import { db } from '@/lib/db'
 import { rateLimit } from '@/lib/rate-limit'
 import { validateAmount, validateCurrency, sanitizeString } from '@/lib/validation'
 import { nanoid } from 'nanoid'
+import crypto from 'crypto'
 import type { ExchangeRate } from '@/lib/db'
+
+const STEP_UP_THRESHOLD_GBP = 200
 
 // KYC daily limits in GBP-equivalent
 const KYC_DAILY_LIMITS: Record<number, number> = {
@@ -163,6 +166,41 @@ export async function POST(req: NextRequest) {
           { status: 403 }
         )
       }
+    }
+
+    // === STEP-UP OTP CHECK for transfers over threshold ===
+    if (gbpEquivalent > STEP_UP_THRESHOLD_GBP) {
+      const stepUpToken = sanitizeString(body.step_up_token, 64)
+      if (!stepUpToken) {
+        return NextResponse.json(
+          { error: 'This transfer requires security verification.', code: 'STEP_UP_REQUIRED' },
+          { status: 403 }
+        )
+      }
+
+      const contextHash = crypto.createHash('sha256')
+        .update(JSON.stringify({
+          userId: user.id,
+          amount: sendAmount.toFixed(2),
+          currency: sendCurrency,
+          recipient: sanitizeString(body.recipientName, 100).toLowerCase().trim(),
+        }))
+        .digest('hex')
+
+      type TokenRow = { id: string }
+      const tokenRow = db.prepare(
+        'SELECT id FROM transfer_tokens WHERE token = ? AND user_id = ? AND context_hash = ? AND used = 0 AND expires_at > unixepoch()'
+      ).get(stepUpToken, user.id, contextHash) as TokenRow | undefined
+
+      if (!tokenRow) {
+        return NextResponse.json(
+          { error: 'Security token invalid or expired. Please complete verification again.', code: 'STEP_UP_INVALID' },
+          { status: 403 }
+        )
+      }
+
+      // Single-use: consume the token
+      db.prepare('UPDATE transfer_tokens SET used = 1 WHERE id = ?').run(tokenRow.id)
     }
 
     const id = nanoid()

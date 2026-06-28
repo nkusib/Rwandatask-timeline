@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { db } from '@/lib/db'
-import { createToken, setSessionCookie } from '@/lib/auth'
+import { createSession, setSessionCookie } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { nanoid } from 'nanoid'
 
@@ -170,6 +170,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: limit.error, retryAfter: limit.retryAfter }, { status: 429 })
   }
 
+  const userAgent = req.headers.get('user-agent') || ''
+
   try {
     const body = await req.json()
     const { credentialId, clientDataJSON, authenticatorData, signature } = body
@@ -246,8 +248,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Account not found or suspended.' }, { status: 403 })
     }
 
-    // Step 6: Issue session
-    const token = await createToken(user.id, user.role)
+    // Step 6: Issue tracked session
+    const token = await createSession(user.id, user.role, ip, userAgent)
     const res = NextResponse.json({ ok: true, role: user.role })
     res.cookies.set(setSessionCookie(token))
     return res

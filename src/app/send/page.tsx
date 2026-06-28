@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Info, CheckCircle, Loader, AlertCircle, RefreshCw } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Info, CheckCircle, Loader, AlertCircle, RefreshCw, Shield } from 'lucide-react'
 
 const SEND_COUNTRIES = [
   { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP' },
@@ -83,7 +83,9 @@ const MOCK_RATES: Record<string, Record<string, number>> = {
   USD: { NGN: 1585, KES: 129.5, GHS: 15.2, TZS: 2680, UGX: 3710, ZAR: 18.45, XOF: 607, XAF: 607, MAD: 9.95, ETB: 57.5, ZMW: 26.5 },
 }
 
-type Step = 'amount' | 'recipient' | 'payment' | 'review' | 'confirm'
+type Step = 'amount' | 'recipient' | 'payment' | 'review' | 'stepup' | 'confirm'
+
+const STEP_UP_THRESHOLD = 200
 
 function SendPageContent() {
   const router = useRouter()
@@ -101,6 +103,13 @@ function SendPageContent() {
   const [recipient, setRecipient] = useState({ name: '', phone: '', bankAccount: '', bankName: '' })
   const [loading, setLoading] = useState(false)
   const [txnId, setTxnId] = useState('')
+
+  const [stepUpOtp, setStepUpOtp] = useState('')
+  const [stepUpSent, setStepUpSent] = useState(false)
+  const [stepUpLoading, setStepUpLoading] = useState(false)
+  const [stepUpError, setStepUpError] = useState('')
+  const [stepUpMasked, setStepUpMasked] = useState('')
+  const [stepUpDevCode, setStepUpDevCode] = useState('')
 
   const [prefilled, setPrefilled] = useState(false)
   const [prefillBanner, setPrefillBanner] = useState('')
@@ -166,7 +175,7 @@ function SendPageContent() {
       .catch(() => setPrefillError('Could not load transfer details. Please fill in the form manually.'))
   }, [fromTxnId])
 
-  async function submitTransfer() {
+  async function submitTransfer(stepUpToken?: string) {
     setLoading(true)
     try {
       const res = await fetch('/api/transactions', {
@@ -187,6 +196,7 @@ function SendPageContent() {
           recipientDetails: deliveryMethod === 'mobile_money'
             ? JSON.stringify({ provider: mobileProvider, phone: recipient.phone })
             : JSON.stringify({ bankName: recipient.bankName, account: recipient.bankAccount }),
+          ...(stepUpToken ? { step_up_token: stepUpToken } : {}),
         }),
       })
       const data = await res.json()
@@ -196,6 +206,53 @@ function SendPageContent() {
       }
     } catch {}
     setLoading(false)
+  }
+
+  async function requestStepUpCode() {
+    setStepUpLoading(true)
+    setStepUpError('')
+    try {
+      const res = await fetch('/api/auth/step-up', { method: 'GET' })
+      const data = await res.json()
+      if (res.ok) {
+        setStepUpSent(true)
+        setStepUpMasked(data.maskedPhone ?? '')
+        if (data.dev_code) setStepUpDevCode(data.dev_code)
+      } else {
+        setStepUpError(data.error || 'Failed to send code. Please try again.')
+      }
+    } catch {
+      setStepUpError('Network error. Please try again.')
+    }
+    setStepUpLoading(false)
+  }
+
+  async function verifyStepUp() {
+    setStepUpLoading(true)
+    setStepUpError('')
+    try {
+      const res = await fetch('/api/auth/step-up', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          otp: stepUpOtp,
+          context: {
+            amount: parseFloat(sendAmount),
+            currency: fromCountry.currency,
+            recipient: recipient.name,
+          },
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.token) {
+        await submitTransfer(data.token)
+      } else {
+        setStepUpError(data.error || 'Invalid code. Please try again.')
+      }
+    } catch {
+      setStepUpError('Network error. Please try again.')
+    }
+    setStepUpLoading(false)
   }
 
   const fromSym = CURRENCY_SYMBOLS[fromCountry.currency] ?? ''
@@ -601,17 +658,120 @@ function SendPageContent() {
               </div>
             )}
 
+            {parseFloat(sendAmount) > STEP_UP_THRESHOLD && (
+              <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2.5 rounded-lg mb-3">
+                <Shield className="w-3.5 h-3.5 shrink-0" />
+                Transfers over £{STEP_UP_THRESHOLD} require a one-time phone verification
+              </div>
+            )}
+
             <button
-              onClick={submitTransfer}
+              onClick={() => parseFloat(sendAmount) > STEP_UP_THRESHOLD ? setStep('stepup') : submitTransfer()}
               disabled={loading}
               className="w-full py-4 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
             >
-              {loading ? <><Loader className="w-4 h-4 animate-spin" /> Processing...</> : <>Confirm &amp; send {fromSym}{total}</>}
+              {loading
+                ? <><Loader className="w-4 h-4 animate-spin" /> Processing...</>
+                : parseFloat(sendAmount) > STEP_UP_THRESHOLD
+                  ? <>Continue to verification &rarr;</>
+                  : <>Confirm &amp; send {fromSym}{total}</>
+              }
             </button>
 
             <p className="text-center text-xs text-[#98A2B3] mt-3">
               By confirming you agree to our Terms of Service
             </p>
+          </div>
+        )}
+
+        {/* Step: Security verification (step-up OTP for transfers > £200) */}
+        {step === 'stepup' && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] animate-fadeIn">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                <Shield className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900 text-base">Security verification</h2>
+                <p className="text-xs text-[#667085]">Required for transfers over £{STEP_UP_THRESHOLD}</p>
+              </div>
+            </div>
+
+            <div className="bg-[#F7F8FA] rounded-xl p-4 mb-5 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[#667085]">Sending</span>
+                <span className="font-semibold text-gray-900">{fromSym}{sendAmount} → {toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#667085]">To</span>
+                <span className="font-medium text-gray-900">{recipient.name} · {toCountry.flag} {toCountry.name}</span>
+              </div>
+            </div>
+
+            {!stepUpSent ? (
+              <>
+                <p className="text-sm text-[#667085] mb-4">
+                  We'll send a 6-digit code to your registered phone number to confirm this transfer.
+                </p>
+                <button
+                  onClick={requestStepUpCode}
+                  disabled={stepUpLoading}
+                  className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:cursor-not-allowed"
+                >
+                  {stepUpLoading ? <><Loader className="w-4 h-4 animate-spin" /> Sending...</> : 'Send verification code'}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-[#667085] mb-4">
+                  Code sent to <span className="font-medium text-gray-900">{stepUpMasked || 'your phone'}</span>.
+                  {stepUpDevCode && <span className="ml-1 text-[#1326FD] font-mono">(dev: {stepUpDevCode})</span>}
+                </p>
+
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-[#667085] mb-1.5">Enter the 6-digit code</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={stepUpOtp}
+                    onChange={e => setStepUpOtp(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-4 py-3.5 rounded-xl border border-[#E5E7EB] text-center text-2xl tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                    placeholder="––––––"
+                    autoFocus
+                  />
+                </div>
+
+                {stepUpError && (
+                  <div className="flex items-center gap-2 mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {stepUpError}
+                  </div>
+                )}
+
+                <button
+                  onClick={verifyStepUp}
+                  disabled={stepUpOtp.length < 6 || stepUpLoading}
+                  className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
+                >
+                  {stepUpLoading ? <><Loader className="w-4 h-4 animate-spin" /> Verifying...</> : `Verify and send ${fromSym}${total}`}
+                </button>
+
+                <button
+                  onClick={() => { setStepUpOtp(''); setStepUpError(''); requestStepUpCode() }}
+                  className="w-full mt-2 py-2 text-sm text-[#667085] hover:text-gray-800 transition-colors"
+                >
+                  Resend code
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={() => { setStep('review'); setStepUpSent(false); setStepUpOtp(''); setStepUpError('') }}
+              className="w-full mt-3 py-2 text-xs text-[#98A2B3] hover:text-gray-600 transition-colors"
+            >
+              ← Back to review
+            </button>
           </div>
         )}
       </div>
