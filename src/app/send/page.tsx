@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Info, CheckCircle, Loader, AlertCircle, RefreshCw, Shield } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const SEND_COUNTRIES = [
   { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP' },
@@ -83,9 +84,37 @@ const MOCK_RATES: Record<string, Record<string, number>> = {
   USD: { NGN: 1585, KES: 129.5, GHS: 15.2, TZS: 2680, UGX: 3710, ZAR: 18.45, XOF: 607, XAF: 607, MAD: 9.95, ETB: 57.5, ZMW: 26.5 },
 }
 
-type Step = 'amount' | 'recipient' | 'payment' | 'review' | 'stepup' | 'confirm'
+type Step = 'amount' | 'recipient' | 'payment' | 'review' | 'confirm'
 
 const STEP_UP_THRESHOLD = 200
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? '40%' : '-40%', opacity: 0 }),
+  center: {
+    x: 0,
+    opacity: 1,
+    transition: { type: 'spring' as const, stiffness: 340, damping: 32, opacity: { duration: 0.18 } },
+  },
+  exit: (dir: number) => ({
+    x: dir > 0 ? '-25%' : '25%',
+    opacity: 0,
+    transition: { duration: 0.18, ease: [0.4, 0, 1, 1] as const },
+  }),
+}
+
+const sheetVariants = {
+  hidden: { y: '100%', opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: 'spring' as const, stiffness: 280, damping: 30 },
+  },
+  exit: {
+    y: '100%',
+    opacity: 0,
+    transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const },
+  },
+}
 
 function SendPageContent() {
   const router = useRouter()
@@ -94,6 +123,9 @@ function SendPageContent() {
   const fromTxnId = params.get('from_transaction')
 
   const [step, setStep] = useState<Step>('amount')
+  const dirRef = useRef<number>(1)
+  const [showStepUp, setShowStepUp] = useState(false)
+
   const [fromCountry, setFromCountry] = useState(SEND_COUNTRIES[0])
   const [toCountry, setToCountry] = useState(RECEIVE_COUNTRIES.find(c => c.code === presetTo) ?? RECEIVE_COUNTRIES[0])
   const [sendAmount, setSendAmount] = useState('200')
@@ -119,14 +151,12 @@ function SendPageContent() {
   const [origFee, setOrigFee] = useState<number | null>(null)
   const skipToCountryEffect = useRef(false)
 
-  // Live preview state — fetched from /api/rates/preview (debounced)
   const [livePreview, setLivePreview] = useState<{
     customerRate: number; fee: number; totalAmount: number; receiveAmount: number
   } | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const previewTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Fallback to MOCK_RATES while live preview loads
   const mockRate = MOCK_RATES[fromCountry.currency]?.[toCountry.currency] ?? 1000
   const rate = livePreview?.customerRate ?? mockRate
   const fee = livePreview?.fee ?? (paymentMethod === 'bank_transfer' ? 0.99 : 1.99)
@@ -136,7 +166,6 @@ function SendPageContent() {
   const rateChanged = prefilled && origRate !== null && Math.abs(rate - origRate) / Math.max(origRate, 1) > 0.001
   const feeChanged = prefilled && origFee !== null && Math.abs(fee - origFee) > 0.005
 
-  // Debounced live rate+fee fetch
   useEffect(() => {
     const amt = parseFloat(sendAmount)
     if (!amt || amt <= 0 || !fromCountry.currency || !toCountry.currency) return
@@ -144,7 +173,7 @@ function SendPageContent() {
     previewTimer.current = setTimeout(async () => {
       setPreviewLoading(true)
       try {
-        const params = new URLSearchParams({
+        const p = new URLSearchParams({
           from: fromCountry.currency,
           to: toCountry.currency,
           amount: amt.toString(),
@@ -153,11 +182,8 @@ function SendPageContent() {
           fromCountry: fromCountry.code,
           toCountry: toCountry.code,
         })
-        const res = await fetch(`/api/rates/preview?${params}`)
-        if (res.ok) {
-          const data = await res.json()
-          setLivePreview(data)
-        }
+        const res = await fetch(`/api/rates/preview?${p}`)
+        if (res.ok) setLivePreview(await res.json())
       } catch {}
       setPreviewLoading(false)
     }, 400)
@@ -211,6 +237,11 @@ function SendPageContent() {
       .catch(() => setPrefillError('Could not load transfer details. Please fill in the form manually.'))
   }, [fromTxnId])
 
+  function goTo(target: Step, dir: number) {
+    dirRef.current = dir
+    setStep(target)
+  }
+
   async function submitTransfer(stepUpToken?: string) {
     setLoading(true)
     try {
@@ -238,6 +269,8 @@ function SendPageContent() {
       const data = await res.json()
       if (res.ok) {
         setTxnId(data.id)
+        setShowStepUp(false)
+        dirRef.current = 1
         setStep('confirm')
       }
     } catch {}
@@ -300,10 +333,20 @@ function SendPageContent() {
   if (step === 'confirm') {
     return (
       <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl p-8 border border-[#E5E7EB] text-center animate-fadeIn">
-          <div className="w-16 h-16 rounded-full bg-[#E8F8F1] flex items-center justify-center mx-auto mb-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+          className="w-full max-w-md bg-white rounded-2xl p-8 border border-[#E5E7EB] text-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
+            className="w-16 h-16 rounded-full bg-[#E8F8F1] flex items-center justify-center mx-auto mb-4"
+          >
             <CheckCircle className="w-8 h-8 text-[#008F5A]" />
-          </div>
+          </motion.div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Transfer initiated!</h2>
           <p className="text-gray-500 text-sm mb-6">
             Your transfer of {fromSym}{sendAmount} to {recipient.name} in {toCountry.name} is being processed.
@@ -321,7 +364,7 @@ function SendPageContent() {
               Back to dashboard
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     )
   }
@@ -334,492 +377,559 @@ function SendPageContent() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <span className="font-bold text-gray-900">Send money</span>
-          {/* Progress indicator */}
           <div className="ml-auto flex items-center gap-1.5">
             {steps.map((s, i) => (
               <div
                 key={s}
-                className={`h-1 rounded-full transition-all ${i <= stepIndex ? 'bg-[#1326FD] w-8' : 'bg-[#E5E7EB] w-4'}`}
+                className={`h-1 rounded-full transition-all duration-300 ${i <= stepIndex ? 'bg-[#1326FD] w-8' : 'bg-[#E5E7EB] w-4'}`}
               />
             ))}
           </div>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        {/* Step: Amount */}
-        {step === 'amount' && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] animate-fadeIn">
-            {prefillError && (
-              <div className="mb-5 flex items-start gap-2 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{prefillError}</span>
-              </div>
-            )}
-            {prefillBanner && !prefillError && (
-              <div className="mb-5 flex items-start gap-2 p-3.5 bg-[#EAF2FF] border border-[#1326FD]/20 rounded-xl text-[#1326FD] text-sm">
-                <RefreshCw className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{prefillBanner}</span>
-              </div>
-            )}
-            <h2 className="font-bold text-gray-900 text-lg mb-5">How much to send?</h2>
-
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <div>
-                <label className="block text-xs font-medium text-[#667085] mb-1.5">From</label>
-                <select
-                  value={fromCountry.code}
-                  onChange={e => setFromCountry(SEND_COUNTRIES.find(c => c.code === e.target.value)!)}
-                  className="w-full px-3 py-3 rounded-xl border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
-                >
-                  {SEND_COUNTRIES.map(c => (
-                    <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#667085] mb-1.5">To</label>
-                <select
-                  value={toCountry.code}
-                  onChange={e => setToCountry(RECEIVE_COUNTRIES.find(c => c.code === e.target.value)!)}
-                  className="w-full px-3 py-3 rounded-xl border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
-                >
-                  {RECEIVE_COUNTRIES.map(c => (
-                    <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-xs font-medium text-[#667085] mb-1.5">You send ({fromCountry.currency})</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] font-medium">{fromSym}</span>
-                <input
-                  type="number"
-                  value={sendAmount}
-                  onChange={e => setSendAmount(e.target.value)}
-                  min={1}
-                  className="w-full pl-8 pr-4 py-4 rounded-xl border border-[#E5E7EB] text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <div className="bg-[#F7F8FA] rounded-xl p-4 mb-4 space-y-2 text-sm">
-              <div className="flex justify-between text-[#667085]">
-                <span>Transfer fee</span>
-                {previewLoading
-                  ? <span className="flex items-center gap-1 text-gray-400"><Loader className="w-3 h-3 animate-spin" />calculating…</span>
-                  : <span className="text-gray-900 font-medium">{fromSym}{fee.toFixed(2)}</span>
-                }
-              </div>
-              <div className="flex justify-between text-[#667085]">
-                <span>Exchange rate</span>
-                {previewLoading
-                  ? <span className="text-gray-400">—</span>
-                  : <span className="text-gray-900 font-medium">1 {fromCountry.currency} = {rate.toLocaleString()} {toCountry.currency}</span>
-                }
-              </div>
-              <div className="border-t border-[#E5E7EB] pt-2 flex justify-between">
-                <span className="font-semibold text-gray-900">Recipient gets</span>
-                {previewLoading
-                  ? <span className="flex items-center gap-1 font-bold text-gray-400"><Loader className="w-3.5 h-3.5 animate-spin" />—</span>
-                  : <span className="font-bold text-[#008F5A] text-base">{toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
-                }
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs text-[#1326FD] bg-[#EAF2FF] px-3 py-2 rounded-lg mb-5">
-              <Info className="w-3.5 h-3.5 shrink-0" />
-              Estimated delivery: under 30 minutes to mobile money
-            </div>
-
-            <div className="mb-5">
-              <label className="block text-xs font-medium text-[#667085] mb-2">Delivery method</label>
-              <div className="grid grid-cols-2 gap-2">
-                {toCountry.methods.map(m => (
-                  <button
-                    key={m}
-                    onClick={() => setDeliveryMethod(m as any)}
-                    className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${
-                      deliveryMethod === m
-                        ? 'border-[#1326FD] bg-[#EAF2FF] text-[#1326FD]'
-                        : 'border-[#E5E7EB] text-gray-700 hover:border-[#D0D5DD]'
-                    }`}
-                  >
-                    <div>{m === 'mobile_money' ? '📱 Mobile Money' : '🏦 Bank Deposit'}</div>
-                    <div className={`text-xs mt-0.5 ${deliveryMethod === m ? 'text-[#1326FD]/70' : 'text-[#98A2B3]'}`}>
-                      {m === 'mobile_money' ? 'Under 10 min' : '1-2 hours'}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={() => setStep('recipient')}
-              disabled={!sendAmount || parseFloat(sendAmount) < 1}
-              className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
+      <div className="max-w-2xl mx-auto px-4 py-6 overflow-hidden">
+        <AnimatePresence mode="wait" custom={dirRef.current}>
+          {/* Step: Amount */}
+          {step === 'amount' && (
+            <motion.div
+              key="amount"
+              custom={dirRef.current}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
             >
-              Continue <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+              <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB]">
+                {prefillError && (
+                  <div className="mb-5 flex items-start gap-2 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{prefillError}</span>
+                  </div>
+                )}
+                {prefillBanner && !prefillError && (
+                  <div className="mb-5 flex items-start gap-2 p-3.5 bg-[#EAF2FF] border border-[#1326FD]/20 rounded-xl text-[#1326FD] text-sm">
+                    <RefreshCw className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{prefillBanner}</span>
+                  </div>
+                )}
+                <h2 className="font-bold text-gray-900 text-lg mb-5">How much to send?</h2>
 
-        {/* Step: Recipient */}
-        {step === 'recipient' && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] animate-fadeIn">
-            <button onClick={() => setStep('amount')} className="flex items-center gap-1.5 text-sm text-[#667085] hover:text-gray-900 mb-5">
-              <ArrowLeft className="w-4 h-4" /> Back
-            </button>
-            <h2 className="font-bold text-gray-900 text-lg mb-5">Recipient details</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#667085] mb-1.5">Full name</label>
-                <input
-                  type="text"
-                  value={recipient.name}
-                  onChange={e => setRecipient(p => ({ ...p, name: e.target.value }))}
-                  placeholder="Recipient's full name"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
-                />
-              </div>
-
-              {deliveryMethod === 'mobile_money' ? (
-                <>
+                <div className="grid grid-cols-2 gap-3 mb-5">
                   <div>
-                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Mobile provider</label>
+                    <label className="block text-xs font-medium text-[#667085] mb-1.5">From</label>
                     <select
-                      value={mobileProvider}
-                      onChange={e => setMobileProvider(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                      value={fromCountry.code}
+                      onChange={e => setFromCountry(SEND_COUNTRIES.find(c => c.code === e.target.value)!)}
+                      className="w-full px-3 py-3 rounded-xl border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
                     >
-                      {(MOBILE_PROVIDERS[toCountry.code] ?? []).map(p => (
-                        <option key={p} value={p}>{PROVIDER_NAMES[p]}</option>
+                      {SEND_COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Mobile number</label>
+                    <label className="block text-xs font-medium text-[#667085] mb-1.5">To</label>
+                    <select
+                      value={toCountry.code}
+                      onChange={e => setToCountry(RECEIVE_COUNTRIES.find(c => c.code === e.target.value)!)}
+                      className="w-full px-3 py-3 rounded-xl border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                    >
+                      {RECEIVE_COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-[#667085] mb-1.5">You send ({fromCountry.currency})</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] font-medium">{fromSym}</span>
                     <input
-                      type="tel"
-                      value={recipient.phone}
-                      onChange={e => setRecipient(p => ({ ...p, phone: e.target.value }))}
-                      placeholder={PHONE_PLACEHOLDERS[toCountry.code] ?? '+XX XXX XXX XXXX'}
+                      type="number"
+                      value={sendAmount}
+                      onChange={e => setSendAmount(e.target.value)}
+                      min={1}
+                      className="w-full pl-8 pr-4 py-4 rounded-xl border border-[#E5E7EB] text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-[#F7F8FA] rounded-xl p-4 mb-4 space-y-2 text-sm">
+                  <div className="flex justify-between text-[#667085]">
+                    <span>Transfer fee</span>
+                    {previewLoading
+                      ? <span className="flex items-center gap-1 text-gray-400"><Loader className="w-3 h-3 animate-spin" />calculating…</span>
+                      : <span className="text-gray-900 font-medium">{fromSym}{fee.toFixed(2)}</span>
+                    }
+                  </div>
+                  <div className="flex justify-between text-[#667085]">
+                    <span>Exchange rate</span>
+                    {previewLoading
+                      ? <span className="text-gray-400">—</span>
+                      : <span className="text-gray-900 font-medium">1 {fromCountry.currency} = {rate.toLocaleString()} {toCountry.currency}</span>
+                    }
+                  </div>
+                  <div className="border-t border-[#E5E7EB] pt-2 flex justify-between">
+                    <span className="font-semibold text-gray-900">Recipient gets</span>
+                    {previewLoading
+                      ? <span className="flex items-center gap-1 font-bold text-gray-400"><Loader className="w-3.5 h-3.5 animate-spin" />—</span>
+                      : <span className="font-bold text-[#008F5A] text-base">{toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
+                    }
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-[#1326FD] bg-[#EAF2FF] px-3 py-2 rounded-lg mb-5">
+                  <Info className="w-3.5 h-3.5 shrink-0" />
+                  Estimated delivery: under 30 minutes to mobile money
+                </div>
+
+                <div className="mb-5">
+                  <label className="block text-xs font-medium text-[#667085] mb-2">Delivery method</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {toCountry.methods.map(m => (
+                      <button
+                        key={m}
+                        onClick={() => setDeliveryMethod(m as any)}
+                        className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${
+                          deliveryMethod === m
+                            ? 'border-[#1326FD] bg-[#EAF2FF] text-[#1326FD]'
+                            : 'border-[#E5E7EB] text-gray-700 hover:border-[#D0D5DD]'
+                        }`}
+                      >
+                        <div>{m === 'mobile_money' ? '📱 Mobile Money' : '🏦 Bank Deposit'}</div>
+                        <div className={`text-xs mt-0.5 ${deliveryMethod === m ? 'text-[#1326FD]/70' : 'text-[#98A2B3]'}`}>
+                          {m === 'mobile_money' ? 'Under 10 min' : '1-2 hours'}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => goTo('recipient', 1)}
+                  disabled={!sendAmount || parseFloat(sendAmount) < 1}
+                  className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
+                >
+                  Continue <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step: Recipient */}
+          {step === 'recipient' && (
+            <motion.div
+              key="recipient"
+              custom={dirRef.current}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB]">
+                <button onClick={() => goTo('amount', -1)} className="flex items-center gap-1.5 text-sm text-[#667085] hover:text-gray-900 mb-5">
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </button>
+                <h2 className="font-bold text-gray-900 text-lg mb-5">Recipient details</h2>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Full name</label>
+                    <input
+                      type="text"
+                      value={recipient.name}
+                      onChange={e => setRecipient(p => ({ ...p, name: e.target.value }))}
+                      placeholder="Recipient's full name"
                       className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
                     />
                   </div>
+
+                  {deliveryMethod === 'mobile_money' ? (
+                    <>
+                      <div>
+                        <label className="block text-xs font-medium text-[#667085] mb-1.5">Mobile provider</label>
+                        <select
+                          value={mobileProvider}
+                          onChange={e => setMobileProvider(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                        >
+                          {(MOBILE_PROVIDERS[toCountry.code] ?? []).map(p => (
+                            <option key={p} value={p}>{PROVIDER_NAMES[p]}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[#667085] mb-1.5">Mobile number</label>
+                        <input
+                          type="tel"
+                          value={recipient.phone}
+                          onChange={e => setRecipient(p => ({ ...p, phone: e.target.value }))}
+                          placeholder={PHONE_PLACEHOLDERS[toCountry.code] ?? '+XX XXX XXX XXXX'}
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-xs font-medium text-[#667085] mb-1.5">Bank name</label>
+                        <input
+                          type="text"
+                          value={recipient.bankName}
+                          onChange={e => setRecipient(p => ({ ...p, bankName: e.target.value }))}
+                          placeholder="e.g. Zenith Bank, Equity Bank"
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[#667085] mb-1.5">Account number</label>
+                        <input
+                          type="text"
+                          value={recipient.bankAccount}
+                          onChange={e => setRecipient(p => ({ ...p, bankAccount: e.target.value }))}
+                          placeholder="Bank account number"
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-4 bg-[#EAF2FF] rounded-xl p-3 text-xs text-[#1326FD] flex items-start gap-2">
+                  <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  We verify the recipient&apos;s details before processing. Your money is protected.
+                </div>
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => goTo('payment', 1)}
+                  disabled={!recipient.name || (deliveryMethod === 'mobile_money' ? !recipient.phone : !recipient.bankAccount)}
+                  className="w-full mt-5 py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
+                >
+                  Continue <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step: Payment */}
+          {step === 'payment' && (
+            <motion.div
+              key="payment"
+              custom={dirRef.current}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB]">
+                <button onClick={() => goTo('recipient', -1)} className="flex items-center gap-1.5 text-sm text-[#667085] hover:text-gray-900 mb-5">
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </button>
+                <h2 className="font-bold text-gray-900 text-lg mb-5">How do you want to pay?</h2>
+
+                <div className="space-y-2 mb-6">
+                  {PAYMENT_METHODS.map(pm => (
+                    <button
+                      key={pm.id}
+                      onClick={() => setPaymentMethod(pm.id)}
+                      className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
+                        paymentMethod === pm.id
+                          ? 'border-[#1326FD] bg-[#EAF2FF]'
+                          : 'border-[#E5E7EB] hover:border-[#D0D5DD]'
+                      }`}
+                    >
+                      <span className="text-2xl">{pm.icon}</span>
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm text-gray-900">{pm.name}</div>
+                        <div className="text-xs text-[#667085]">{pm.desc}</div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        paymentMethod === pm.id ? 'border-[#1326FD]' : 'border-[#D0D5DD]'
+                      }`}>
+                        {paymentMethod === pm.id && <div className="w-2.5 h-2.5 rounded-full bg-[#1326FD]" />}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {paymentMethod === 'card' && (
+                  <div className="space-y-3 mb-5 p-4 bg-[#F7F8FA] rounded-xl">
+                    <div>
+                      <label className="block text-xs font-medium text-[#667085] mb-1.5">Card number</label>
+                      <input type="text" placeholder="0000 0000 0000 0000" maxLength={19}
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent bg-white font-mono" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-[#667085] mb-1.5">Expiry</label>
+                        <input type="text" placeholder="MM / YY" maxLength={7}
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent bg-white font-mono" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[#667085] mb-1.5">CVC</label>
+                        <input type="text" placeholder="000" maxLength={4}
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent bg-white font-mono" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => goTo('review', 1)}
+                  className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors"
+                >
+                  Review transfer <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step: Review */}
+          {step === 'review' && (
+            <motion.div
+              key="review"
+              custom={dirRef.current}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB]">
+                <button onClick={() => goTo('payment', -1)} className="flex items-center gap-1.5 text-sm text-[#667085] hover:text-gray-900 mb-5">
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </button>
+                <h2 className="font-bold text-gray-900 text-lg mb-5">Review your transfer</h2>
+
+                <div className="space-y-3 mb-6">
+                  <div className="bg-[#F7F8FA] rounded-xl p-4 space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">You send</span>
+                      <span className="font-bold text-gray-900 text-base">{fromSym}{sendAmount} {fromCountry.currency}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">Transfer fee</span>
+                      <span className="font-medium text-gray-900">{fromSym}{fee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">Exchange rate</span>
+                      <span className="font-medium text-gray-900">1 {fromCountry.currency} = {rate.toLocaleString()} {toCountry.currency}</span>
+                    </div>
+                    <div className="border-t border-[#E5E7EB] pt-3 flex justify-between">
+                      <span className="font-bold text-gray-900">Recipient gets</span>
+                      <span className="font-bold text-[#008F5A] text-lg">{toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#F7F8FA] rounded-xl p-4 text-sm space-y-2">
+                    <div className="font-semibold text-gray-900 text-xs uppercase tracking-wide mb-2 text-[#667085]">Recipient</div>
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">Name</span>
+                      <span className="font-medium text-gray-900">{recipient.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">Country</span>
+                      <span className="font-medium text-gray-900">{toCountry.flag} {toCountry.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">Delivery</span>
+                      <span className="font-medium text-gray-900">
+                        {deliveryMethod === 'mobile_money'
+                          ? `📱 ${PROVIDER_NAMES[mobileProvider] ?? mobileProvider}`
+                          : `🏦 ${recipient.bankName}`}
+                      </span>
+                    </div>
+                    {deliveryMethod === 'mobile_money' && recipient.phone && (
+                      <div className="flex justify-between">
+                        <span className="text-[#667085]">Phone</span>
+                        <span className="font-medium text-gray-900">{recipient.phone}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-[#667085]">Payment via</span>
+                      <span className="font-medium text-gray-900 capitalize">{paymentMethod.replace('_', ' ')}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-[#008F5A] bg-[#E8F8F1] px-3 py-2.5 rounded-lg">
+                    <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                    Money-back guarantee if transfer fails
+                  </div>
+                </div>
+
+                {(rateChanged || feeChanged || repeatWarnings.length > 0) && (
+                  <div className="space-y-2 mb-4">
+                    {rateChanged && (
+                      <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>Exchange rate has changed: was 1 {fromCountry.currency} = {origRate?.toLocaleString()} {toCountry.currency}, now {rate.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {feeChanged && (
+                      <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>Fee has changed: was {fromSym}{origFee?.toFixed(2)}, now {fromSym}{fee.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {repeatWarnings.map((w, i) => (
+                      <div key={i} className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>{w}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {parseFloat(sendAmount) > STEP_UP_THRESHOLD && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2.5 rounded-lg mb-3">
+                    <Shield className="w-3.5 h-3.5 shrink-0" />
+                    Transfers over £{STEP_UP_THRESHOLD} require a one-time phone verification
+                  </div>
+                )}
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => parseFloat(sendAmount) > STEP_UP_THRESHOLD ? setShowStepUp(true) : submitTransfer()}
+                  disabled={loading}
+                  className="w-full py-4 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
+                >
+                  {loading
+                    ? <><Loader className="w-4 h-4 animate-spin" /> Processing...</>
+                    : parseFloat(sendAmount) > STEP_UP_THRESHOLD
+                      ? <>Continue to verification &rarr;</>
+                      : <>Confirm &amp; send {fromSym}{total}</>
+                  }
+                </motion.button>
+
+                <p className="text-center text-xs text-[#98A2B3] mt-3">
+                  By confirming you agree to our Terms of Service
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Step-up OTP — native bottom sheet */}
+      <AnimatePresence>
+        {showStepUp && (
+          <>
+            {/* Scrim */}
+            <motion.div
+              key="scrim"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setShowStepUp(false); setStepUpSent(false); setStepUpOtp(''); setStepUpError('') }}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            />
+            {/* Sheet */}
+            <motion.div
+              key="sheet"
+              variants={sheetVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl p-6 pb-10 max-w-2xl mx-auto"
+              style={{ boxShadow: '0 -8px 40px rgba(0,0,0,0.18)' }}
+            >
+              <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
+
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-gray-900 text-base">Security verification</h2>
+                  <p className="text-xs text-[#667085]">Required for transfers over £{STEP_UP_THRESHOLD}</p>
+                </div>
+              </div>
+
+              <div className="bg-[#F7F8FA] rounded-xl p-4 mb-5 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[#667085]">Sending</span>
+                  <span className="font-semibold text-gray-900">{fromSym}{sendAmount} → {toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#667085]">To</span>
+                  <span className="font-medium text-gray-900">{recipient.name} · {toCountry.flag} {toCountry.name}</span>
+                </div>
+              </div>
+
+              {!stepUpSent ? (
+                <>
+                  <p className="text-sm text-[#667085] mb-4">
+                    We&apos;ll send a 6-digit code to your registered phone number to confirm this transfer.
+                  </p>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={requestStepUpCode}
+                    disabled={stepUpLoading}
+                    className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:cursor-not-allowed"
+                  >
+                    {stepUpLoading ? <><Loader className="w-4 h-4 animate-spin" /> Sending...</> : 'Send verification code'}
+                  </motion.button>
                 </>
               ) : (
                 <>
-                  <div>
-                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Bank name</label>
+                  <p className="text-sm text-[#667085] mb-4">
+                    Code sent to <span className="font-medium text-gray-900">{stepUpMasked || 'your phone'}</span>.
+                    {stepUpDevCode && <span className="ml-1 text-[#1326FD] font-mono">(dev: {stepUpDevCode})</span>}
+                  </p>
+
+                  <div className="mb-4">
+                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Enter the 6-digit code</label>
                     <input
                       type="text"
-                      value={recipient.bankName}
-                      onChange={e => setRecipient(p => ({ ...p, bankName: e.target.value }))}
-                      placeholder="e.g. Zenith Bank, Equity Bank"
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={stepUpOtp}
+                      onChange={e => setStepUpOtp(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-4 py-3.5 rounded-xl border border-[#E5E7EB] text-center text-2xl tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
+                      placeholder="––––––"
+                      autoFocus
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Account number</label>
-                    <input
-                      type="text"
-                      value={recipient.bankAccount}
-                      onChange={e => setRecipient(p => ({ ...p, bankAccount: e.target.value }))}
-                      placeholder="Bank account number"
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
-                    />
-                  </div>
+
+                  {stepUpError && (
+                    <div className="flex items-center gap-2 mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      {stepUpError}
+                    </div>
+                  )}
+
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={verifyStepUp}
+                    disabled={stepUpOtp.length < 6 || stepUpLoading}
+                    className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
+                  >
+                    {stepUpLoading ? <><Loader className="w-4 h-4 animate-spin" /> Verifying...</> : `Verify and send ${fromSym}${total}`}
+                  </motion.button>
+
+                  <button
+                    onClick={() => { setStepUpOtp(''); setStepUpError(''); requestStepUpCode() }}
+                    className="w-full mt-2 py-2 text-sm text-[#667085] hover:text-gray-800 transition-colors"
+                  >
+                    Resend code
+                  </button>
                 </>
               )}
-            </div>
 
-            <div className="mt-4 bg-[#EAF2FF] rounded-xl p-3 text-xs text-[#1326FD] flex items-start gap-2">
-              <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              We verify the recipient&apos;s details before processing. Your money is protected.
-            </div>
-
-            <button
-              onClick={() => setStep('payment')}
-              disabled={!recipient.name || (deliveryMethod === 'mobile_money' ? !recipient.phone : !recipient.bankAccount)}
-              className="w-full mt-5 py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
-            >
-              Continue <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+              <button
+                onClick={() => { setShowStepUp(false); setStepUpSent(false); setStepUpOtp(''); setStepUpError('') }}
+                className="w-full mt-3 py-2 text-xs text-[#98A2B3] hover:text-gray-600 transition-colors"
+              >
+                ← Back to review
+              </button>
+            </motion.div>
+          </>
         )}
-
-        {/* Step: Payment */}
-        {step === 'payment' && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] animate-fadeIn">
-            <button onClick={() => setStep('recipient')} className="flex items-center gap-1.5 text-sm text-[#667085] hover:text-gray-900 mb-5">
-              <ArrowLeft className="w-4 h-4" /> Back
-            </button>
-            <h2 className="font-bold text-gray-900 text-lg mb-5">How do you want to pay?</h2>
-
-            <div className="space-y-2 mb-6">
-              {PAYMENT_METHODS.map(pm => (
-                <button
-                  key={pm.id}
-                  onClick={() => setPaymentMethod(pm.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
-                    paymentMethod === pm.id
-                      ? 'border-[#1326FD] bg-[#EAF2FF]'
-                      : 'border-[#E5E7EB] hover:border-[#D0D5DD]'
-                  }`}
-                >
-                  <span className="text-2xl">{pm.icon}</span>
-                  <div className="flex-1">
-                    <div className="font-semibold text-sm text-gray-900">{pm.name}</div>
-                    <div className="text-xs text-[#667085]">{pm.desc}</div>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    paymentMethod === pm.id ? 'border-[#1326FD]' : 'border-[#D0D5DD]'
-                  }`}>
-                    {paymentMethod === pm.id && <div className="w-2.5 h-2.5 rounded-full bg-[#1326FD]" />}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {paymentMethod === 'card' && (
-              <div className="space-y-3 mb-5 p-4 bg-[#F7F8FA] rounded-xl">
-                <div>
-                  <label className="block text-xs font-medium text-[#667085] mb-1.5">Card number</label>
-                  <input type="text" placeholder="0000 0000 0000 0000" maxLength={19}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent bg-white font-mono" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-[#667085] mb-1.5">Expiry</label>
-                    <input type="text" placeholder="MM / YY" maxLength={7}
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent bg-white font-mono" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[#667085] mb-1.5">CVC</label>
-                    <input type="text" placeholder="000" maxLength={4}
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent bg-white font-mono" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={() => setStep('review')}
-              className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors"
-            >
-              Review transfer <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Step: Review */}
-        {step === 'review' && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] animate-fadeIn">
-            <button onClick={() => setStep('payment')} className="flex items-center gap-1.5 text-sm text-[#667085] hover:text-gray-900 mb-5">
-              <ArrowLeft className="w-4 h-4" /> Back
-            </button>
-            <h2 className="font-bold text-gray-900 text-lg mb-5">Review your transfer</h2>
-
-            <div className="space-y-3 mb-6">
-              <div className="bg-[#F7F8FA] rounded-xl p-4 space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">You send</span>
-                  <span className="font-bold text-gray-900 text-base">{fromSym}{sendAmount} {fromCountry.currency}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">Transfer fee</span>
-                  <span className="font-medium text-gray-900">{fromSym}{fee.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">Exchange rate</span>
-                  <span className="font-medium text-gray-900">1 {fromCountry.currency} = {rate.toLocaleString()} {toCountry.currency}</span>
-                </div>
-                <div className="border-t border-[#E5E7EB] pt-3 flex justify-between">
-                  <span className="font-bold text-gray-900">Recipient gets</span>
-                  <span className="font-bold text-[#008F5A] text-lg">{toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
-                </div>
-              </div>
-
-              <div className="bg-[#F7F8FA] rounded-xl p-4 text-sm space-y-2">
-                <div className="font-semibold text-gray-900 text-xs uppercase tracking-wide mb-2 text-[#667085]">Recipient</div>
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">Name</span>
-                  <span className="font-medium text-gray-900">{recipient.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">Country</span>
-                  <span className="font-medium text-gray-900">{toCountry.flag} {toCountry.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">Delivery</span>
-                  <span className="font-medium text-gray-900">
-                    {deliveryMethod === 'mobile_money'
-                      ? `📱 ${PROVIDER_NAMES[mobileProvider] ?? mobileProvider}`
-                      : `🏦 ${recipient.bankName}`}
-                  </span>
-                </div>
-                {deliveryMethod === 'mobile_money' && recipient.phone && (
-                  <div className="flex justify-between">
-                    <span className="text-[#667085]">Phone</span>
-                    <span className="font-medium text-gray-900">{recipient.phone}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-[#667085]">Payment via</span>
-                  <span className="font-medium text-gray-900 capitalize">{paymentMethod.replace('_', ' ')}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-[#008F5A] bg-[#E8F8F1] px-3 py-2.5 rounded-lg">
-                <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-                Money-back guarantee if transfer fails
-              </div>
-            </div>
-
-            {(rateChanged || feeChanged || repeatWarnings.length > 0) && (
-              <div className="space-y-2 mb-4">
-                {rateChanged && (
-                  <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>Exchange rate has changed: was 1 {fromCountry.currency} = {origRate?.toLocaleString()} {toCountry.currency}, now {rate.toLocaleString()}</span>
-                  </div>
-                )}
-                {feeChanged && (
-                  <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>Fee has changed: was {fromSym}{origFee?.toFixed(2)}, now {fromSym}{fee.toFixed(2)}</span>
-                  </div>
-                )}
-                {repeatWarnings.map((w, i) => (
-                  <div key={i} className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{w}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {parseFloat(sendAmount) > STEP_UP_THRESHOLD && (
-              <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2.5 rounded-lg mb-3">
-                <Shield className="w-3.5 h-3.5 shrink-0" />
-                Transfers over £{STEP_UP_THRESHOLD} require a one-time phone verification
-              </div>
-            )}
-
-            <button
-              onClick={() => parseFloat(sendAmount) > STEP_UP_THRESHOLD ? setStep('stepup') : submitTransfer()}
-              disabled={loading}
-              className="w-full py-4 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
-            >
-              {loading
-                ? <><Loader className="w-4 h-4 animate-spin" /> Processing...</>
-                : parseFloat(sendAmount) > STEP_UP_THRESHOLD
-                  ? <>Continue to verification &rarr;</>
-                  : <>Confirm &amp; send {fromSym}{total}</>
-              }
-            </button>
-
-            <p className="text-center text-xs text-[#98A2B3] mt-3">
-              By confirming you agree to our Terms of Service
-            </p>
-          </div>
-        )}
-
-        {/* Step: Security verification (step-up OTP for transfers > £200) */}
-        {step === 'stepup' && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] animate-fadeIn">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-amber-500" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 text-base">Security verification</h2>
-                <p className="text-xs text-[#667085]">Required for transfers over £{STEP_UP_THRESHOLD}</p>
-              </div>
-            </div>
-
-            <div className="bg-[#F7F8FA] rounded-xl p-4 mb-5 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[#667085]">Sending</span>
-                <span className="font-semibold text-gray-900">{fromSym}{sendAmount} → {toSym}{Number(receives).toLocaleString()} {toCountry.currency}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#667085]">To</span>
-                <span className="font-medium text-gray-900">{recipient.name} · {toCountry.flag} {toCountry.name}</span>
-              </div>
-            </div>
-
-            {!stepUpSent ? (
-              <>
-                <p className="text-sm text-[#667085] mb-4">
-                  We'll send a 6-digit code to your registered phone number to confirm this transfer.
-                </p>
-                <button
-                  onClick={requestStepUpCode}
-                  disabled={stepUpLoading}
-                  className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:cursor-not-allowed"
-                >
-                  {stepUpLoading ? <><Loader className="w-4 h-4 animate-spin" /> Sending...</> : 'Send verification code'}
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-[#667085] mb-4">
-                  Code sent to <span className="font-medium text-gray-900">{stepUpMasked || 'your phone'}</span>.
-                  {stepUpDevCode && <span className="ml-1 text-[#1326FD] font-mono">(dev: {stepUpDevCode})</span>}
-                </p>
-
-                <div className="mb-4">
-                  <label className="block text-xs font-medium text-[#667085] mb-1.5">Enter the 6-digit code</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    value={stepUpOtp}
-                    onChange={e => setStepUpOtp(e.target.value.replace(/\D/g, ''))}
-                    className="w-full px-4 py-3.5 rounded-xl border border-[#E5E7EB] text-center text-2xl tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-[#1326FD] focus:border-transparent"
-                    placeholder="––––––"
-                    autoFocus
-                  />
-                </div>
-
-                {stepUpError && (
-                  <div className="flex items-center gap-2 mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    {stepUpError}
-                  </div>
-                )}
-
-                <button
-                  onClick={verifyStepUp}
-                  disabled={stepUpOtp.length < 6 || stepUpLoading}
-                  className="w-full py-3.5 rounded-xl bg-[#1326FD] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0D1DBD] transition-colors disabled:bg-[#D0D5DD] disabled:text-[#98A2B3] disabled:cursor-not-allowed"
-                >
-                  {stepUpLoading ? <><Loader className="w-4 h-4 animate-spin" /> Verifying...</> : `Verify and send ${fromSym}${total}`}
-                </button>
-
-                <button
-                  onClick={() => { setStepUpOtp(''); setStepUpError(''); requestStepUpCode() }}
-                  className="w-full mt-2 py-2 text-sm text-[#667085] hover:text-gray-800 transition-colors"
-                >
-                  Resend code
-                </button>
-              </>
-            )}
-
-            <button
-              onClick={() => { setStep('review'); setStepUpSent(false); setStepUpOtp(''); setStepUpError('') }}
-              className="w-full mt-3 py-2 text-xs text-[#98A2B3] hover:text-gray-600 transition-colors"
-            >
-              ← Back to review
-            </button>
-          </div>
-        )}
-      </div>
+      </AnimatePresence>
     </div>
   )
 }

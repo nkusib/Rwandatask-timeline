@@ -2,6 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, Camera, CreditCard, Fingerprint, User, AlertCircle, RefreshCw } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Motion liveness: compares pixel frames to detect real head movement
 function computeMotionScore(prev: ImageData, curr: ImageData): number {
@@ -266,8 +267,6 @@ export default function VerifyPage() {
     )
   }
 
-  const stepIndex = STEPS.findIndex(s => s.id === STEPS[currentStep].id)
-
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-100">
@@ -287,16 +286,28 @@ export default function VerifyPage() {
             return (
               <div key={s.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center gap-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all ${
-                    i < currentStep ? 'bg-emerald-500 text-white' :
-                    i === currentStep ? 'bg-[#161618] text-white' :
-                    'bg-gray-200 text-gray-400'
-                  }`}>
+                  <motion.div
+                    animate={{
+                      background: i < currentStep ? '#10b981' : i === currentStep ? '#161618' : '#e5e7eb',
+                      color: i < currentStep || i === currentStep ? '#ffffff' : '#9ca3af',
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                  >
                     {i < currentStep ? <CheckCircle className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                  </div>
-                  <span className={`text-[10px] font-medium hidden sm:block ${i === currentStep ? 'text-[#0D1DBD]' : 'text-gray-400'}`}>{s.label}</span>
+                  </motion.div>
+                  <span className={`text-[10px] font-medium hidden sm:block transition-colors ${i === currentStep ? 'text-[#0D1DBD]' : 'text-gray-400'}`}>{s.label}</span>
                 </div>
-                {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 mx-1 mb-4 ${i < currentStep ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
+                {i < STEPS.length - 1 && (
+                  <div className="flex-1 h-0.5 mx-1 mb-4 bg-gray-200 relative overflow-hidden rounded-full">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 bg-emerald-400 rounded-full"
+                      initial={{ width: '0%' }}
+                      animate={{ width: i < currentStep ? '100%' : '0%' }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </div>
+                )}
               </div>
             )
           })}

@@ -4,38 +4,18 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import {
   Bell, Settings, ChevronRight, TrendingUp, AlertCircle,
-  ArrowUpRight, ArrowDownLeft, Search, Users, MoreHorizontal,
-  Home, Send, User, BarChart2, Plus,
+  ArrowUpRight, ArrowDownLeft, Search, Users, MoreHorizontal, Plus,
 } from 'lucide-react'
 import type { Transaction, Wallet } from '@/lib/db'
-import { CURRENCIES, TRANSACTION_STATUS_LABELS } from '@/lib/constants'
+import { CURRENCIES } from '@/lib/constants'
+import { AnimatedBalance } from '@/components/AnimatedBalance'
+import { DashboardActivity } from '@/components/DashboardActivity'
+import { BottomNav } from '@/components/BottomNav'
 
 function formatAmount(amount: number, currency: string) {
   const cur = CURRENCIES[currency as keyof typeof CURRENCIES]
   return `${cur?.symbol ?? ''}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
-
-function timeAgo(ts: number) {
-  const diff = Date.now() / 1000 - ts
-  if (diff < 60) return 'Just now'
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-  return `${Math.floor(diff / 86400)}d ago`
-}
-
-const COUNTRY_FLAGS: Record<string, string> = {
-  NG: '🇳🇬', KE: '🇰🇪', GH: '🇬🇭', TZ: '🇹🇿', ZA: '🇿🇦',
-  UG: '🇺🇬', SN: '🇸🇳', CI: '🇨🇮', CM: '🇨🇲', MA: '🇲🇦',
-  ET: '🇪🇹', ZM: '🇿🇲',
-}
-
-const NAV_ITEMS = [
-  { icon: Home, label: 'Home', href: '/dashboard', key: 'home' },
-  { icon: Send, label: 'Send', href: '/send', key: 'send' },
-  { icon: Users, label: 'Recipients', href: '/recipients', key: 'recipients' },
-  { icon: BarChart2, label: 'Rates', href: '/send', key: 'rates' },
-  { icon: User, label: 'Profile', href: '/settings', key: 'profile' },
-]
 
 export default async function DashboardPage() {
   const user = await getSession()
@@ -122,10 +102,11 @@ export default async function DashboardPage() {
           <div className="text-white/40 text-sm mb-3 tracking-wide uppercase text-xs font-medium">
             Personal · {primaryWallet?.currency ?? 'GBP'}
           </div>
-          <div className="font-bold text-white mb-1" style={{ fontSize: 'clamp(42px,10vw,64px)', lineHeight: '1.05', letterSpacing: '-0.03em' }}>
-            {primaryWallet ? formatAmount(primaryWallet.balance, primaryWallet.currency) : '£0.00'}
-          </div>
-          <div className="text-white/35 text-sm mb-5">Available balance</div>
+          <AnimatedBalance
+            amount={primaryWallet?.balance ?? 0}
+            symbol={CURRENCIES[primaryWallet?.currency as keyof typeof CURRENCIES]?.symbol ?? '£'}
+            currency={primaryWallet?.currency ?? 'GBP'}
+          />
           <button className="px-5 py-2 rounded-full text-sm font-medium text-white/70 transition-colors hover:text-white/90" style={{ background: 'rgba(255,255,255,0.10)' }}>
             Accounts &amp; wallets ›
           </button>
@@ -256,73 +237,11 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
-          {recentTxns.length === 0 ? (
-            <div className="py-14 text-center">
-              <div className="text-4xl mb-3">💸</div>
-              <div className="font-semibold text-white/70 mb-1">No transfers yet</div>
-              <div className="text-sm text-white/40 mb-5">Send money to your first recipient</div>
-              <Link href="/send" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-sm font-semibold bg-[#1326FD] hover:bg-[#0D1DBD] transition-colors">
-                <Plus className="w-4 h-4" /> Send money
-              </Link>
-            </div>
-          ) : (
-            <div>
-              {recentTxns.map((t, i) => {
-                const st = TRANSACTION_STATUS_LABELS[t.status]
-                const sendCur = CURRENCIES[t.send_currency as keyof typeof CURRENCIES]
-                const recCur = CURRENCIES[t.receive_currency as keyof typeof CURRENCIES]
-                return (
-                  <Link
-                    href={`/transactions/${t.id}`}
-                    key={t.id}
-                    className="flex items-center gap-3 px-5 py-4 hover:bg-white/5 transition-colors"
-                    style={i < recentTxns.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.05)' } : {}}
-                  >
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0" style={{ background: 'rgba(255,255,255,0.10)' }}>
-                      {t.recipient_country ? (COUNTRY_FLAGS[t.recipient_country] ?? '🌍') : '🌍'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-white text-sm truncate">{t.recipient_name ?? 'Transfer'}</div>
-                      <div className="text-xs text-white/40">{timeAgo(t.created_at)}</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="font-semibold text-white text-sm">
-                        -{sendCur?.symbol}{t.send_amount.toFixed(2)}
-                      </div>
-                      <div className="text-xs text-white/40">
-                        {recCur?.symbol}{t.receive_amount.toLocaleString()} {t.receive_currency}
-                      </div>
-                    </div>
-                    <span className={`ml-1 shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st?.bg} ${st?.color}`}>
-                      {st?.label}
-                    </span>
-                  </Link>
-                )
-              })}
-            </div>
-          )}
+          <DashboardActivity recentTxns={recentTxns} />
         </div>
       </div>
 
-      {/* Floating bottom nav */}
-      <div className="fixed bottom-6 left-4 right-4 z-50 md:hidden">
-        <div className="rounded-full flex items-center justify-around py-3 px-4 glass-pill-nav">
-          {NAV_ITEMS.map(({ icon: Icon, label, href, key }) => {
-            const isActive = key === 'home'
-            return (
-              <Link
-                key={key}
-                href={href}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${isActive ? 'text-white' : 'text-white/45 hover:text-white/70'}`}
-                style={isActive ? { background: 'rgba(255,255,255,0.15)' } : {}}
-              >
-                <Icon className="w-4.5 h-4.5 w-[18px] h-[18px]" />
-                <span className="text-[10px] font-medium">{label}</span>
-              </Link>
-            )
-          })}
-        </div>
-      </div>
+      <BottomNav />
     </div>
   )
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { Monitor, Smartphone, Tablet, Trash2, LogOut, Loader2, AlertCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { staggerContainer, staggerItem } from '@/lib/animation-variants'
 
 type Session = {
   session_id: string
@@ -115,12 +117,28 @@ export default function SessionsCard() {
         )}
       </div>
 
-      {loading && (
-        <div className="px-5 py-6 flex items-center gap-2 text-white/40 text-sm">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Loading sessions…
-        </div>
-      )}
+      {/* Skeleton loader */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="p-5 space-y-4"
+          >
+            {[0, 1, 2].map(i => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-xl shrink-0 skeleton-shimmer" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 rounded-full skeleton-shimmer" style={{ width: `${55 + i * 15}%` }} />
+                  <div className="h-2.5 rounded-full skeleton-shimmer" style={{ width: `${40 + i * 10}%` }} />
+                </div>
+                <div className="w-8 h-8 rounded-xl skeleton-shimmer shrink-0" />
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {error && !loading && (
         <div className="px-5 py-4 flex items-center gap-2 text-red-400 text-sm">
@@ -133,57 +151,65 @@ export default function SessionsCard() {
         <div className="px-5 py-4 text-sm text-white/40">No active sessions found.</div>
       )}
 
-      {!loading && !error && sessions.map((s, idx) => {
-        const Icon = deviceIcon(s.user_agent)
-        const isLast = idx === sessions.length - 1
-        const isCurrent = idx === 0
-        return (
-          <div
-            key={s.session_id}
-            className="flex items-center gap-4 px-5 py-4"
-            style={isLast ? {} : { borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-          >
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: isCurrent ? 'rgba(19,38,253,0.25)' : 'rgba(255,255,255,0.08)' }}
-            >
-              <Icon className={`w-4 h-4 ${isCurrent ? 'text-[#7B8CFF]' : 'text-white/60'}`} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-white text-sm truncate">{parseUA(s.user_agent)}</span>
-                {isCurrent && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-[#7B8CFF] shrink-0" style={{ background: 'rgba(19,38,253,0.20)' }}>
-                    This device
-                  </span>
-                )}
-                {s.is_new === 1 && !isCurrent && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-amber-400 shrink-0" style={{ background: 'rgba(247,144,9,0.15)' }}>
-                    New
-                  </span>
-                )}
-              </div>
-              <div className="text-xs text-white/40 mt-0.5 truncate">
-                {s.ip_address} · {relativeTime(s.last_active_at)}
-              </div>
-            </div>
-            {!isCurrent && (
-              <button
-                onClick={() => revokeSession(s.session_id)}
-                disabled={revoking === s.session_id}
-                className="w-8 h-8 flex items-center justify-center rounded-xl text-white/30 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
-                style={{ background: 'rgba(255,255,255,0.05)' }}
-                title="Revoke session"
-              >
-                {revoking === s.session_id
-                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  : <Trash2 className="w-3.5 h-3.5" />
-                }
-              </button>
-            )}
-          </div>
-        )
-      })}
+      <AnimatePresence>
+        {!loading && !error && (
+          <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+            {sessions.map((s, idx) => {
+              const Icon = deviceIcon(s.user_agent)
+              const isLast = idx === sessions.length - 1
+              const isCurrent = idx === 0
+              return (
+                <motion.div
+                  key={s.session_id}
+                  variants={staggerItem}
+                  className="flex items-center gap-4 px-5 py-4"
+                  style={isLast ? {} : { borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: isCurrent ? 'rgba(19,38,253,0.25)' : 'rgba(255,255,255,0.08)' }}
+                  >
+                    <Icon className={`w-4 h-4 ${isCurrent ? 'text-[#7B8CFF]' : 'text-white/60'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-white text-sm truncate">{parseUA(s.user_agent)}</span>
+                      {isCurrent && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-[#7B8CFF] shrink-0" style={{ background: 'rgba(19,38,253,0.20)' }}>
+                          This device
+                        </span>
+                      )}
+                      {s.is_new === 1 && !isCurrent && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-amber-400 shrink-0" style={{ background: 'rgba(247,144,9,0.15)' }}>
+                          New
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-white/40 mt-0.5 truncate">
+                      {s.ip_address} · {relativeTime(s.last_active_at)}
+                    </div>
+                  </div>
+                  {!isCurrent && (
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => revokeSession(s.session_id)}
+                      disabled={revoking === s.session_id}
+                      className="w-8 h-8 flex items-center justify-center rounded-xl text-white/30 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
+                      title="Revoke session"
+                    >
+                      {revoking === s.session_id
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <Trash2 className="w-3.5 h-3.5" />
+                      }
+                    </motion.button>
+                  )}
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

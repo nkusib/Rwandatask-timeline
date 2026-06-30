@@ -2,21 +2,14 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Smartphone, Building2, Home, Send, Users, BarChart2, User } from 'lucide-react'
+import { ArrowLeft, Plus, Smartphone, Building2, Users, Send } from 'lucide-react'
 import type { Recipient } from '@/lib/db'
+import { BottomNav } from '@/components/BottomNav'
 
 const COUNTRY_FLAGS: Record<string, string> = {
   NG: '🇳🇬', KE: '🇰🇪', GH: '🇬🇭', TZ: '🇹🇿', ZA: '🇿🇦',
   UG: '🇺🇬', SN: '🇸🇳', CI: '🇨🇮', CM: '🇨🇲', MA: '🇲🇦', ET: '🇪🇹', ZM: '🇿🇲',
 }
-
-const NAV_ITEMS = [
-  { icon: Home, label: 'Home', href: '/dashboard', key: 'home' },
-  { icon: Send, label: 'Send', href: '/send', key: 'send' },
-  { icon: Users, label: 'Recipients', href: '/recipients', key: 'recipients' },
-  { icon: BarChart2, label: 'Rates', href: '/send', key: 'rates' },
-  { icon: User, label: 'Profile', href: '/settings', key: 'profile' },
-]
 
 export default async function RecipientsPage() {
   const user = await getSession()
@@ -107,25 +100,7 @@ export default async function RecipientsPage() {
         )}
       </main>
 
-      {/* Floating bottom nav */}
-      <div className="fixed bottom-6 left-4 right-4 z-50 md:hidden">
-        <div className="rounded-full flex items-center justify-around py-3 px-4 glass-pill-nav">
-          {NAV_ITEMS.map(({ icon: Icon, label, href, key }) => {
-            const isActive = key === 'recipients'
-            return (
-              <Link
-                key={key}
-                href={href}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${isActive ? 'text-white' : 'text-white/45 hover:text-white/70'}`}
-                style={isActive ? { background: 'rgba(255,255,255,0.15)' } : {}}
-              >
-                <Icon className="w-[18px] h-[18px]" />
-                <span className="text-[10px] font-medium">{label}</span>
-              </Link>
-            )
-          })}
-        </div>
-      </div>
+      <BottomNav />
     </div>
   )
 }
